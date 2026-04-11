@@ -1,0 +1,51 @@
+.modal {
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  font-family: var(--font-body);
+}
+
+/* ── Confirm ── */
+.accentBar { height: 4px; background: linear-gradient(to right, var(--color-primary), var(--color-accent-dark)); }
+.body { padding: 36px 36px 28px; }
+.iconWrap { width: 60px; height: 60px; border-radius: var(--radius-full); background: rgba(186,26,26,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-6); font-size: 28px; color: var(--color-error); }
+.title { font-family: var(--font-heading); font-size: 22px; font-weight: 800; text-align: center; color: var(--color-text); margin-bottom: var(--space-3); }
+.desc { font-size: 14px; color: #464554; text-align: center; line-height: 1.65; max-width: 300px; margin: 0 auto var(--space-8); }
+.btnPrimary { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--color-primary), #4338ca); color: white; border: none; border-radius: var(--radius-md); font-family: var(--font-heading); font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: var(--space-3); box-shadow: 0 4px 16px rgba(42,20,180,0.25); transition: opacity var(--transition-fast), transform var(--transition-fast); }
+.btnPrimary:hover { opacity: 0.9; }
+.btnPrimary:active { transform: scale(0.98); }
+.btnGhost { width: 100%; padding: 14px; background: none; border: none; color: var(--color-text-muted); font-family: var(--font-heading); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-md); transition: background var(--transition-fast); }
+.btnGhost:hover { background: var(--color-surface-low); }
+.modalFooter { background: var(--color-surface-mid); padding: 14px 24px; text-align: center; border-top: 1px solid var(--color-border); }
+.modalFooterText { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-subtle); font-family: var(--font-heading); }
+
+/* ── Contact shared ── */
+.contactHeader { background: linear-gradient(135deg, #3730d4, #5148d7); padding: 28px 24px; text-align: center; }
+.contactHeaderWithAvatar { padding-bottom: 52px; }
+.contactHeaderTitle { font-family: var(--font-heading); font-size: 18px; font-weight: 700; color: white; margin: 0; }
+.avatarWrap { display: flex; justify-content: center; margin-top: -40px; position: relative; z-index: 2; }
+.avatar { width: 80px; height: 80px; border-radius: var(--radius-full); border: 4px solid white; overflow: hidden; background: linear-gradient(135deg, #e3dfff, #c3c0ff); box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatarInitial { font-family: var(--font-heading); font-size: 26px; font-weight: 800; color: var(--color-primary); }
+.contactBody { padding: 28px 28px 24px; }
+.contactBodyWithAvatar { padding-top: 16px; }
+.contactNameWrap { text-align: center; margin-bottom: var(--space-6); }
+.contactName { font-family: var(--font-heading); font-size: 22px; font-weight: 800; color: var(--color-text); margin-bottom: var(--space-2); }
+.contactRole { display: inline-block; background: var(--color-primary-light); color: var(--color-primary); font-size: 13px; font-weight: 500; padding: 4px 14px; border-radius: var(--radius-full); }
+.field { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--color-primary-light); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+.fieldIcon { width: 36px; height: 36px; border-radius: var(--radius-sm); background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm); color: var(--color-primary); font-size: 18px; }
+.fieldContent { flex: 1; }
+.fieldLabel { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-subtle); margin-bottom: 2px; }
+.fieldValue { font-size: 14px; font-weight: 600; color: var(--color-text); }
+.copyBtn { background: none; border: none; cursor: pointer; color: var(--color-text-subtle); font-size: 16px; padding: 4px; transition: color var(--transition-fast); }
+.copyBtn:hover { color: var(--color-primary); }
+.verified { display: flex; align-items: center; gap: var(--space-2); padding: 8px 4px; margin-bottom: var(--space-5); }
+.verifiedIcon { color: var(--color-accent-dark); font-size: 16px; }
+.verifiedText { font-size: 13px; color: var(--color-text-muted); font-style: italic; }
+.contactBtnPrimary { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--color-primary), #4338ca); color: white; border: none; border-radius: var(--radius-md); font-family: var(--font-heading); font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: var(--space-3); transition: opacity var(--transition-fast); }
+.contactBtnPrimary:hover { opacity: 0.9; }
+.contactBtnClose { width: 100%; padding: 12px; background: none; border: none; color: var(--color-text-muted); font-family: var(--font-heading); font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: color var(--transition-fast); }
+.contactBtnClose:hover { color: var(--color-text); }

@@ -1,0 +1,103 @@
+/* ============================================================
+   CAMPUS NEXT — Utility Classes
+   ============================================================ */
+
+/* Layout */
+.u-flex         { display: flex; }
+.u-flex-col     { display: flex; flex-direction: column; }
+.u-flex-1       { flex: 1; }
+.u-items-center { align-items: center; }
+.u-justify-between { justify-content: space-between; }
+.u-justify-center  { justify-content: center; }
+.u-wrap         { flex-wrap: wrap; }
+.u-gap-2        { gap: var(--space-2); }
+.u-gap-3        { gap: var(--space-3); }
+.u-gap-4        { gap: var(--space-4); }
+.u-gap-6        { gap: var(--space-6); }
+.u-gap-8        { gap: var(--space-8); }
+
+/* Sizing */
+.u-w-full       { width: 100%; }
+.u-min-h-screen { min-height: 100vh; }
+
+/* Typography */
+.u-font-heading { font-family: var(--font-heading); }
+.u-font-body    { font-family: var(--font-body); }
+.u-text-muted   { color: var(--color-text-muted); }
+.u-text-subtle  { color: var(--color-text-subtle); }
+.u-text-primary { color: var(--color-primary); }
+.u-uppercase    { text-transform: uppercase; letter-spacing: 0.1em; }
+.u-truncate     { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Spacing */
+.u-p-0  { padding: 0; }
+.u-m-0  { margin: 0; }
+
+/* Visibility */
+.u-sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* Page shell */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+}
+
+.page__content {
+  flex: 1;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  width: 100%;
+  padding: var(--space-12) var(--space-8);
+}
+
+/* Card */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.badge--primary  { background: var(--color-primary); color: white; }
+.badge--success  { background: var(--color-success-bg); color: var(--color-success); }
+.badge--warning  { background: var(--color-warning-bg); color: var(--color-warning); }
+.badge--error    { background: var(--color-error-bg); color: var(--color-error); }
+.badge--neutral  { background: var(--color-surface-high); color: var(--color-primary); }
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border-light);
+  margin: var(--space-5) 0;
+}
+
+/* Overlay / modal backdrop */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(11, 28, 48, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}

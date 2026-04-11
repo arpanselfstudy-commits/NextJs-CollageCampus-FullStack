@@ -1,0 +1,48 @@
+.notFound {
+  min-height: 100vh;
+  background: #f8faff;
+  display: flex;
+  flex-direction: column;
+}
+
+.notFoundBody {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.notFoundLink {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px var(--space-4);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: var(--space-5);
+  transition: background var(--transition-fast);
+}
+
+.backLink:hover { background: var(--color-surface-high); }
+
+.companyLocation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reqIcon {
+  flex-shrink: 0;
+}

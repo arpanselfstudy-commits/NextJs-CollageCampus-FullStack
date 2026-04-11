@@ -1,0 +1,70 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-subtle);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.input {
+  width: 100%;
+  background: var(--color-surface-low);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  /* size-specific values set via data attributes + CSS vars */
+  padding-left: 42px;
+}
+
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+/* Size variants */
+.input--sm { height: 36px; font-size: 13px; }
+.input--md { height: 44px; font-size: 14px; }
+.input--lg { height: 52px; font-size: 15px; }
+
+.input--hasClear { padding-right: 36px; }
+
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-border);
+  border: none;
+  border-radius: var(--radius-full);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1;
+  transition: background var(--transition-fast);
+}
+
+.clearBtn:hover {
+  background: var(--color-surface-high);
+  color: var(--color-primary);
+}

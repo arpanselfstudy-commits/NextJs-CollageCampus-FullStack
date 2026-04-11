@@ -1,0 +1,122 @@
+'use client'
+
+import '@/styles/design.css'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Pencil, Plus, ClipboardList, ShoppingBag, Trash2, MoreHorizontal } from 'lucide-react'
+import AppHeader from '@/components/common/AppHeader/AppHeader'
+import AppFooter from '@/components/common/AppFooter/AppFooter'
+import { SectionLoader } from '@/components/common/Loader/Loader'
+import type { AuthUser } from '@/modules/auth/types'
+import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
+import styles from './account.module.css'
+
+export interface MyProfileViewProps {
+  user: AuthUser | null
+  tab: 'listings' | 'requests'
+  onTabChange: (t: 'listings' | 'requests') => void
+  listings: ListedProduct[]
+  listedLoading: boolean
+  requests: RequestedProduct[]
+  requestedLoading: boolean
+  onDeleteListed: (id: string) => void
+  onDeleteRequested: (id: string) => void
+}
+
+export default function MyProfileView({ user, tab, onTabChange, listings, listedLoading, requests, requestedLoading, onDeleteListed, onDeleteRequested }: MyProfileViewProps) {
+  return (
+    <div className={styles.page}>
+      <AppHeader />
+      <div className={styles.content}>
+        <div className={styles.profileHeader}>
+          <div className={styles.profileAvatar} style={{ position: 'relative' }}>
+            {user?.photo ? <Image src={user.photo} alt={user.name} fill sizes="80px" /> : user?.name?.[0]?.toUpperCase() ?? '?'}
+          </div>
+          <div className={styles.profileInfo}>
+            <div className={styles.profileName}>{user?.name ?? 'User'}</div>
+            <div className={styles.profileEmail}>{user?.email}</div>
+            <div className={styles.profileBadges}><span className={styles.profileBadge}>{user?.role ?? 'USER'}</span></div>
+          </div>
+          <Link href="/account/edit-profile" className={styles.editBtn}><Pencil size={14} /> Edit Profile</Link>
+        </div>
+
+        <div className={styles.tabsRow}>
+          <div className={styles.tabs}>
+            {(['listings', 'requests'] as const).map((key) => (
+              <button key={key} onClick={() => onTabChange(key)} className={`${styles.tab} ${tab === key ? styles['tab--active'] : ''}`}>
+                {key === 'listings' ? `My Listings (${listings.length})` : `My Requests (${requests.length})`}
+              </button>
+            ))}
+          </div>
+          <div className={styles.tabActions}>
+            <Link href="/account/list-product" className={styles.tabActionPrimary}><Plus size={14} /> List Product</Link>
+            <Link href="/account/request-product" className={styles.tabActionSecondary}><ClipboardList size={14} /> Request Item</Link>
+          </div>
+        </div>
+
+        {tab === 'listings' && (
+          listedLoading ? <SectionLoader /> : listings.length === 0 ? (
+            <div className={styles.emptyState}>
+              <ShoppingBag size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
+              <p>No listings yet. <Link href="/account/list-product" className={styles.emptyLink}>List your first product</Link></p>
+            </div>
+          ) : (
+            <div className={styles.grid3}>
+              {listings.map((item) => (
+                <div key={item._id} className={styles.productCard}>
+                  <div className={styles.productCardImg} style={{ position: 'relative' }}>
+                    {item.images[0] ? <Image src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" /> : <ShoppingBag size={48} color="#3730d4" strokeWidth={1} />}
+                    <span className={styles.productCardBadge} style={{ background: item.isAvailable ? '#dcfce7' : '#fef9c3', color: item.isAvailable ? '#166534' : '#854d0e' }}>{item.isAvailable ? 'Available' : 'Unavailable'}</span>
+                  </div>
+                  <div className={styles.productCardBody}>
+                    <div className={styles.productCardRow}>
+                      <span className={styles.productCardTitle}>{item.productName}</span>
+                      <span className={styles.productCardPrice}>${item.price}</span>
+                    </div>
+                    <p className={styles.productCardDesc}>{item.description}</p>
+                    <div className={styles.productCardActions}>
+                      <Link href={`/account/manage-listing/${item._id}`} className={styles.manageBtn}><MoreHorizontal size={14} /> Manage</Link>
+                      <button onClick={() => item._id && onDeleteListed(item._id)} className={styles.deleteBtn}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
+        {tab === 'requests' && (
+          requestedLoading ? <SectionLoader /> : requests.length === 0 ? (
+            <div className={styles.emptyState}>
+              <ClipboardList size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
+              <p>No requests yet. <Link href="/account/request-product" className={styles.emptyLink}>Post your first request</Link></p>
+            </div>
+          ) : (
+            <div className={styles.grid3}>
+              {requests.map((item) => (
+                <div key={item._id} className={styles.productCard}>
+                  <div className={`${styles.productCardImg} ${styles.productCardImgDim}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
+                    {item.images[0] ? <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" /> : <ClipboardList size={48} color="white" strokeWidth={1} />}
+                    <span className={styles.productCardBadge} style={{ background: item.isFulfilled ? '#dcfce7' : '#e0e7ff', color: item.isFulfilled ? '#166534' : '#3730a3' }}>{item.isFulfilled ? 'Fulfilled' : 'Active'}</span>
+                  </div>
+                  <div className={styles.productCardBody}>
+                    <div className={styles.productCardRow}>
+                      <span className={styles.productCardTitle}>{item.name}</span>
+                      <span className={styles.productCardPriceMuted}>${item.price.from}–${item.price.to}</span>
+                    </div>
+                    <p className={styles.productCardDesc}>{item.description}</p>
+                    <div className={styles.productCardActions}>
+                      <Link href={`/account/manage-request/${item._id}`} className={styles.manageBtn}><MoreHorizontal size={14} /> Manage</Link>
+                      <button onClick={() => item._id && onDeleteRequested(item._id)} className={styles.deleteBtn}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+      <AppFooter />
+    </div>
+  )
+}

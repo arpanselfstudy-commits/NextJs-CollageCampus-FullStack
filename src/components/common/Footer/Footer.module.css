@@ -1,0 +1,148 @@
+.footer {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-family: var(--font-body);
+}
+
+/* ── Full variant (default / protected) ─────────────────── */
+.footer--full {
+  padding: var(--space-8) var(--space-12);
+}
+
+.footer__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.footer__brand {
+  max-width: 260px;
+}
+
+.footer__logo {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--color-primary);
+  text-decoration: none;
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.footer__tagline {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.footer__cols {
+  display: flex;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
+.footer__col {}
+
+.footer__colTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  margin-bottom: var(--space-3);
+}
+
+.footer__colLinks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.footer__colLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-link);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer__colLink:hover {
+  color: var(--color-primary);
+}
+
+.footer__bottom {
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.footer__copy {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.footer__legal {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.footer__legalLink {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer__legalLink:hover {
+  color: var(--color-primary);
+}
+
+/* ── Auth variant (compact single row) ──────────────────── */
+.footer--auth {
+  padding: var(--space-5) var(--space-12);
+}
+
+.footer__authRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.footer__authLogo {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.footer__authLinks {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.footer__authLink {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer__authLink:hover {
+  color: var(--color-primary);
+}
+
+.footer__authCopy {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
