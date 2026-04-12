@@ -2,7 +2,8 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Clock, Briefcase, DollarSign, GraduationCap, CheckCircle } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { MapPin, Clock, Briefcase, DollarSign, GraduationCap, CheckCircle } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'

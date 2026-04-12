@@ -1,14 +1,13 @@
 import { Suspense } from 'react'
 import { PageLoader } from '@/components/common/Loader/Loader'
-import Footer from '@/components/common/Footer/Footer'
 
+// No shared header/footer here — each auth page manages its own layout
+// (LoginPage, RegisterPage, ForgotPasswordPage each render AuthFooter internally;
+//  ResetPasswordPage renders no footer by design)
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-      <Suspense fallback={<PageLoader />}>
-        <main style={{ flex: 1 }}>{children}</main>
-      </Suspense>
-      <Footer variant="auth" />
-    </div>
+    <Suspense fallback={<PageLoader />}>
+      {children}
+    </Suspense>
   )
 }

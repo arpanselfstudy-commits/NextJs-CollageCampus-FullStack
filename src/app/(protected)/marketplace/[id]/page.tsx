@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   try {
     const product = await getListedProductById(id)
-    qc.setQueryData(queryKeys.listedProducts.byId(id), product)
+    qc.setQueryData(queryKeys.listedProducts.byId(id), JSON.parse(JSON.stringify(product)))
   } catch {
     notFound()
   }

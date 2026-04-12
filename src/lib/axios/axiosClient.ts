@@ -46,7 +46,8 @@ apiClient.interceptors.response.use(
 
     try {
       // No body needed — the refreshToken httpOnly cookie is sent automatically
-      await apiClient.post('/api/auth/refresh')
+      // Use a raw axios call (not apiClient) to avoid the interceptor loop
+      await axios.post('/api/auth/refresh', null, { withCredentials: true })
       processQueue(null)
       return apiClient(originalRequest)
     } catch (err) {

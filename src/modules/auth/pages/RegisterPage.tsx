@@ -27,8 +27,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f0f4ff', padding: 24 }}>
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '420px 1fr', gap: 24, maxWidth: 960, margin: '0 auto', width: '100%', alignItems: 'center' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f0f4ff' }}>
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '420px 1fr', gap: 24, maxWidth: 960, margin: '0 auto', width: '100%', alignItems: 'center', padding: 24 }}>
         <div className="auth-left--register" style={{ borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', minHeight: 580 }}>
           <AuthLogo white />
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: '8px 0 20px' }}>

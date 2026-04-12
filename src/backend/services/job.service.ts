@@ -81,7 +81,13 @@ export async function getJobs(filters: {
     JobModel.countDocuments(query),
   ])
 
-  return { jobs, total, page, limit }
+  return {
+    jobs,
+    total,
+    page,
+    limit,
+    pagination: { total, page, limit, pages: Math.ceil(total / limit) },
+  }
 }
 
 export async function getJobById(id: string): Promise<IJob> {

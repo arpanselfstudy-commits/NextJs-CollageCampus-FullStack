@@ -3,7 +3,8 @@
 import '@/styles/design.css'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, MapPin, Phone, Mail, Clock, Store as StoreIcon, Tag } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { MapPin, Phone, Mail, Clock, Store as StoreIcon, Tag } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'
@@ -24,7 +25,7 @@ export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps)
       <div className={styles.notFoundBody}>
         <StoreIcon size={48} color="#9ca3af" strokeWidth={1} />
         <p>Shop not found.</p>
-        <Link href="/shops" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>← Back to Shops</Link>
+        <Link href="/shops" style={{ color: 'var(--color-primary)', fontWeight: 600 }}><BackButton href="/shops" label="Back to Shops" /></Link>
       </div>
     </div>
   )
@@ -36,7 +37,7 @@ export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps)
     <div className={styles.page}>
       <AppHeader />
       <div className={styles.backWrap}>
-        <Link href="/shops" className={styles.backLink}><ArrowLeft size={14} /> Back to Shops</Link>
+        <BackButton href="/shops" label="Back to Shops" />
       </div>
       <div className={styles.heroBanner} style={{ position: 'relative' }}>
         {shop.photo && <Image src={shop.photo} alt={shop.name} fill sizes="100vw" className={styles.heroBannerBg} priority />}

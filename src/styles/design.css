@@ -203,7 +203,7 @@ input { font-family: inherit; }
 /* --- Page footer --- */
 .auth-footer {
   border-top: 1px solid var(--cn-border);
-  padding: 20px 48px;
+  padding: 14px 48px;
   display: flex; align-items: center; justify-content: space-between;
   font-size: 13px; color: var(--cn-text-muted);
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronRight } from 'lucide-react'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { ShopsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import type { Shop } from '@/modules/shops/types'
 import styles from './landing.module.css'
 
@@ -18,7 +18,7 @@ export default function LandingShops({ shops, isLoading }: LandingShopsProps) {
         <Link href="/shops" className="view-all">View All <ChevronRight size={14} /></Link>
       </div>
 
-      {isLoading ? <SectionLoader /> : shops.length === 0 ? (
+      {isLoading ? <ShopsSkeletonGrid count={4} /> : shops.length === 0 ? (
         <p className={styles.emptyMsg}>No shops available right now.</p>
       ) : (
         <div className={styles.shopsGrid}>

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingBag, Tag, MessageCircle, ChevronRight } from 'lucide-react'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { MarketplaceSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
 import styles from './landing.module.css'
 
@@ -39,7 +39,7 @@ export default function LandingMarketplace({
 
       {/* Listed */}
       {tab === 'listed' && (
-        listedLoading ? <SectionLoader /> : listed.length === 0 ? (
+        listedLoading ? <MarketplaceSkeletonGrid count={8} /> : listed.length === 0 ? (
           <p className={styles.emptyMsg}>No listed products yet.</p>
         ) : (
           <div className="marketplace-grid">
@@ -77,7 +77,7 @@ export default function LandingMarketplace({
 
       {/* Requested */}
       {tab === 'requested' && (
-        requestedLoading ? <SectionLoader /> : requested.length === 0 ? (
+        requestedLoading ? <MarketplaceSkeletonGrid count={8} /> : requested.length === 0 ? (
           <p className={styles.emptyMsg}>No requests yet.</p>
         ) : (
           <div className="marketplace-grid">

@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { ShoppingBag, MessageCircle, CheckCircle, FolderOpen, SlidersHorizontal, X, Tag } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { MarketplaceSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
 import Pagination from '@/components/common/Pagination/Pagination'
 import { CATEGORY_BG, CATEGORY_TEXT } from '@/utils/globalStaticData'
@@ -198,7 +198,7 @@ export default function MarketplaceView({
             </div>
           )}
 
-          {isLoading ? <SectionLoader /> : (
+          {isLoading ? <MarketplaceSkeletonGrid count={9} /> : (
             <>
               {tab === 'listed' && (listed.length === 0 ? (
                 <div className={styles.emptyState}>

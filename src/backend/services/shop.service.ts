@@ -92,7 +92,13 @@ export async function getShops(filters: {
     ShopModel.countDocuments(query),
   ])
 
-  return { shops, total, page, limit }
+  return {
+    shops,
+    total,
+    page,
+    limit,
+    pagination: { total, page, limit, pages: Math.ceil(total / limit) },
+  }
 }
 
 export async function getShopById(id: string): Promise<IShop> {

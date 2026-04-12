@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Pencil, Plus, ClipboardList, ShoppingBag, Trash2, MoreHorizontal } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
 import type { AuthUser } from '@/modules/auth/types'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
 import styles from './account.module.css'
@@ -55,7 +55,11 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
         </div>
 
         {tab === 'listings' && (
-          listedLoading ? <SectionLoader /> : listings.length === 0 ? (
+          listedLoading ? (
+            <div className={styles.grid3}>
+              {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
+            </div>
+          ) : listings.length === 0 ? (
             <div className={styles.emptyState}>
               <ShoppingBag size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
               <p>No listings yet. <Link href="/account/list-product" className={styles.emptyLink}>List your first product</Link></p>
@@ -86,7 +90,11 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
         )}
 
         {tab === 'requests' && (
-          requestedLoading ? <SectionLoader /> : requests.length === 0 ? (
+          requestedLoading ? (
+            <div className={styles.grid3}>
+              {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
+            </div>
+          ) : requests.length === 0 ? (
             <div className={styles.emptyState}>
               <ClipboardList size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
               <p>No requests yet. <Link href="/account/request-product" className={styles.emptyLink}>Post your first request</Link></p>

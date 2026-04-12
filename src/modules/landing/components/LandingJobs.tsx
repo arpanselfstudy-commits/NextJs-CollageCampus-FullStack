@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Briefcase, MapPin, ChevronRight } from 'lucide-react'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { JobsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import { JOB_TYPE_LABEL } from '@/utils/globalStaticData'
 import type { Job } from '@/modules/jobs/types'
 import styles from './landing.module.css'
@@ -21,7 +21,7 @@ export default function LandingJobs({ jobs, isLoading }: LandingJobsProps) {
         <Link href="/jobs" className="view-all">View all <ChevronRight size={14} /></Link>
       </div>
 
-      {isLoading ? <SectionLoader /> : jobs.length === 0 ? (
+      {isLoading ? <JobsSkeletonGrid count={6} /> : jobs.length === 0 ? (
         <p className={styles.emptyMsg}>No jobs available right now.</p>
       ) : (
         <div className={styles.jobsGrid}>

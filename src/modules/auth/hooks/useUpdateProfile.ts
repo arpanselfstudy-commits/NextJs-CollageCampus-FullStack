@@ -8,15 +8,16 @@ import { queryKeys } from '@/lib/react-query/queryKeys'
 
 export function useUpdateProfile() {
   const qc = useQueryClient()
-  const { user, accessToken, refreshToken, setAuth } = useAuthStore()
+  const { setAuth } = useAuthStore()
 
   return useMutation({
     mutationFn: (payload: { name: string; email: string; phoneNumber: string; photo: string }) =>
       authApi.updateProfile(payload).then((r) => r.data.data),
     onSuccess: (updated) => {
-      // Sync updated user back into the store
-      if (accessToken && refreshToken) {
-        setAuth(updated, accessToken, refreshToken)
+      // Sync updated user back into the store (tokens stay in cookies)
+      const { user: currentUser } = useAuthStore.getState()
+      if (currentUser) {
+        setAuth(updated, '', '')
       }
       qc.invalidateQueries({ queryKey: queryKeys.auth.profile })
       toast.success('Profile updated!')

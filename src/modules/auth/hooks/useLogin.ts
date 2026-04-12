@@ -14,8 +14,9 @@ export function useLogin() {
   return useMutation({
     mutationFn: (credentials: LoginCredentials) =>
       authApi.login(credentials).then((res) => res.data.data),
-    onSuccess: ({ user, accessToken, refreshToken }) => {
-      setAuth(user, accessToken, refreshToken)
+    onSuccess: (user) => {
+      // Tokens are now in httpOnly cookies — only the user object is returned in the body
+      setAuth(user as Parameters<typeof setAuth>[0], '', '')
       toast.success('Welcome back!')
       router.push('/landing')
     },

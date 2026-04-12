@@ -1,0 +1,185 @@
+/* Shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #e8edf5 25%, #f3f6fb 50%, #e8edf5 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ── Job card ── */
+.jobCard {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jobCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jobIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.jobBadge {
+  width: 72px;
+  height: 22px;
+  border-radius: 20px;
+}
+
+.jobTitle {
+  height: 20px;
+  width: 80%;
+}
+
+.jobMeta {
+  height: 14px;
+  width: 70%;
+}
+
+.jobBtn {
+  height: 40px;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+/* ── Shop card ── */
+.shopCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.shopImg {
+  height: 180px;
+  width: 100%;
+  border-radius: 0;
+}
+
+.shopBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shopHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shopName {
+  height: 18px;
+  width: 55%;
+}
+
+.shopDist {
+  height: 14px;
+  width: 30px;
+}
+
+.shopDesc {
+  height: 14px;
+  width: 70%;
+}
+
+.shopDeal {
+  height: 14px;
+  width: 85%;
+}
+
+.shopBtn {
+  height: 40px;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+/* ── Marketplace card ── */
+.mpCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.mpImg {
+  height: 200px;
+  width: 100%;
+  border-radius: 0;
+}
+
+.mpBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mpCatRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mpCat {
+  height: 14px;
+  width: 40%;
+  border-radius: 6px;
+}
+
+.mpCond {
+  height: 14px;
+  width: 25%;
+  border-radius: 6px;
+}
+
+.mpTitle {
+  height: 18px;
+  width: 80%;
+}
+
+.mpSellerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mpSellerInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mpAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mpSellerName {
+  height: 14px;
+  width: 80px;
+}
+
+.mpMsgBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}

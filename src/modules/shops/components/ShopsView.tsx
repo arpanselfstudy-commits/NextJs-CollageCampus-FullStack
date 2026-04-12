@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Coffee, UtensilsCrossed, Wine, BookOpen, Star, Heart, FolderOpen, SlidersHorizontal, X, Calendar } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { ShopsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
 import Pagination from '@/components/common/Pagination/Pagination'
 import { DAYS_OF_WEEK } from '@/utils/globalStaticData'
@@ -113,7 +113,7 @@ export default function ShopsView({
             </div>
           </div>
 
-          {isLoading ? <SectionLoader /> : shops.length === 0 ? (
+          {isLoading ? <ShopsSkeletonGrid count={9} /> : shops.length === 0 ? (
             <div className={styles.emptyState}>
               <p>No shops found. Try adjusting your filters.</p>
               {hasFilters && <button className={styles.clearFiltersBtn} onClick={onClearFilters}>Clear filters</button>}

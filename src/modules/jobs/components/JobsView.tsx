@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Briefcase, MapPin, Clock, FileText, X, SlidersHorizontal } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
-import { SectionLoader } from '@/components/common/Loader/Loader'
+import { JobsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
 import Pagination from '@/components/common/Pagination/Pagination'
 import { JOB_TYPE_LABEL } from '@/utils/globalStaticData'
@@ -177,7 +177,7 @@ export default function JobsView({
             )}
           </div>
 
-          {isLoading ? <SectionLoader /> : jobs.length === 0 ? (
+          {isLoading ? <JobsSkeletonGrid count={9} /> : jobs.length === 0 ? (
             <div className={styles.emptyState}>
               <Briefcase size={48} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
               <p>No jobs found. Try adjusting your filters.</p>

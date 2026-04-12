@@ -57,7 +57,13 @@ export async function getRequestedProducts(filters: {
     RequestedProductModel.countDocuments(query),
   ])
 
-  return { requests, total, page, limit }
+  return {
+    products: requests,
+    total,
+    page,
+    limit,
+    pagination: { total, page, limit, pages: Math.ceil(total / limit) },
+  }
 }
 
 export async function getRequestedProductById(id: string): Promise<IRequestedProduct> {
