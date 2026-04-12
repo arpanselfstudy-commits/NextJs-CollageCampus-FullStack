@@ -4,10 +4,9 @@ import type { Metadata } from 'next'
 import { makeServerQueryClient } from '@/lib/react-query/serverQueryClient'
 import { queryKeys } from '@/lib/react-query/queryKeys'
 import ShopDetailPage from '@/modules/shops/pages/ShopDetailPage'
+import { getShopById } from '@/backend/queries/shop.queries'
 
 export const revalidate = 300
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
 
 export async function generateMetadata({
   params,
@@ -16,37 +15,26 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const { id } = await params
-    const res = await fetch(`${BASE_URL}/api/shops/${id}`)
-    if (!res.ok) return { title: 'Shop Not Found' }
-    const json = await res.json()
-    const shop = json.data
+    const shop = await getShopById(id)
     return {
       title: shop.name,
       description: shop.type ?? shop.location,
-      openGraph: {
-        title: shop.name,
-        description: shop.type ?? shop.location,
-      },
+      openGraph: { title: shop.name, description: shop.type ?? shop.location },
     }
   } catch {
     return { title: 'Shop Not Found' }
   }
 }
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const qc = makeServerQueryClient()
 
-  const res = await fetch(`${BASE_URL}/api/shops/${id}`)
-  if (res.status === 404) notFound()
-
-  if (res.ok) {
-    const json = await res.json()
-    qc.setQueryData(queryKeys.shops.byId(id), json.data)
+  try {
+    const shop = await getShopById(id)
+    qc.setQueryData(queryKeys.shops.byId(id), shop)
+  } catch {
+    notFound()
   }
 
   return (

@@ -7,7 +7,8 @@ export async function GET(_req: NextRequest) {
     const users = await UserService.getAll()
     return sendSuccess(users)
   } catch (err) {
-    return sendError(err)
+    const message = err instanceof Error ? err.message : 'Internal server error'
+    return sendError(message)
   }
 }
 
@@ -15,8 +16,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const user = await UserService.create(body)
-    return sendSuccess(user, 201)
+    return sendSuccess(user, 'Created', 201)
   } catch (err) {
-    return sendError(err)
+    const message = err instanceof Error ? err.message : 'Internal server error'
+    return sendError(message)
   }
 }

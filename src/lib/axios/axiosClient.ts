@@ -1,57 +1,31 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:5000'
-
+/**
+ * Migrated to cookie-based auth.
+ * - baseURL is '/' so requests hit Next.js Route Handlers directly
+ * - withCredentials: true sends httpOnly cookies automatically
+ * - No Authorization header injection — tokens are managed via httpOnly cookies
+ * - Refresh interceptor calls POST /api/auth/refresh (no body needed, cookie is read server-side)
+ */
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: '/',
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
   timeout: 10_000,
 })
 
 let isRefreshing = false
-let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = []
+let failedQueue: Array<{ resolve: () => void; reject: (err: unknown) => void }> = []
 
-function processQueue(error: unknown, token: string | null) {
-  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token!)))
+function processQueue(error: unknown) {
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve()))
   failedQueue = []
 }
 
-function getTokens() {
-  if (typeof window === 'undefined') return { accessToken: null, refreshToken: null }
-  try {
-    const raw = localStorage.getItem('auth-storage')
-    if (!raw) return { accessToken: null, refreshToken: null }
-    const { state } = JSON.parse(raw)
-    return {
-      accessToken: state?.accessToken ?? null,
-      refreshToken: state?.refreshToken ?? null,
-    }
-  } catch {
-    return { accessToken: null, refreshToken: null }
-  }
-}
+// No Authorization header injection — cookies handle auth
+apiClient.interceptors.request.use((config) => config)
 
-function setTokens(accessToken: string, refreshToken: string) {
-  if (typeof window === 'undefined') return
-  try {
-    const raw = localStorage.getItem('auth-storage')
-    const parsed = raw ? JSON.parse(raw) : { state: {} }
-    parsed.state.accessToken = accessToken
-    parsed.state.refreshToken = refreshToken
-    localStorage.setItem('auth-storage', JSON.stringify(parsed))
-  } catch {}
-}
-
-// Attach access token to every request
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { accessToken } = getTokens()
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`
-  }
-  return config
-})
-
-// On 401 — attempt token refresh, replay queued requests
+// On 401 — attempt silent token refresh via cookie, then replay queued requests
 apiClient.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -61,39 +35,27 @@ apiClient.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    const { refreshToken } = getTokens()
-    if (!refreshToken) {
-      if (typeof window !== 'undefined') window.location.href = '/login'
-      return Promise.reject(error)
-    }
-
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })
-      }).then((token) => {
-        originalRequest.headers.Authorization = `Bearer ${token}`
-        return apiClient(originalRequest)
-      })
+      }).then(() => apiClient(originalRequest))
     }
 
     originalRequest._retry = true
     isRefreshing = true
 
     try {
-      const { data } = await axios.post(
-        `/api/auth/refresh`,
-        { refreshToken },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-      const { accessToken: newAccess, refreshToken: newRefresh } = data.data
-      setTokens(newAccess, newRefresh)
-      processQueue(null, newAccess)
-      originalRequest.headers.Authorization = `Bearer ${newAccess}`
+      // No body needed — the refreshToken httpOnly cookie is sent automatically
+      await apiClient.post('/api/auth/refresh')
+      processQueue(null)
       return apiClient(originalRequest)
     } catch (err) {
-      processQueue(err, null)
+      processQueue(err)
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth-storage')
+        // Dynamically import to avoid SSR issues
+        import('@/modules/auth/store/auth.store')
+          .then(({ useAuthStore }) => useAuthStore.getState().clearAuth())
+          .catch(() => {})
         window.location.href = '/login'
       }
       return Promise.reject(err)
