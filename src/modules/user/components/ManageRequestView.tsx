@@ -3,7 +3,8 @@
 import '@/styles/design.css'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Pencil, Trash2, ClipboardList, Loader2, Check, X } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { Pencil, Trash2, ClipboardList, Loader2, Check, X } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'
@@ -43,7 +44,7 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
       <AppHeader />
       <div className={styles.emptyState} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <ClipboardList size={48} color="#9ca3af" strokeWidth={1} />
-        <p>Request not found. <Link href="/account/my-profile" className={styles.emptyLink}>← Back to profile</Link></p>
+        <p>Request not found. <BackButton href="/account/my-profile" label="Back to profile" /></p>
       </div>
     </div>
   )
@@ -53,7 +54,7 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
       <AppHeader />
       <div className={styles.contentWide}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <Link href="/account/my-profile" className={styles.pageHeaderBack}><ArrowLeft size={18} /></Link>
+          <BackButton href="/account/my-profile" label="Back to Profile" />
           <div>
             <div className={styles.pageHeaderTag}>Request Management</div>
             <h1 className={styles.pageHeaderTitle}>Manage Request</h1>

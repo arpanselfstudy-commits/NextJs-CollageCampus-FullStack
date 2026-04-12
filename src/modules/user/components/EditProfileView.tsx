@@ -2,7 +2,8 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import { ArrowLeft, Mail, Phone, User, Loader2 } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { Mail, Phone, User, Loader2 } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
 import Input from '@/components/common/Input/Input'
@@ -41,9 +42,7 @@ export default function EditProfileView({
 
         {/* Back */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-          <Link href="/account/my-profile" style={{ width: 38, height: 38, borderRadius: '50%', background: '#eff4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2a14b4', textDecoration: 'none' }}>
-            <ArrowLeft size={17} />
-          </Link>
+          <BackButton href="/account/my-profile" label="Back to Profile" />
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6b7280' }}>Account</div>
             <h1 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 24, fontWeight: 800, color: '#0b1c30', margin: 0 }}>Edit Profile</h1>

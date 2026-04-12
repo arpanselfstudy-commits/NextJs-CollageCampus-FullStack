@@ -3,7 +3,8 @@
 import '@/styles/design.css'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, ShoppingBag, MessageCircle, CheckCircle, Clock } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { ShoppingBag, MessageCircle, CheckCircle, Clock } from 'lucide-react'
 import AppHeader from '@/components/common/AppHeader/AppHeader'
 import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'
@@ -31,7 +32,7 @@ export default function ProductDetailView({ product, isLoading, activeImg, onImg
       <div className={styles.notFoundBody}>
         <ShoppingBag size={48} color="#9ca3af" strokeWidth={1} />
         <p>Product not found.</p>
-        <Link href="/marketplace" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>← Back to Marketplace</Link>
+        <Link href="/marketplace" style={{ color: 'var(--color-primary)', fontWeight: 600 }}><BackButton href="/marketplace" label="Back to Marketplace" /></Link>
       </div>
     </div>
   )
@@ -39,7 +40,7 @@ export default function ProductDetailView({ product, isLoading, activeImg, onImg
     <div className="product-page">
       <AppHeader />
       <div className="product-back">
-        <Link href="/marketplace" className={styles.backLink}><ArrowLeft size={14} /> Back to Marketplace</Link>
+        <BackButton href="/marketplace" label="Back to Marketplace" />
       </div>
       <div className="product-body">
         <div className="product-gallery">

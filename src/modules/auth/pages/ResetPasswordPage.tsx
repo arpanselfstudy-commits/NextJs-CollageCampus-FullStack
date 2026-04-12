@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { GraduationCap, Eye, EyeOff, Check, X, AlertTriangle, ShieldCheck, ArrowLeft } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { GraduationCap, Eye, EyeOff, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react'
 import '@/styles/design.css'
 import { useResetPassword } from '../hooks/useResetPassword'
 
@@ -112,9 +113,7 @@ export default function ResetPasswordPage({ token }: Props) {
           </form>
 
           <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <Link href="/login" className="back-link" style={{ justifyContent: 'center' }}>
-              <ArrowLeft size={14} /> Back to Login
-            </Link>
+            <BackButton href="/login" label="Back to Login" />
           </div>
         </div>
       </div>

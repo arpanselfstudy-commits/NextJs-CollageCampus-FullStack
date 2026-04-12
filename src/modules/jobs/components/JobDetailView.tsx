@@ -29,7 +29,7 @@ export default function JobDetailView({ job, isLoading, showContact, onShowConta
       <div className={styles.notFoundBody}>
         <Briefcase size={48} color="#9ca3af" strokeWidth={1} />
         <p>Job not found.</p>
-        <Link href="/jobs" className={styles.notFoundLink}>← Back to Jobs</Link>
+        <Link href="/jobs" className={styles.notFoundLink}><BackButton href="/jobs" label="Back to Jobs" /></Link>
       </div>
     </div>
   )
@@ -40,7 +40,7 @@ export default function JobDetailView({ job, isLoading, showContact, onShowConta
 
       <div className="job-detail-body">
         <div className="job-detail-main">
-          <Link href="/jobs" className={styles.backLink}><ArrowLeft size={14} /> Back to Jobs</Link>
+          <BackButton href="/jobs" label="Back to Jobs" />
 
           <div className="job-detail-hero">
             <div className="job-detail-hero-bg" />

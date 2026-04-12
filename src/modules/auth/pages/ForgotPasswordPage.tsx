@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Mail, Lock, ArrowRight, Inbox, ArrowLeft } from 'lucide-react'
+import BackButton from '@/components/common/BackButton/BackButton'
+import { Mail, Lock, ArrowRight, Inbox } from 'lucide-react'
 import '@/styles/design.css'
 import { useForgotPassword } from '../hooks/useForgotPassword'
 
@@ -51,9 +52,7 @@ export default function ForgotPasswordPage() {
         <p className="forgot-hint"><Lock size={12} /> Link expires in 15 minutes for your security</p>
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <Link href="/login" className="back-link" style={{ justifyContent: 'center' }}>
-            <ArrowLeft size={14} /> Back to Login
-          </Link>
+          <BackButton href="/login" label="Back to Login" />
         </div>
       </div>
     </div>
