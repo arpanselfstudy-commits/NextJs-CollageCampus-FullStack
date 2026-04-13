@@ -4,23 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import '@/styles/design.css'
-import { useLogin } from '../hooks/useLogin'
+import { useLoginForm } from '../hooks/useLoginForm'
 import AuthLogo from '../components/common/AuthLogo'
 import AuthFooter from '../components/common/AuthFooter'
-import FormError from '../components/common/FormError'
+import { FormError } from '@/components/common'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
-  const { mutate: login, isPending, error } = useLogin()
-
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    login({ email, password })
-  }
-
-  const errMsg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+  const { register, onSubmit, formState: { errors, isSubmitting } } = useLoginForm()
 
   return (
     <div className="auth-page">
@@ -49,32 +40,33 @@ export default function LoginPage() {
           <h2 className="auth-form-title">Welcome Back</h2>
           <p className="auth-form-subtitle">Please enter your credentials to access the atelier.</p>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmit}>
             <div className="form-group">
               <label className="form-label">Institutional Email</label>
               <div className="input-wrapper">
                 <span className="input-icon"><Mail size={16} /></span>
-                <input type="email" placeholder="name@university.edu" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <input type="email" placeholder="name@university.edu" {...register('email')} />
               </div>
+              <FormError message={errors.email?.message} />
             </div>
 
             <div className="form-group">
               <div className="form-label-row">
-                <label className={`form-label${errMsg ? ' form-label--error' : ''}`}>Security Password</label>
+                <label className="form-label">Security Password</label>
                 <Link href="/forgot-password" className="forgot-link">Forgot?</Link>
               </div>
-              <div className={`input-wrapper${errMsg ? ' input-wrapper--error' : ''}`}>
+              <div className="input-wrapper">
                 <span className="input-icon"><Lock size={16} /></span>
-                <input type={showPw ? 'text' : 'password'} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <input type={showPw ? 'text' : 'password'} placeholder="••••••••" {...register('password')} />
                 <button type="button" className="input-action" onClick={() => setShowPw(!showPw)}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <FormError message={errMsg} />
+              <FormError message={errors.password?.message} />
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={isPending}>
-              {isPending ? 'Signing in…' : <><span>Sign In to Dashboard</span><ArrowRight size={16} /></>}
+            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in…' : <><span>Sign In to Dashboard</span><ArrowRight size={16} /></>}
             </button>
           </form>
 

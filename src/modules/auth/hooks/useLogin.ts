@@ -16,7 +16,7 @@ export function useLogin() {
       authApi.login(credentials).then((res) => res.data.data),
     onSuccess: (user) => {
       // Tokens are now in httpOnly cookies — only the user object is returned in the body
-      setAuth(user as Parameters<typeof setAuth>[0], '', '')
+      setAuth(user as unknown as Parameters<typeof setAuth>[0], '', '')
       toast.success('Welcome back!')
       router.push('/landing')
     },

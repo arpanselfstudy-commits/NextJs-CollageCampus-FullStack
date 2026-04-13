@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useUpdateProfile } from '@/modules/auth/hooks/useUpdateProfile'
 import { uploadToCloudinary } from '@/lib/upload/cloudinary'
 import EditProfileView from '@/modules/user/components/EditProfileView'
+import { useEditProfileForm } from '@/modules/user/hooks/useEditProfileForm'
 import toast from 'react-hot-toast'
 
 export default function EditProfilePage() {
@@ -13,14 +14,11 @@ export default function EditProfilePage() {
   const user = useAuthStore((s) => s.user)
   const { mutate: update, isPending } = useUpdateProfile()
 
-  const [form, setForm] = useState({ name: '', email: '', phoneNumber: '' })
+  const { register, handleSubmit: rhfHandleSubmit, formState: { errors, isSubmitting } } = useEditProfileForm()
+
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState('')
   const [isUploading, setIsUploading] = useState(false)
-
-  useEffect(() => {
-    if (user) setForm({ name: user.name, email: user.email, phoneNumber: user.phoneNumber ?? '' })
-  }, [user])
 
   const onDrop = useCallback((accepted: File[]) => {
     if (!accepted[0]) return
@@ -29,7 +27,7 @@ export default function EditProfilePage() {
     setPhotoPreview(URL.createObjectURL(file))
   }, [])
 
-  const handleSubmit = async () => {
+  const handleSubmit = rhfHandleSubmit(async (data) => {
     let photo = user?.photo || ''
 
     if (photoFile) {
@@ -46,20 +44,20 @@ export default function EditProfilePage() {
     }
 
     update(
-      { name: form.name, email: form.email, phoneNumber: form.phoneNumber, photo },
+      { name: data.name, email: data.email, phoneNumber: data.phoneNumber, photo },
       { onSuccess: () => router.push('/account/my-profile') }
     )
-  }
+  })
 
   return (
     <EditProfileView
       user={user}
-      form={form}
-      onFormChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))}
+      register={register}
+      errors={errors}
       photoPreview={photoPreview}
       onDrop={onDrop}
       onRemovePhoto={() => { setPhotoFile(null); setPhotoPreview('') }}
-      isPending={isPending}
+      isPending={isPending || isSubmitting}
       isUploading={isUploading}
       onSubmit={handleSubmit}
     />

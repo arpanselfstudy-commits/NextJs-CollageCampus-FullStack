@@ -6,21 +6,18 @@ import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useCreateRequestedProduct } from '@/modules/marketplace/hooks/useRequestedProducts'
 import { uploadToCloudinary } from '@/lib/upload/cloudinary'
 import RequestProductView from '@/modules/user/components/RequestProductView'
+import { useRequestProductForm } from '@/modules/user/hooks/useRequestProductForm'
 import toast from 'react-hot-toast'
-import type { ListedProductCategory } from '@/modules/marketplace/types'
 
 export default function RequestProductPage() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
   const { mutate: create, isPending } = useCreateRequestedProduct()
 
+  const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, watch, setValue } = useRequestProductForm()
+
   const [images, setImages] = useState<{ file: File; preview: string }[]>([])
   const [isUploading, setIsUploading] = useState(false)
-  const [form, setForm] = useState({
-    name: '', category: 'ELECTRONICS' as ListedProductCategory,
-    priceFrom: 0, priceTo: 0, isNegotiable: false,
-    description: '', email: '', phoneNo: '',
-  })
 
   const onDrop = useCallback((accepted: File[]) => {
     const newImgs = accepted.slice(0, 5 - images.length).map((file) => ({
@@ -33,7 +30,7 @@ export default function RequestProductPage() {
     setImages((prev) => { URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i) })
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = rhfHandleSubmit(async (data) => {
     if (!user || images.length === 0) return
     setIsUploading(true)
     let uploadedUrls: string[]
@@ -46,19 +43,21 @@ export default function RequestProductPage() {
       setIsUploading(false)
     }
     create({
-      user: user._id, name: form.name, images: uploadedUrls,
-      category: form.category,
-      price: { from: form.priceFrom, to: form.priceTo },
-      isNegotiable: form.isNegotiable, description: form.description,
-      contactDetails: { email: form.email, phoneNo: form.phoneNo },
+      user: user._id, name: data.name, images: uploadedUrls,
+      category: data.category,
+      price: { from: data.priceFrom, to: data.priceTo },
+      isNegotiable: data.isNegotiable, description: data.description,
+      contactDetails: { email: data.email, phoneNo: data.phoneNo },
       isFulfilled: false,
     }, { onSuccess: () => router.push('/account/my-profile') })
-  }
+  })
 
   return (
     <RequestProductView
-      form={form}
-      onFormChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))}
+      register={register}
+      errors={errors}
+      watch={watch}
+      setValue={setValue}
       images={images}
       onDrop={onDrop}
       onRemoveImage={removeImage}

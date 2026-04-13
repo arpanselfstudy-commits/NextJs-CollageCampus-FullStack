@@ -1,15 +1,17 @@
 'use client'
 
 import '@/styles/design.css'
-import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Pencil, Trash2, ClipboardList, Loader2, Check, X } from 'lucide-react'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import { PageLoader } from '@/components/common/Loader/Loader'
+import { FormError } from '@/components/common'
 import type { RequestedProduct } from '@/modules/marketplace/types'
 import { BLUR_DATA_URL } from '@/lib/upload/constants'
 import styles from './account.module.css'
+import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
+import type { ManageRequestForm } from '@/modules/user/types'
 
 function Toggle({ on, onChange, teal = false }: { on: boolean; onChange: (v: boolean) => void; teal?: boolean }) {
   return (
@@ -24,9 +26,11 @@ export interface ManageRequestViewProps {
   isLoading: boolean
   editing: boolean
   onToggleEditing: () => void
-  form: { name: string; category: string; priceFrom: number; priceTo: number; isNegotiable: boolean; isFulfilled: boolean; description: string; email: string; phoneNo: string }
-  onFormChange: (k: string, v: unknown) => void
-  onSave: () => void
+  register: UseFormRegister<ManageRequestForm>
+  errors: FieldErrors<ManageRequestForm>
+  watch: UseFormWatch<ManageRequestForm>
+  setValue: UseFormSetValue<ManageRequestForm>
+  onSave: (e?: React.BaseSyntheticEvent) => void
   onCancelEdit: () => void
   onToggle: (key: 'isFulfilled' | 'isNegotiable', val: boolean) => void
   onDelete: () => void
@@ -40,7 +44,7 @@ export interface ManageRequestViewProps {
 const inp = { width: '100%', padding: '12px 14px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
-export default function ManageRequestView({ request, isLoading, editing, onToggleEditing, form, onFormChange, onSave, onCancelEdit, onToggle, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageRequestViewProps) {
+export default function ManageRequestView({ request, isLoading, editing, onToggleEditing, register, errors, watch, setValue, onSave, onCancelEdit, onToggle, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageRequestViewProps) {
   if (isLoading) return <div className={styles.page}><PageLoader /></div>
   if (!request) return (
     <div className={styles.page}>
@@ -50,6 +54,9 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
       </div>
     </div>
   )
+
+  const isFulfilled = watch('isFulfilled')
+  const isNegotiable = watch('isNegotiable')
 
   return (
     <div className={styles.page}>
@@ -67,8 +74,8 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
             <div className={styles.requestImgWrap} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d1a4e)', position: 'relative' }}>
               {request.images[0] && <Image src={request.images[0]} alt={request.name} fill sizes="(max-width: 768px) 100vw, 500px" priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />}
               {!request.images[0] && <ClipboardList size={80} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
-              <span className={styles.requestStatusBadge} style={{ background: form.isFulfilled ? '#dcfce7' : '#2a14b4', color: form.isFulfilled ? '#166534' : 'white' }}>
-                {form.isFulfilled ? 'Fulfilled' : 'Active'}
+              <span className={styles.requestStatusBadge} style={{ background: isFulfilled ? '#dcfce7' : '#2a14b4', color: isFulfilled ? '#166534' : 'white' }}>
+                {isFulfilled ? 'Fulfilled' : 'Active'}
               </span>
             </div>
 
@@ -76,16 +83,44 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
               <div className={styles.editForm}>
                 <h3 className={styles.editFormTitle}>Edit Request</h3>
                 <div className={styles.editFormFields}>
-                  <div><label style={lbl}>Product Name</label><input style={inp} value={form.name} onChange={(e) => onFormChange('name', e.target.value)} /></div>
-                  <div><label style={lbl}>Category</label><input style={inp} value={form.category} onChange={(e) => onFormChange('category', e.target.value)} /></div>
-                  <div className={styles.editFormGrid2}>
-                    <div><label style={lbl}>Min Price ($)</label><input style={inp} type="number" min={0} value={form.priceFrom} onChange={(e) => onFormChange('priceFrom', Number(e.target.value))} /></div>
-                    <div><label style={lbl}>Max Price ($)</label><input style={inp} type="number" min={0} value={form.priceTo} onChange={(e) => onFormChange('priceTo', Number(e.target.value))} /></div>
+                  <div>
+                    <label style={lbl}>Product Name</label>
+                    <input style={inp} {...register('name')} />
+                    <FormError message={errors.name?.message} />
                   </div>
-                  <div><label style={lbl}>Description</label><textarea style={{ ...inp, resize: 'none', height: 80 } as React.CSSProperties} value={form.description} onChange={(e) => onFormChange('description', e.target.value)} /></div>
+                  <div>
+                    <label style={lbl}>Category</label>
+                    <input style={inp} {...register('category')} />
+                    <FormError message={errors.category?.message} />
+                  </div>
                   <div className={styles.editFormGrid2}>
-                    <div><label style={lbl}>Email</label><input style={inp} type="email" value={form.email} onChange={(e) => onFormChange('email', e.target.value)} /></div>
-                    <div><label style={lbl}>Phone</label><input style={inp} type="tel" value={form.phoneNo} onChange={(e) => onFormChange('phoneNo', e.target.value)} /></div>
+                    <div>
+                      <label style={lbl}>Min Price ($)</label>
+                      <input style={inp} type="number" min={0} {...register('priceFrom', { valueAsNumber: true })} />
+                      <FormError message={errors.priceFrom?.message} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Max Price ($)</label>
+                      <input style={inp} type="number" min={0} {...register('priceTo', { valueAsNumber: true })} />
+                      <FormError message={errors.priceTo?.message} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={lbl}>Description</label>
+                    <textarea style={{ ...inp, resize: 'none', height: 80 } as React.CSSProperties} {...register('description')} />
+                    <FormError message={errors.description?.message} />
+                  </div>
+                  <div className={styles.editFormGrid2}>
+                    <div>
+                      <label style={lbl}>Email</label>
+                      <input style={inp} type="email" {...register('email')} />
+                      <FormError message={errors.email?.message} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Phone</label>
+                      <input style={inp} type="tel" {...register('phoneNo')} />
+                      <FormError message={errors.phoneNo?.message} />
+                    </div>
                   </div>
                   <div className={styles.editFormActions}>
                     <button onClick={onSave} disabled={updating} className={styles.saveBtn}>
@@ -110,15 +145,15 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
 
             <div className={styles.togglesCard}>
               {([
-                { key: 'isFulfilled' as const, label: 'Request Fulfilled', sub: 'Hide from public marketplace', teal: true },
-                { key: 'isNegotiable' as const, label: 'Open to Negotiate', sub: 'Allow price proposals', teal: false },
-              ]).map((t, i) => (
+                { key: 'isFulfilled' as const, label: 'Request Fulfilled', sub: 'Hide from public marketplace', teal: true, value: isFulfilled },
+                { key: 'isNegotiable' as const, label: 'Open to Negotiate', sub: 'Allow price proposals', teal: false, value: isNegotiable },
+              ]).map((t) => (
                 <div key={t.key} className={styles.toggleRow}>
                   <div>
                     <div className={styles.toggleTitle}>{t.label}</div>
                     <div className={styles.toggleSub}>{t.sub}</div>
                   </div>
-                  <Toggle on={form[t.key]} onChange={(v) => onToggle(t.key, v)} teal={t.teal} />
+                  <Toggle on={t.value ?? false} onChange={(v) => onToggle(t.key, v)} teal={t.teal} />
                 </div>
               ))}
             </div>

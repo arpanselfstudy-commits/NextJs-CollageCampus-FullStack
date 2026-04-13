@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useRequestedProduct, useUpdateRequestedProduct, useDeleteRequestedProduct } from '@/modules/marketplace/hooks/useRequestedProducts'
 import ManageRequestView from '@/modules/user/components/ManageRequestView'
+import { useManageRequestForm } from '@/modules/user/hooks/useManageRequestForm'
+import type { ManageRequestForm } from '@/modules/user/types'
 
 export default function ManageRequestPage() {
   const params = useParams()
@@ -16,42 +18,28 @@ export default function ManageRequestPage() {
   const { mutate: update, isPending: updating } = useUpdateRequestedProduct(id)
   const { mutate: remove, isPending: deleting } = useDeleteRequestedProduct()
 
+  const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, watch, setValue } = useManageRequestForm(request)
+
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [form, setForm] = useState({
-    name: '', category: '', priceFrom: 0, priceTo: 0,
-    isNegotiable: false, isFulfilled: false, description: '', email: '', phoneNo: '',
+
+  const buildPayload = (data: ManageRequestForm) => ({
+    user: user!._id, name: data.name, images: request!.images, category: data.category,
+    price: { from: data.priceFrom, to: data.priceTo }, isNegotiable: data.isNegotiable,
+    description: data.description, contactDetails: { email: data.email, phoneNo: data.phoneNo },
+    isFulfilled: data.isFulfilled,
   })
 
-  useEffect(() => {
-    if (request) setForm({
-      name: request.name, category: request.category,
-      priceFrom: request.price.from, priceTo: request.price.to,
-      isNegotiable: request.isNegotiable, isFulfilled: request.isFulfilled,
-      description: request.description,
-      email: request.contactDetails.email, phoneNo: request.contactDetails.phoneNo,
-    })
-  }, [request])
-
-  const buildPayload = (overrides?: Partial<typeof form>) => {
-    const f = { ...form, ...overrides }
-    return {
-      user: user!._id, name: f.name, images: request!.images, category: f.category,
-      price: { from: f.priceFrom, to: f.priceTo }, isNegotiable: f.isNegotiable,
-      description: f.description, contactDetails: { email: f.email, phoneNo: f.phoneNo },
-      isFulfilled: f.isFulfilled,
-    }
-  }
-
-  const handleSave = () => {
+  const handleSave = rhfHandleSubmit((data) => {
     if (!user || !request) return
-    update(buildPayload(), { onSuccess: () => setEditing(false) })
-  }
+    update(buildPayload(data), { onSuccess: () => setEditing(false) })
+  })
 
   const handleToggle = (key: 'isFulfilled' | 'isNegotiable', val: boolean) => {
     if (!user || !request) return
-    setForm((f) => ({ ...f, [key]: val }))
-    update(buildPayload({ [key]: val }))
+    setValue(key, val)
+    const current = watch()
+    update(buildPayload({ ...current, [key]: val }))
   }
 
   const handleDelete = () => {
@@ -65,8 +53,10 @@ export default function ManageRequestPage() {
       isLoading={isLoading}
       editing={editing}
       onToggleEditing={() => setEditing((e) => !e)}
-      form={form}
-      onFormChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))}
+      register={register}
+      errors={errors}
+      watch={watch}
+      setValue={setValue}
       onSave={handleSave}
       onCancelEdit={() => setEditing(false)}
       onToggle={handleToggle}

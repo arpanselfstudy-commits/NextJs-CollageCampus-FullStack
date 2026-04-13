@@ -5,24 +5,29 @@ import { useDropzone } from 'react-dropzone'
 import { UploadCloud, X } from 'lucide-react'
 import { LISTED_CATEGORIES, CATEGORY_LABEL, type ListedProductCategory } from '@/modules/marketplace/types'
 import Loader from '@/components/common/Loader/Loader'
+import { FormError } from '@/components/common'
+import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
+import type { RequestProductForm } from '@/modules/user/types'
 
 const inp = { width: '100%', padding: '13px 16px', background: '#eff4ff', border: 'none', borderRadius: 12, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
 const lbl = { fontSize: 13, fontWeight: 600, color: '#0b1c30', marginBottom: 6, display: 'block' }
 
 export interface RequestProductViewProps {
-  form: { name: string; category: ListedProductCategory; priceFrom: number; priceTo: number; isNegotiable: boolean; description: string; email: string; phoneNo: string }
-  onFormChange: (k: string, v: unknown) => void
+  register: UseFormRegister<RequestProductForm>
+  errors: FieldErrors<RequestProductForm>
+  watch: UseFormWatch<RequestProductForm>
+  setValue: UseFormSetValue<RequestProductForm>
   images: { file: File; preview: string }[]
   onDrop: (files: File[]) => void
   onRemoveImage: (i: number) => void
   isPending: boolean
   isUploading?: boolean
-  onSubmit: () => void
+  onSubmit: (e?: React.BaseSyntheticEvent) => void
 }
 
 export default function RequestProductView({
-  form,
-  onFormChange,
+  register,
+  errors,
   images,
   onDrop,
   onRemoveImage,
@@ -58,28 +63,45 @@ export default function RequestProductView({
 
         {/* Form */}
         <div style={{ flex: 1, background: 'white', borderRadius: 20, padding: 36, boxShadow: '0 4px 24px rgba(11,28,48,0.07)' }}>
-          <form onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit() }} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-            <div><label style={lbl}>Product name</label><input style={inp} type="text" placeholder="What are you looking for?" value={form.name} onChange={(e) => onFormChange('name', e.target.value)} required /></div>
+            <div>
+              <label style={lbl}>Product name</label>
+              <input style={inp} type="text" placeholder="What are you looking for?" {...register('name')} />
+              <FormError message={errors.name?.message} />
+            </div>
 
             <div>
               <label style={lbl}>Category</label>
-              <select style={{ ...inp, appearance: 'none' as const }} value={form.category} onChange={(e) => onFormChange('category', e.target.value as ListedProductCategory)} required>
+              <select style={{ ...inp, appearance: 'none' as const }} {...register('category')}>
                 {LISTED_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
               </select>
+              <FormError message={errors.category?.message} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <div><label style={lbl}>Min Price ($)</label><input style={inp} type="number" placeholder="0" min={0} value={form.priceFrom || ''} onChange={(e) => onFormChange('priceFrom', Number(e.target.value))} /></div>
-              <div><label style={lbl}>Max Price ($)</label><input style={inp} type="number" placeholder="1000" min={0} value={form.priceTo || ''} onChange={(e) => onFormChange('priceTo', Number(e.target.value))} /></div>
+              <div>
+                <label style={lbl}>Min Price ($)</label>
+                <input style={inp} type="number" placeholder="0" min={0} {...register('priceFrom', { valueAsNumber: true })} />
+                <FormError message={errors.priceFrom?.message} />
+              </div>
+              <div>
+                <label style={lbl}>Max Price ($)</label>
+                <input style={inp} type="number" placeholder="1000" min={0} {...register('priceTo', { valueAsNumber: true })} />
+                <FormError message={errors.priceTo?.message} />
+              </div>
             </div>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
-              <input type="checkbox" checked={form.isNegotiable} onChange={(e) => onFormChange('isNegotiable', e.target.checked)} style={{ width: 16, height: 16, accentColor: '#2a14b4' }} />
+              <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#2a14b4' }} {...register('isNegotiable')} />
               Open to Negotiation
             </label>
 
-            <div><label style={lbl}>Description</label><textarea style={{ ...inp, resize: 'none', height: 100 } as React.CSSProperties} placeholder="Specific requirements, condition preferences, urgency..." value={form.description} onChange={(e) => onFormChange('description', e.target.value)} required /></div>
+            <div>
+              <label style={lbl}>Description</label>
+              <textarea style={{ ...inp, resize: 'none', height: 100 } as React.CSSProperties} placeholder="Specific requirements, condition preferences, urgency..." {...register('description')} />
+              <FormError message={errors.description?.message} />
+            </div>
 
             {/* Dropzone */}
             <div>
@@ -111,8 +133,16 @@ export default function RequestProductView({
             <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 18 }}>
               <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, color: '#2a14b4', marginBottom: 14 }}>Contact Details</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div><label style={lbl}>Phone number</label><input style={inp} type="tel" placeholder="+1 (555) 000-0000" value={form.phoneNo} onChange={(e) => onFormChange('phoneNo', e.target.value)} required /></div>
-                <div><label style={lbl}>Email</label><input style={inp} type="email" placeholder="name@campus.edu" value={form.email} onChange={(e) => onFormChange('email', e.target.value)} required /></div>
+                <div>
+                  <label style={lbl}>Phone number</label>
+                  <input style={inp} type="tel" placeholder="+1 (555) 000-0000" {...register('phoneNo')} />
+                  <FormError message={errors.phoneNo?.message} />
+                </div>
+                <div>
+                  <label style={lbl}>Email</label>
+                  <input style={inp} type="email" placeholder="name@campus.edu" {...register('email')} />
+                  <FormError message={errors.email?.message} />
+                </div>
               </div>
             </div>
 

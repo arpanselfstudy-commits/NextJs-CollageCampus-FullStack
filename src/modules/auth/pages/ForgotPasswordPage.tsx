@@ -1,20 +1,15 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Mail, Lock, ArrowRight, Inbox } from 'lucide-react'
 import '@/styles/design.css'
-import { useForgotPassword } from '../hooks/useForgotPassword'
+import { useForgotPasswordForm } from '../hooks/useForgotPasswordForm'
+import { FormError } from '@/components/common'
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
-  const { mutate: forgot, isPending, isSuccess } = useForgotPassword()
-
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    forgot(email)
-  }
+  const { register, onSubmit, formState: { errors, isSubmitting }, mutation, watch } = useForgotPasswordForm()
+  const emailValue = watch('email')
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4ff', padding: 24 }}>
@@ -28,23 +23,24 @@ export default function ForgotPasswordPage() {
           Enter the email address associated with your account and we&apos;ll send a link to reset your password.
         </p>
 
-        {isSuccess ? (
+        {mutation.isSuccess ? (
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
             <Inbox size={48} color="#3730d4" style={{ margin: '0 auto 12px' }} />
             <p style={{ fontWeight: 600, marginBottom: 8 }}>Check your inbox</p>
-            <p style={{ fontSize: 14, color: '#6b7280' }}>We sent a reset link to <strong>{email}</strong></p>
+            <p style={{ fontSize: 14, color: '#6b7280' }}>We sent a reset link to <strong>{emailValue}</strong></p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmit}>
             <div className="form-group">
               <label className="form-label">University Email</label>
               <div className="input-wrapper">
                 <span className="input-icon"><Mail size={16} /></span>
-                <input type="email" placeholder="name@campus.edu" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <input type="email" placeholder="name@campus.edu" {...register('email')} />
               </div>
+              <FormError message={errors.email?.message} />
             </div>
-            <button className="btn btn-primary" type="submit" style={{ marginTop: 8 }} disabled={isPending}>
-              {isPending ? 'Sending…' : <><span>Send Reset Link</span><ArrowRight size={16} /></>}
+            <button className="btn btn-primary" type="submit" style={{ marginTop: 8 }} disabled={isSubmitting}>
+              {isSubmitting ? 'Sending…' : <><span>Send Reset Link</span><ArrowRight size={16} /></>}
             </button>
           </form>
         )}

@@ -5,26 +5,29 @@ import Link from 'next/link'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Mail, Phone, User, Loader2 } from 'lucide-react'
 import Input from '@/components/common/Input/Input'
+import { FormError } from '@/components/common'
 import dynamic from 'next/dynamic'
 const ImageUploader = dynamic(() => import('@/components/common/ImageUploader/ImageUploader'), { ssr: false, loading: () => null })
 import type { AuthUser } from '@/modules/auth/types'
+import type { UseFormRegister, FieldErrors } from 'react-hook-form'
+import type { EditProfileForm } from '@/modules/user/types'
 
 export interface EditProfileViewProps {
   user: AuthUser | null
-  form: { name: string; email: string; phoneNumber: string }
-  onFormChange: (k: string, v: string) => void
+  register: UseFormRegister<EditProfileForm>
+  errors: FieldErrors<EditProfileForm>
   photoPreview: string
   onDrop: (files: File[]) => void
   onRemovePhoto: () => void
   isPending: boolean
   isUploading?: boolean
-  onSubmit: () => void
+  onSubmit: (e?: React.BaseSyntheticEvent) => void
 }
 
 export default function EditProfileView({
   user,
-  form,
-  onFormChange,
+  register,
+  errors,
   photoPreview,
   onDrop,
   onRemovePhoto,
@@ -46,7 +49,7 @@ export default function EditProfileView({
           </div>
         </div>
 
-        <form onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit() }}>
+        <form onSubmit={onSubmit}>
           <div style={{ background: 'white', borderRadius: 20, padding: 36, boxShadow: '0 4px 24px rgba(11,28,48,0.07)', display: 'flex', flexDirection: 'column', gap: 22 }}>
 
             {/* Photo */}
@@ -61,36 +64,40 @@ export default function EditProfileView({
             />
 
             {/* Name */}
-            <Input
-              label="Full Name"
-              type="text"
-              placeholder="Your full name"
-              value={form.name}
-              onChange={(e) => onFormChange('name', e.target.value)}
-              leftIcon={<User size={15} color="#9ca3af" />}
-              required
-            />
+            <div>
+              <Input
+                label="Full Name"
+                type="text"
+                placeholder="Your full name"
+                leftIcon={<User size={15} color="#9ca3af" />}
+                {...register('name')}
+              />
+              <FormError message={errors.name?.message} />
+            </div>
 
             {/* Email */}
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="name@campus.edu"
-              value={form.email}
-              onChange={(e) => onFormChange('email', e.target.value)}
-              leftIcon={<Mail size={15} color="#9ca3af" />}
-              required
-            />
+            <div>
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="name@campus.edu"
+                leftIcon={<Mail size={15} color="#9ca3af" />}
+                {...register('email')}
+              />
+              <FormError message={errors.email?.message} />
+            </div>
 
             {/* Phone */}
-            <Input
-              label="Phone Number"
-              type="tel"
-              placeholder="+1 (555) 000-0000"
-              value={form.phoneNumber}
-              onChange={(e) => onFormChange('phoneNumber', e.target.value)}
-              leftIcon={<Phone size={15} color="#9ca3af" />}
-            />
+            <div>
+              <Input
+                label="Phone Number"
+                type="tel"
+                placeholder="+1 (555) 000-0000"
+                leftIcon={<Phone size={15} color="#9ca3af" />}
+                {...register('phoneNumber')}
+              />
+              <FormError message={errors.phoneNumber?.message} />
+            </div>
 
             {/* Actions */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, paddingTop: 8, borderTop: '1px solid #f0f2f8' }}>

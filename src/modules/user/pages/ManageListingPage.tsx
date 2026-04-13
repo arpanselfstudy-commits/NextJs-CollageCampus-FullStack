@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useListedProduct, useUpdateListedProduct, useDeleteListedProduct } from '@/modules/marketplace/hooks/useListedProducts'
 import ManageListingView from '@/modules/user/components/ManageListingView'
-import type { ListedProductCategory, ListedProductCondition } from '@/modules/marketplace/types'
+import { useManageListingForm } from '@/modules/user/hooks/useManageListingForm'
+import type { ManageListingForm } from '@/modules/user/types'
 
 export default function ManageListingPage() {
   const params = useParams()
@@ -17,45 +18,29 @@ export default function ManageListingPage() {
   const { mutate: update, isPending: updating } = useUpdateListedProduct(id)
   const { mutate: remove, isPending: deleting } = useDeleteListedProduct()
 
+  const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, watch, setValue } = useManageListingForm(product)
+
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [form, setForm] = useState({
-    productName: '', category: 'ELECTRONICS' as ListedProductCategory,
-    price: '', description: '', condition: 'NEW' as ListedProductCondition,
-    yearUsed: 0, isNegotiable: false, isAvailable: true, email: '', phoneNo: '',
+
+  const buildPayload = (data: ManageListingForm) => ({
+    user: user!._id, productName: data.productName, images: product!.images,
+    category: data.category, condition: data.condition, price: data.price,
+    isNegotiable: data.isNegotiable, description: data.description,
+    yearUsed: data.yearUsed, contactDetails: { email: data.email, phoneNo: data.phoneNo },
+    isAvailable: data.isAvailable,
   })
 
-  useEffect(() => {
-    if (product) setForm({
-      productName: product.productName, category: product.category as ListedProductCategory,
-      price: product.price, description: product.description,
-      condition: product.condition as ListedProductCondition,
-      yearUsed: product.yearUsed, isNegotiable: product.isNegotiable,
-      isAvailable: product.isAvailable,
-      email: product.contactDetails.email, phoneNo: product.contactDetails.phoneNo,
-    })
-  }, [product])
-
-  const buildPayload = (overrides?: Partial<typeof form>) => {
-    const f = { ...form, ...overrides }
-    return {
-      user: user!._id, productName: f.productName, images: product!.images,
-      category: f.category, condition: f.condition, price: f.price,
-      isNegotiable: f.isNegotiable, description: f.description,
-      yearUsed: f.yearUsed, contactDetails: { email: f.email, phoneNo: f.phoneNo },
-      isAvailable: f.isAvailable,
-    }
-  }
-
-  const handleSave = () => {
+  const handleSave = rhfHandleSubmit((data) => {
     if (!user || !product) return
-    update(buildPayload(), { onSuccess: () => setEditing(false) })
-  }
+    update(buildPayload(data), { onSuccess: () => setEditing(false) })
+  })
 
   const handleToggleAvailable = (val: boolean) => {
     if (!user || !product) return
-    setForm((f) => ({ ...f, isAvailable: val }))
-    update(buildPayload({ isAvailable: val }))
+    setValue('isAvailable', val)
+    const current = watch()
+    update(buildPayload({ ...current, isAvailable: val }))
   }
 
   const handleDelete = () => {
@@ -69,8 +54,10 @@ export default function ManageListingPage() {
       isLoading={isLoading}
       editing={editing}
       onToggleEditing={() => setEditing((e) => !e)}
-      form={form}
-      onFormChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))}
+      register={register}
+      errors={errors}
+      watch={watch}
+      setValue={setValue}
       onSave={handleSave}
       onCancelEdit={() => setEditing(false)}
       onToggleAvailable={handleToggleAvailable}

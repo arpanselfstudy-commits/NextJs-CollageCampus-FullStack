@@ -4,6 +4,7 @@ import '@/styles/design.css'
 import { Lightbulb, ShieldCheck } from 'lucide-react'
 import Loader from '@/components/common/Loader/Loader'
 import Input from '@/components/common/Input/Input'
+import { FormError } from '@/components/common'
 import dynamic from 'next/dynamic'
 const ImageUploader = dynamic(() => import('@/components/common/ImageUploader/ImageUploader'), { ssr: false, loading: () => null })
 import {
@@ -12,23 +13,29 @@ import {
   type ListedProductCategory,
   type ListedProductCondition,
 } from '@/modules/marketplace/types'
+import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
+import type { ListProductForm } from '@/modules/user/types'
 
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
 export interface ListProductViewProps {
-  form: { productName: string; category: ListedProductCategory; price: string; description: string; condition: ListedProductCondition; yearUsed: number; isNegotiable: boolean; email: string; phoneNo: string }
-  onFormChange: (k: string, v: unknown) => void
+  register: UseFormRegister<ListProductForm>
+  errors: FieldErrors<ListProductForm>
+  watch: UseFormWatch<ListProductForm>
+  setValue: UseFormSetValue<ListProductForm>
   images: { file: File; preview: string }[]
   onDrop: (files: File[]) => void
   onRemoveImage: (i: number) => void
   isPending: boolean
   isUploading?: boolean
-  onSubmit: () => void
+  onSubmit: (e?: React.BaseSyntheticEvent) => void
 }
 
 export default function ListProductView({
-  form,
-  onFormChange,
+  register,
+  errors,
+  watch,
+  setValue,
   images,
   onDrop,
   onRemoveImage,
@@ -36,6 +43,7 @@ export default function ListProductView({
   isUploading = false,
   onSubmit,
 }: ListProductViewProps) {
+  const condition = watch('condition')
 
   return (
     <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '40px 32px' }}>
@@ -46,23 +54,31 @@ export default function ListProductView({
 
           {/* Form */}
           <div style={{ background: 'white', borderRadius: 20, padding: 32, boxShadow: '0 4px 24px rgba(11,28,48,0.07)' }}>
-            <form onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit() }} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-              <Input label="Product Name" type="text" placeholder="e.g. Advanced Calculus Textbook" value={form.productName} onChange={(e) => onFormChange('productName', e.target.value)} required />
+              <div>
+                <Input label="Product Name" type="text" placeholder="e.g. Advanced Calculus Textbook" {...register('productName')} />
+                <FormError message={errors.productName?.message} />
+              </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
                   <label style={lbl}>Category</label>
-                  <select style={{ width: '100%', padding: '13px 16px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 12, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', appearance: 'none' as const }} value={form.category} onChange={(e) => onFormChange('category', e.target.value as ListedProductCategory)} required>
+                  <select style={{ width: '100%', padding: '13px 16px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 12, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', appearance: 'none' as const }} {...register('category')}>
                     {LISTED_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
                   </select>
+                  <FormError message={errors.category?.message} />
                 </div>
-                <Input label="Price ($)" type="number" min={0} step="0.01" placeholder="0.00" value={form.price} onChange={(e) => onFormChange('price', e.target.value)} required />
+                <div>
+                  <Input label="Price ($)" type="number" min={0} step="0.01" placeholder="0.00" {...register('price')} />
+                  <FormError message={errors.price?.message} />
+                </div>
               </div>
 
               <div>
                 <label style={lbl}>Description</label>
-                <textarea style={{ width: '100%', padding: '13px 16px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 12, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', resize: 'none', height: 90, boxSizing: 'border-box' as const }} placeholder="Condition, features, why it's a great find..." value={form.description} onChange={(e) => onFormChange('description', e.target.value)} required />
+                <textarea style={{ width: '100%', padding: '13px 16px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 12, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', resize: 'none', height: 90, boxSizing: 'border-box' as const }} placeholder="Condition, features, why it's a great find..." {...register('description')} />
+                <FormError message={errors.description?.message} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -70,25 +86,34 @@ export default function ListProductView({
                   <label style={lbl}>Condition</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {LISTED_CONDITIONS.map((c) => (
-                      <button key={c} type="button" onClick={() => onFormChange('condition', c)} style={{ flex: 1, padding: '10px 4px', background: form.condition === c ? '#2a14b4' : '#e5eeff', color: form.condition === c ? 'white' : '#0b1c30', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      <button key={c} type="button" onClick={() => setValue('condition', c as ListedProductCondition)} style={{ flex: 1, padding: '10px 4px', background: condition === c ? '#2a14b4' : '#e5eeff', color: condition === c ? 'white' : '#0b1c30', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                         {c === 'NEW' ? 'New' : c === 'USED' ? 'Used' : 'Refurb'}
                       </button>
                     ))}
                   </div>
+                  <FormError message={errors.condition?.message} />
                 </div>
-                <Input label="Years Used" type="number" min={0} value={form.yearUsed} onChange={(e) => onFormChange('yearUsed', Number(e.target.value))} />
+                <div>
+                  <Input label="Years Used" type="number" min={0} {...register('yearUsed', { valueAsNumber: true })} />
+                </div>
               </div>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
-                <input type="checkbox" checked={form.isNegotiable} onChange={(e) => onFormChange('isNegotiable', e.target.checked)} style={{ width: 16, height: 16, accentColor: '#2a14b4' }} />
+                <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#2a14b4' }} {...register('isNegotiable')} />
                 Open to Negotiation
               </label>
 
               <div style={{ background: '#f8f9ff', borderRadius: 14, padding: 18 }}>
                 <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Contact Details</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <Input label="Phone Number" type="tel" placeholder="+1 (555) 000-0000" value={form.phoneNo} onChange={(e) => onFormChange('phoneNo', e.target.value)} required />
-                  <Input label="Email Address" type="email" placeholder="student@university.edu" value={form.email} onChange={(e) => onFormChange('email', e.target.value)} required />
+                  <div>
+                    <Input label="Phone Number" type="tel" placeholder="+1 (555) 000-0000" {...register('phoneNo')} />
+                    <FormError message={errors.phoneNo?.message} />
+                  </div>
+                  <div>
+                    <Input label="Email Address" type="email" placeholder="student@university.edu" {...register('email')} />
+                    <FormError message={errors.email?.message} />
+                  </div>
                 </div>
               </div>
 

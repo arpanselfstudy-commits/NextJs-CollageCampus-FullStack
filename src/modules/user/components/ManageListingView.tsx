@@ -1,16 +1,18 @@
 'use client'
 
 import '@/styles/design.css'
-import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Pencil, Trash2, ShoppingBag, Loader2, Check, X, Package } from 'lucide-react'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import { LISTED_CATEGORIES, LISTED_CONDITIONS, CATEGORY_LABEL, type ListedProductCategory, type ListedProductCondition } from '@/modules/marketplace/types'
 import { PageLoader } from '@/components/common/Loader/Loader'
+import { FormError } from '@/components/common'
 import type { ListedProduct } from '@/modules/marketplace/types'
 import { BLUR_DATA_URL } from '@/lib/upload/constants'
 import styles from './account.module.css'
+import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
+import type { ManageListingForm } from '@/modules/user/types'
 
 function Toggle({ on, onChange, teal = false }: { on: boolean; onChange: (v: boolean) => void; teal?: boolean }) {
   return (
@@ -25,9 +27,11 @@ export interface ManageListingViewProps {
   isLoading: boolean
   editing: boolean
   onToggleEditing: () => void
-  form: { productName: string; category: ListedProductCategory; price: string; description: string; condition: ListedProductCondition; yearUsed: number; isNegotiable: boolean; isAvailable: boolean; email: string; phoneNo: string }
-  onFormChange: (k: string, v: unknown) => void
-  onSave: () => void
+  register: UseFormRegister<ManageListingForm>
+  errors: FieldErrors<ManageListingForm>
+  watch: UseFormWatch<ManageListingForm>
+  setValue: UseFormSetValue<ManageListingForm>
+  onSave: (e?: React.BaseSyntheticEvent) => void
   onCancelEdit: () => void
   onToggleAvailable: (val: boolean) => void
   onDelete: () => void
@@ -41,7 +45,7 @@ export interface ManageListingViewProps {
 const inp = { width: '100%', padding: '12px 14px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
-export default function ManageListingView({ product, isLoading, editing, onToggleEditing, form, onFormChange, onSave, onCancelEdit, onToggleAvailable, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageListingViewProps) {
+export default function ManageListingView({ product, isLoading, editing, onToggleEditing, register, errors, watch, setValue, onSave, onCancelEdit, onToggleAvailable, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageListingViewProps) {
   if (isLoading) return <div className={styles.page}><PageLoader /></div>
   if (!product) return (
     <div className={styles.page}>
@@ -51,6 +55,9 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
       </div>
     </div>
   )
+
+  const condition = watch('condition')
+  const isAvailable = watch('isAvailable')
 
   return (
     <div className={styles.page}>
@@ -75,36 +82,61 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
               <div className={styles.editForm}>
                 <h3 className={styles.editFormTitle}>Edit Details</h3>
                 <div className={styles.editFormFields}>
-                  <div><label style={lbl}>Product Name</label><input style={inp} value={form.productName} onChange={(e) => onFormChange('productName', e.target.value)} /></div>
+                  <div>
+                    <label style={lbl}>Product Name</label>
+                    <input style={inp} {...register('productName')} />
+                    <FormError message={errors.productName?.message} />
+                  </div>
                   <div className={styles.editFormGrid2}>
                     <div>
                       <label style={lbl}>Category</label>
-                      <select style={{ ...inp, appearance: 'none' as const }} value={form.category} onChange={(e) => onFormChange('category', e.target.value as ListedProductCategory)}>
+                      <select style={{ ...inp, appearance: 'none' as const }} {...register('category')}>
                         {LISTED_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
                       </select>
+                      <FormError message={errors.category?.message} />
                     </div>
-                    <div><label style={lbl}>Price ($)</label><input style={inp} type="number" value={form.price} onChange={(e) => onFormChange('price', e.target.value)} /></div>
+                    <div>
+                      <label style={lbl}>Price ($)</label>
+                      <input style={inp} type="number" {...register('price')} />
+                      <FormError message={errors.price?.message} />
+                    </div>
                   </div>
-                  <div><label style={lbl}>Description</label><textarea style={{ ...inp, resize: 'none', height: 80 } as React.CSSProperties} value={form.description} onChange={(e) => onFormChange('description', e.target.value)} /></div>
+                  <div>
+                    <label style={lbl}>Description</label>
+                    <textarea style={{ ...inp, resize: 'none', height: 80 } as React.CSSProperties} {...register('description')} />
+                    <FormError message={errors.description?.message} />
+                  </div>
                   <div className={styles.editFormGrid2}>
                     <div>
                       <label style={lbl}>Condition</label>
                       <div className={styles.conditionBtns}>
                         {LISTED_CONDITIONS.map((c) => (
-                          <button key={c} type="button" onClick={() => onFormChange('condition', c as ListedProductCondition)} className={`${styles.conditionBtn} ${form.condition === c ? styles['conditionBtn--active'] : styles['conditionBtn--inactive']}`}>
+                          <button key={c} type="button" onClick={() => setValue('condition', c as ListedProductCondition)} className={`${styles.conditionBtn} ${condition === c ? styles['conditionBtn--active'] : styles['conditionBtn--inactive']}`}>
                             {c === 'NEW' ? 'New' : c === 'USED' ? 'Used' : 'Refurb'}
                           </button>
                         ))}
                       </div>
+                      <FormError message={errors.condition?.message} />
                     </div>
-                    <div><label style={lbl}>Years Used</label><input style={inp} type="number" min={0} value={form.yearUsed} onChange={(e) => onFormChange('yearUsed', Number(e.target.value))} /></div>
+                    <div>
+                      <label style={lbl}>Years Used</label>
+                      <input style={inp} type="number" min={0} {...register('yearUsed', { valueAsNumber: true })} />
+                    </div>
                   </div>
                   <div className={styles.editFormGrid2}>
-                    <div><label style={lbl}>Email</label><input style={inp} type="email" value={form.email} onChange={(e) => onFormChange('email', e.target.value)} /></div>
-                    <div><label style={lbl}>Phone</label><input style={inp} type="tel" value={form.phoneNo} onChange={(e) => onFormChange('phoneNo', e.target.value)} /></div>
+                    <div>
+                      <label style={lbl}>Email</label>
+                      <input style={inp} type="email" {...register('email')} />
+                      <FormError message={errors.email?.message} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Phone</label>
+                      <input style={inp} type="tel" {...register('phoneNo')} />
+                      <FormError message={errors.phoneNo?.message} />
+                    </div>
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={form.isNegotiable} onChange={(e) => onFormChange('isNegotiable', e.target.checked)} style={{ width: 16, height: 16, accentColor: '#2a14b4' }} />
+                    <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#2a14b4' }} {...register('isNegotiable')} />
                     Open to Negotiation
                   </label>
                   <div className={styles.editFormActions}>
@@ -136,7 +168,7 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
                   <div className={styles.toggleIcon}><Package size={18} color="#2a14b4" /></div>
                   <div><div className={styles.toggleTitle}>Available</div><div className={styles.toggleSub}>Show this listing publicly</div></div>
                 </div>
-                <Toggle on={form.isAvailable} onChange={onToggleAvailable} />
+                <Toggle on={isAvailable ?? false} onChange={onToggleAvailable} />
               </div>
             </div>
 

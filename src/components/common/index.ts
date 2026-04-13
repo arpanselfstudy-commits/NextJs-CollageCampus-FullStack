@@ -10,3 +10,5 @@ export type { ImageUploaderProps } from './ImageUploader/ImageUploader'
 export { default as Footer } from './Footer/Footer'
 
 export { JobCardSkeleton, ShopCardSkeleton, MarketplaceCardSkeleton, JobsSkeletonGrid, ShopsSkeletonGrid, MarketplaceSkeletonGrid } from './Loader/SkeletonCard'
+
+export { default as FormError } from './FormError/FormError'
