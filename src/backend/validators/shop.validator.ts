@@ -21,17 +21,6 @@ const contactDetailsSchema = z.object({
   phoneNo: z.string(),
 })
 
-export const createOfferSchema = z.object({
-  offerId: z.string().optional(),
-  shopId: z.string().optional(),
-  offerName: z.string().min(1),
-  startDate: z.string().transform(s => new Date(s)),
-  endDate: z.string().transform(s => new Date(s)),
-  description: z.string().min(1),
-  photo: z.string(),
-})
-export const updateOfferSchema = createOfferSchema.partial()
-
 export const createShopSchema = z.object({
   name: z.string().min(1),
   shopId: z.string().optional(),
@@ -45,7 +34,6 @@ export const createShopSchema = z.object({
   allItems: z.array(z.string()).optional(),
   contactDetails: contactDetailsSchema,
   shopTiming: shopTimingSchema,
-  offers: z.array(createOfferSchema).optional(),
 })
 export const updateShopSchema = createShopSchema.partial()
 

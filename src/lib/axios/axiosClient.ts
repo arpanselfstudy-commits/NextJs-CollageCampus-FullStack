@@ -15,10 +15,10 @@ export const apiClient: AxiosInstance = axios.create({
 })
 
 let isRefreshing = false
-let failedQueue: Array<{ resolve: () => void; reject: (err: unknown) => void }> = []
+let failedQueue: Array<{ resolve: (value: unknown) => void; reject: (err: unknown) => void }> = []
 
 function processQueue(error: unknown) {
-  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve()))
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(null)))
   failedQueue = []
 }
 
@@ -39,21 +39,19 @@ apiClient.interceptors.response.use(
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })
       }).then(() => apiClient(originalRequest))
+        .catch((err) => Promise.reject(err))
     }
 
     originalRequest._retry = true
     isRefreshing = true
 
     try {
-      // No body needed — the refreshToken httpOnly cookie is sent automatically
-      // Use a raw axios call (not apiClient) to avoid the interceptor loop
       await axios.post('/api/auth/refresh', null, { withCredentials: true })
       processQueue(null)
       return apiClient(originalRequest)
     } catch (err) {
       processQueue(err)
       if (typeof window !== 'undefined') {
-        // Dynamically import to avoid SSR issues
         import('@/modules/auth/store/auth.store')
           .then(({ useAuthStore }) => useAuthStore.getState().clearAuth())
           .catch(() => {})

@@ -38,9 +38,6 @@ export default function LandingShops({ shops, isLoading }: LandingShopsProps) {
               )}
               <div className={styles.shopCardOverlay} />
               <div className={styles.shopCardContent}>
-                {shop.offers[0] && (
-                  <span className={styles.shopOfferBadge}>{shop.offers[0].offerName}</span>
-                )}
                 <div className={styles.shopName}>{shop.name}</div>
                 <div className={styles.shopMeta}>{shop.type} • {shop.distance}</div>
                 <Link href={`/shops/${shop._id ?? shop.shopId}`} className={styles.shopViewBtn}>

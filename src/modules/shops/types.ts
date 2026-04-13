@@ -4,16 +4,6 @@ export interface ShopTiming {
   closesAt: string
 }
 
-export interface ShopOffer {
-  offerId: string
-  shopId: string
-  offerName: string
-  startDate: string
-  endDate: string
-  description: string
-  photo: string
-}
-
 export interface Shop {
   _id?: string
   shopId: string
@@ -28,7 +18,6 @@ export interface Shop {
   allItems: string[]
   contactDetails: { email: string; phoneNo: string }
   shopTiming: Record<string, ShopTiming>
-  offers: ShopOffer[]
 }
 
 export interface ShopsResponse {

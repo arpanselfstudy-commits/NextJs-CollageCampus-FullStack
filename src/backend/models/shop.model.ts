@@ -35,19 +35,6 @@ const contactDetailsSchema = new Schema(
   { _id: false }
 )
 
-const offerSchema = new Schema(
-  {
-    offerId: { type: String, required: true },
-    shopId: { type: String, required: true },
-    offerName: { type: String, required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-    description: { type: String, required: true },
-    photo: { type: String, required: true },
-  },
-  { _id: false }
-)
-
 const ShopSchema = new Schema<IShopDocument>(
   {
     name: { type: String, required: true },
@@ -63,7 +50,6 @@ const ShopSchema = new Schema<IShopDocument>(
     allItems: [{ type: String }],
     contactDetails: { type: contactDetailsSchema, required: true },
     shopTiming: { type: shopTimingSchema, required: true },
-    offers: [offerSchema],
   },
   { timestamps: true }
 )

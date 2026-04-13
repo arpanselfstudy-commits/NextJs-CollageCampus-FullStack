@@ -4,7 +4,7 @@ import '@/styles/design.css'
 import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
-import { MapPin, Phone, Mail, Clock, Store as StoreIcon, Tag } from 'lucide-react'
+import { MapPin, Phone, Mail, Clock, Store as StoreIcon } from 'lucide-react'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import { DAYS_OF_WEEK } from '@/utils/globalStaticData'
 import type { Shop } from '@/modules/shops/types'
@@ -49,20 +49,6 @@ export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps)
       </div>
       <div className={styles.body}>
         <div className={styles.main}>
-          {shop.offers.length > 0 && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}><Tag size={16} color="#3730d4" /> Campus Exclusive Deals</h2>
-              <div className={styles.offersGrid}>
-                {shop.offers.map((offer) => (
-                  <div key={offer.offerId} className={styles.offerCard}>
-                    <div className={styles.offerTitle}>{offer.offerName}</div>
-                    <div className={styles.offerDesc}>{offer.description}</div>
-                    <div className={styles.offerDate}>Until {new Date(offer.endDate).toLocaleDateString()}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           {shop.topItems.length > 0 && (
             <div className={styles.card}>
               <h2 className={styles.cardTitle}>Top Items</h2>

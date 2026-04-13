@@ -97,8 +97,7 @@ export default function ShopsView({
                       <div className="shop-card-img" style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
                         {(shop.photo || shop.photos?.[0]) && <Image src={shop.photo || shop.photos[0]} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopImgBg} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />}
                         <div className="shop-card-img-overlay" />
-                        {!shop.photo && !shop.photos?.[0] && <span className={styles.shopEmoji}>🏪</span>}
-                        <span style={{ position: 'absolute', top: 10, left: 10, background: isOpenToday ? '#dcfce7' : '#fef2f2', color: isOpenToday ? '#166534' : '#991b1b', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
+                        {!shop.photo && !shop.photos?.[0] && <span className={styles.shopEmoji}>🏪</span>}<span style={{ position: 'absolute', top: 10, left: 10, background: isOpenToday ? '#dcfce7' : '#fef2f2', color: isOpenToday ? '#166534' : '#991b1b', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
                           {isOpenToday ? '● Open' : '● Closed'}
                         </span>
                       </div>
@@ -108,7 +107,6 @@ export default function ShopsView({
                           <div className="shop-card-dist">{shop.distance}</div>
                         </div>
                         <div className="shop-card-desc">{shop.type}</div>
-                        {shop.offers[0] && <div className="shop-card-deal">{shop.offers[0].offerName}</div>}
                         <div className="shop-card-actions">
                           <Link href={`/shops/${id}`} className="btn btn-primary">View Shop</Link>
                         </div>

@@ -172,26 +172,6 @@ components:
         sunday:
           $ref: '#/components/schemas/DayTiming'
 
-    Offer:
-      type: object
-      properties:
-        offerId:
-          type: string
-        shopId:
-          type: string
-        offerName:
-          type: string
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
-        description:
-          type: string
-        photo:
-          type: string
-
     Shop:
       type: object
       properties:
@@ -232,10 +212,6 @@ components:
           $ref: '#/components/schemas/ContactDetails'
         shopTiming:
           $ref: '#/components/schemas/ShopTiming'
-        offers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Offer'
         createdAt:
           type: string
           format: date-time
@@ -793,10 +769,6 @@ paths:
                   $ref: '#/components/schemas/ContactDetails'
                 shopTiming:
                   $ref: '#/components/schemas/ShopTiming'
-                offers:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Offer'
       responses:
         '201':
           description: Shop created
@@ -899,10 +871,6 @@ paths:
                   $ref: '#/components/schemas/ContactDetails'
                 shopTiming:
                   $ref: '#/components/schemas/ShopTiming'
-                offers:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Offer'
       responses:
         '200':
           description: Shop updated
@@ -959,163 +927,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/shops/{id}/offers:
-    post:
-      tags: [Shops]
-      summary: Add an offer to a shop (Admin only)
-      security:
-        - accessToken: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [offerName, startDate, endDate, description, photo]
-              properties:
-                offerName:
-                  type: string
-                startDate:
-                  type: string
-                  format: date-time
-                endDate:
-                  type: string
-                  format: date-time
-                description:
-                  type: string
-                photo:
-                  type: string
-      responses:
-        '201':
-          description: Offer added
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-                    properties:
-                      data:
-                        $ref: '#/components/schemas/Shop'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Shop not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
-  /api/shops/{id}/offers/{offerId}:
-    put:
-      tags: [Shops]
-      summary: Update an offer on a shop (Admin only)
-      security:
-        - accessToken: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: offerId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                offerName:
-                  type: string
-                startDate:
-                  type: string
-                  format: date-time
-                endDate:
-                  type: string
-                  format: date-time
-                description:
-                  type: string
-                photo:
-                  type: string
-      responses:
-        '200':
-          description: Offer updated
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-                    properties:
-                      data:
-                        $ref: '#/components/schemas/Shop'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Shop or offer not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags: [Shops]
-      summary: Delete an offer from a shop (Admin only)
-      security:
-        - accessToken: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: offerId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Offer deleted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Shop or offer not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  # ─────────────────────────────────────────
-  # JOBS
-  # ─────────────────────────────────────────
   /api/jobs:
     get:
       tags: [Jobs]
@@ -2207,7 +2019,7 @@ tags:
   - name: Auth
     description: Authentication and user profile
   - name: Shops
-    description: Shop management and offers
+    description: Shop management
   - name: Jobs
     description: Job listings
   - name: Listed Products

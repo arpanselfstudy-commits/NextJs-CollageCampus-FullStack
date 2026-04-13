@@ -73,16 +73,6 @@ export interface IShopTiming {
   sunday: IDayTiming
 }
 
-export interface IOffer {
-  offerId: string
-  shopId: string
-  offerName: string
-  startDate: Date
-  endDate: Date
-  description: string
-  photo: string
-}
-
 export interface IShop {
   _id: string
   name: string
@@ -98,7 +88,6 @@ export interface IShop {
   allItems?: string[]
   contactDetails: { email: string; phoneNo: string }
   shopTiming: IShopTiming
-  offers?: IOffer[]
   createdAt: Date
   updatedAt: Date
 }

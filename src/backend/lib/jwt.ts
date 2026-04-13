@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { env } from './env'
 
 export function generateAccessToken(userId: string): string {
-  return jwt.sign({ id: userId }, env.JWT_ACCESS_SECRET, { expiresIn: '59m' })
+  return jwt.sign({ id: userId }, env.JWT_ACCESS_SECRET, { expiresIn: '1m' })
 }
 
 export function generateRefreshToken(userId: string): string {

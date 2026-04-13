@@ -9,7 +9,7 @@ export async function setAuthCookies(accessToken: string, refreshToken: string):
     secure: IS_PROD,
     sameSite: 'lax',
     path: '/',
-    maxAge: 3540,
+    maxAge: 900, // 15 minutes — matches JWT expiry
   })
   store.set('refreshToken', refreshToken, {
     httpOnly: true,
