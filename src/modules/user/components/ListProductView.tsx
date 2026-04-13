@@ -22,6 +22,7 @@ export interface ListProductViewProps {
   onDrop: (files: File[]) => void
   onRemoveImage: (i: number) => void
   isPending: boolean
+  isUploading?: boolean
   onSubmit: () => void
 }
 
@@ -32,6 +33,7 @@ export default function ListProductView({
   onDrop,
   onRemoveImage,
   isPending,
+  isUploading = false,
   onSubmit,
 }: ListProductViewProps) {
 
@@ -94,8 +96,8 @@ export default function ListProductView({
                 <p style={{ fontSize: 12, color: '#e53e3e', fontWeight: 600 }}>⚠ At least 1 image is required.</p>
               )}
 
-              <button type="submit" disabled={isPending || images.length === 0} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 14, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: isPending || images.length === 0 ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {isPending ? <><Loader size={20} /> Listing…</> : 'Add Product to Market'}
+              <button type="submit" disabled={isPending || isUploading || images.length === 0} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 14, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: isPending || isUploading || images.length === 0 ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                {isUploading ? <><Loader size={20} /> Uploading…</> : isPending ? <><Loader size={20} /> Listing…</> : 'Add Product to Market'}
               </button>
 
             </form>
@@ -111,6 +113,7 @@ export default function ListProductView({
               onFileSelect={(file) => onDrop([file])}
               onRemove={() => onRemoveImage(0)}
               previewUrl={images[0]?.preview}
+              isUploading={isUploading}
             />
 
             {images.length > 1 && (

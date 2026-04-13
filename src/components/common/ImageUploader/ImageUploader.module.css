@@ -199,3 +199,43 @@
   color: var(--color-error);
   margin: 0;
 }
+
+/* Uploading spinner overlay */
+.spinnerOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  z-index: 10;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Disabled state for buttons */
+.avatarCamBtn:disabled,
+.avatarUploadBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Disabled drop zone */
+.dropZone--disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.7;
+}

@@ -12,6 +12,7 @@ export interface ImageUploaderProps {
   variant?: 'square' | 'avatar' | 'banner'
   label?: string
   hint?: string
+  isUploading?: boolean
 }
 
 export default function ImageUploader({
@@ -23,6 +24,7 @@ export default function ImageUploader({
   variant = 'square',
   label,
   hint = 'PNG, JPG or WEBP',
+  isUploading = false,
 }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string | null>(previewUrl ?? null)
   const [error, setError] = useState<string | null>(null)
@@ -65,9 +67,16 @@ export default function ImageUploader({
       ref={inputRef}
       type="file"
       accept={accept}
+      disabled={isUploading}
       style={{ display: 'none' }}
       onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
     />
+  )
+
+  const spinnerOverlay = (
+    <div className={styles.spinnerOverlay} aria-label="Uploading…">
+      <div className={styles.spinner} />
+    </div>
   )
 
   /* ── Avatar ─────────────────────────────────────────────── */
@@ -81,7 +90,8 @@ export default function ImageUploader({
               : <span className={styles.avatarInitial}>?</span>
             }
           </div>
-          <button type="button" className={styles.avatarCamBtn} onClick={openPicker} aria-label="Upload photo">
+          {isUploading && spinnerOverlay}
+          <button type="button" className={styles.avatarCamBtn} onClick={openPicker} aria-label="Upload photo" disabled={isUploading}>
             📷
           </button>
         </div>
@@ -90,7 +100,7 @@ export default function ImageUploader({
           <div className={styles.avatarTitle}>{label ?? 'Profile Picture'}</div>
           <div className={styles.avatarHint}>{hint}. Max size {maxSizeMb}MB.</div>
           <div className={styles.avatarActions}>
-            <button type="button" className={styles.avatarUploadBtn} onClick={openPicker}>Upload New</button>
+            <button type="button" className={styles.avatarUploadBtn} onClick={openPicker} disabled={isUploading}>Upload New</button>
             {preview && (
               <button type="button" className={styles.avatarRemoveBtn} onClick={handleRemove}>Remove</button>
             )}
@@ -109,6 +119,7 @@ export default function ImageUploader({
     variant === 'banner' ? styles['dropZone--banner'] : styles['dropZone--square'],
     dragging ? styles['dropZone--dragging'] : '',
     error    ? styles['dropZone--error']    : '',
+    isUploading ? styles['dropZone--disabled'] : '',
   ].filter(Boolean).join(' ')
 
   return (
@@ -117,11 +128,12 @@ export default function ImageUploader({
 
       <div
         className={zoneClass}
-        onClick={openPicker}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+        onClick={isUploading ? undefined : openPicker}
+        onDragOver={(e) => { if (!isUploading) { e.preventDefault(); setDragging(true) } }}
         onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
+        onDrop={isUploading ? undefined : handleDrop}
       >
+        {isUploading && spinnerOverlay}
         {preview ? (
           <>
             <img src={preview} alt="preview" className={styles.previewImg} />

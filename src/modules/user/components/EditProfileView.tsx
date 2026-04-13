@@ -17,6 +17,7 @@ export interface EditProfileViewProps {
   onDrop: (files: File[]) => void
   onRemovePhoto: () => void
   isPending: boolean
+  isUploading?: boolean
   onSubmit: () => void
 }
 
@@ -28,6 +29,7 @@ export default function EditProfileView({
   onDrop,
   onRemovePhoto,
   isPending,
+  isUploading,
   onSubmit,
 }: EditProfileViewProps) {
   const avatar = photoPreview || user?.photo || ''
@@ -55,6 +57,7 @@ export default function EditProfileView({
               onRemove={onRemovePhoto}
               hint="PNG, JPG or GIF"
               maxSizeMb={2}
+              isUploading={isUploading}
             />
 
             {/* Name */}
@@ -94,8 +97,8 @@ export default function EditProfileView({
               <Link href="/account/my-profile" style={{ padding: '12px 24px', background: 'none', border: '1.5px solid #e5e7eb', fontSize: 14, fontWeight: 600, color: '#6b7280', cursor: 'pointer', borderRadius: 12, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                 Cancel
               </Link>
-              <button type="submit" disabled={isPending} style={{ padding: '12px 28px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                {isPending ? <><Loader2 size={15} style={{ animation: 'spin 0.8s linear infinite' }} /> Saving…</> : 'Save Changes'}
+              <button type="submit" disabled={isPending || isUploading} style={{ padding: '12px 28px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: (isPending || isUploading) ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                {(isPending || isUploading) ? <><Loader2 size={15} style={{ animation: 'spin 0.8s linear infinite' }} /> Saving…</> : 'Save Changes'}
               </button>
               <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
             </div>

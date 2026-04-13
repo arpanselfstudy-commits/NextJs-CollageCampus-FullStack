@@ -4,8 +4,9 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useCreateListedProduct } from '@/modules/marketplace/hooks/useListedProducts'
-import { compressImage } from '@/lib/upload/compress'
+import { uploadToCloudinary } from '@/lib/upload/cloudinary'
 import ListProductView from '@/modules/user/components/ListProductView'
+import toast from 'react-hot-toast'
 import type { ListedProductCategory, ListedProductCondition } from '@/modules/marketplace/types'
 
 export default function ListProductPage() {
@@ -14,6 +15,7 @@ export default function ListProductPage() {
   const { mutate: create, isPending } = useCreateListedProduct()
 
   const [images, setImages] = useState<{ file: File; preview: string }[]>([])
+  const [isUploading, setIsUploading] = useState(false)
   const [form, setForm] = useState({
     productName: '', category: 'ELECTRONICS' as ListedProductCategory,
     price: '', description: '', condition: 'NEW' as ListedProductCondition,
@@ -33,9 +35,18 @@ export default function ListProductPage() {
 
   const handleSubmit = async () => {
     if (!user || images.length === 0) return
-    const base64Images = await Promise.all(images.map((img) => compressImage(img.file)))
+    setIsUploading(true)
+    let uploadedUrls: string[]
+    try {
+      uploadedUrls = await Promise.all(images.map((img) => uploadToCloudinary(img.file)))
+    } catch (err) {
+      toast.error(`Image upload failed: ${err instanceof Error ? err.message : String(err)}`)
+      return
+    } finally {
+      setIsUploading(false)
+    }
     create({
-      user: user._id, productName: form.productName, images: base64Images,
+      user: user._id, productName: form.productName, images: uploadedUrls,
       category: form.category, condition: form.condition, price: form.price,
       isNegotiable: form.isNegotiable, description: form.description,
       yearUsed: form.yearUsed,
@@ -52,6 +63,7 @@ export default function ListProductPage() {
       onDrop={onDrop}
       onRemoveImage={removeImage}
       isPending={isPending}
+      isUploading={isUploading}
       onSubmit={handleSubmit}
     />
   )

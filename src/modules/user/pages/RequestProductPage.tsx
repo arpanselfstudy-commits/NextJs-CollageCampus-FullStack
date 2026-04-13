@@ -4,8 +4,9 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useCreateRequestedProduct } from '@/modules/marketplace/hooks/useRequestedProducts'
-import { compressImage } from '@/lib/upload/compress'
+import { uploadToCloudinary } from '@/lib/upload/cloudinary'
 import RequestProductView from '@/modules/user/components/RequestProductView'
+import toast from 'react-hot-toast'
 import type { ListedProductCategory } from '@/modules/marketplace/types'
 
 export default function RequestProductPage() {
@@ -14,6 +15,7 @@ export default function RequestProductPage() {
   const { mutate: create, isPending } = useCreateRequestedProduct()
 
   const [images, setImages] = useState<{ file: File; preview: string }[]>([])
+  const [isUploading, setIsUploading] = useState(false)
   const [form, setForm] = useState({
     name: '', category: 'ELECTRONICS' as ListedProductCategory,
     priceFrom: 0, priceTo: 0, isNegotiable: false,
@@ -33,9 +35,18 @@ export default function RequestProductPage() {
 
   const handleSubmit = async () => {
     if (!user || images.length === 0) return
-    const base64Images = await Promise.all(images.map((img) => compressImage(img.file)))
+    setIsUploading(true)
+    let uploadedUrls: string[]
+    try {
+      uploadedUrls = await Promise.all(images.map((img) => uploadToCloudinary(img.file)))
+    } catch (err) {
+      toast.error(`Image upload failed: ${err instanceof Error ? err.message : String(err)}`)
+      return
+    } finally {
+      setIsUploading(false)
+    }
     create({
-      user: user._id, name: form.name, images: base64Images,
+      user: user._id, name: form.name, images: uploadedUrls,
       category: form.category,
       price: { from: form.priceFrom, to: form.priceTo },
       isNegotiable: form.isNegotiable, description: form.description,
@@ -52,6 +63,7 @@ export default function RequestProductPage() {
       onDrop={onDrop}
       onRemoveImage={removeImage}
       isPending={isPending}
+      isUploading={isUploading}
       onSubmit={handleSubmit}
     />
   )

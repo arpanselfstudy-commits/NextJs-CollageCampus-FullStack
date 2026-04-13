@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { useUpdateProfile } from '@/modules/auth/hooks/useUpdateProfile'
-import { compressImage } from '@/lib/upload/compress'
+import { uploadToCloudinary } from '@/lib/upload/cloudinary'
 import EditProfileView from '@/modules/user/components/EditProfileView'
+import toast from 'react-hot-toast'
 
 export default function EditProfilePage() {
   const router = useRouter()
@@ -15,23 +16,35 @@ export default function EditProfilePage() {
   const [form, setForm] = useState({ name: '', email: '', phoneNumber: '' })
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState('')
-  const [photoBase64, setPhotoBase64] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     if (user) setForm({ name: user.name, email: user.email, phoneNumber: user.phoneNumber ?? '' })
   }, [user])
 
-  const onDrop = useCallback(async (accepted: File[]) => {
+  const onDrop = useCallback((accepted: File[]) => {
     if (!accepted[0]) return
     const file = accepted[0]
-    setPhotoPreview(URL.createObjectURL(file))
     setPhotoFile(file)
-    setPhotoBase64(await compressImage(file))
+    setPhotoPreview(URL.createObjectURL(file))
   }, [])
 
-  const handleSubmit = () => {
-    // If no new photo selected, keep the existing one
-    const photo = photoBase64 || user?.photo || ''
+  const handleSubmit = async () => {
+    let photo = user?.photo || ''
+
+    if (photoFile) {
+      setIsUploading(true)
+      try {
+        photo = await uploadToCloudinary(photoFile)
+      } catch (err) {
+        console.error('Image upload failed:', err)
+        toast.error('Image upload failed. Please try again.')
+        return
+      } finally {
+        setIsUploading(false)
+      }
+    }
+
     update(
       { name: form.name, email: form.email, phoneNumber: form.phoneNumber, photo },
       { onSuccess: () => router.push('/account/my-profile') }
@@ -45,8 +58,9 @@ export default function EditProfilePage() {
       onFormChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))}
       photoPreview={photoPreview}
       onDrop={onDrop}
-      onRemovePhoto={() => { setPhotoFile(null); setPhotoPreview(''); setPhotoBase64('') }}
+      onRemovePhoto={() => { setPhotoFile(null); setPhotoPreview('') }}
       isPending={isPending}
+      isUploading={isUploading}
       onSubmit={handleSubmit}
     />
   )

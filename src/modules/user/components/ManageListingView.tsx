@@ -9,6 +9,7 @@ import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import { LISTED_CATEGORIES, LISTED_CONDITIONS, CATEGORY_LABEL, type ListedProductCategory, type ListedProductCondition } from '@/modules/marketplace/types'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import type { ListedProduct } from '@/modules/marketplace/types'
+import { BLUR_DATA_URL } from '@/lib/upload/constants'
 import styles from './account.module.css'
 
 function Toggle({ on, onChange, teal = false }: { on: boolean; onChange: (v: boolean) => void; teal?: boolean }) {
@@ -65,7 +66,7 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
         <div className={styles.manageGrid}>
           <div className={styles.manageLeft}>
             <div className={styles.manageImgWrap} style={{ background: 'linear-gradient(135deg,#0a0a1a,#1a1a3e)', position: 'relative' }}>
-              {product.images[0] && <Image src={product.images[0]} alt={product.productName} fill sizes="(max-width: 768px) 100vw, 500px" priority />}
+              {product.images[0] && <Image src={product.images[0]} alt={product.productName} fill sizes="(max-width: 768px) 100vw, 500px" priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />}
               {!product.images[0] && <ShoppingBag size={80} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
               <span className={styles.manageImgId}>{product._id?.slice(-8).toUpperCase()}</span>
             </div>

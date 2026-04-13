@@ -8,6 +8,7 @@ import { Pencil, Trash2, ClipboardList, Loader2, Check, X } from 'lucide-react'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import type { RequestedProduct } from '@/modules/marketplace/types'
+import { BLUR_DATA_URL } from '@/lib/upload/constants'
 import styles from './account.module.css'
 
 function Toggle({ on, onChange, teal = false }: { on: boolean; onChange: (v: boolean) => void; teal?: boolean }) {
@@ -64,7 +65,7 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
         <div className={styles.manageGrid}>
           <div className={styles.manageLeft}>
             <div className={styles.requestImgWrap} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d1a4e)', position: 'relative' }}>
-              {request.images[0] && <Image src={request.images[0]} alt={request.name} fill sizes="(max-width: 768px) 100vw, 500px" priority />}
+              {request.images[0] && <Image src={request.images[0]} alt={request.name} fill sizes="(max-width: 768px) 100vw, 500px" priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />}
               {!request.images[0] && <ClipboardList size={80} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
               <span className={styles.requestStatusBadge} style={{ background: form.isFulfilled ? '#dcfce7' : '#2a14b4', color: form.isFulfilled ? '#166534' : 'white' }}>
                 {form.isFulfilled ? 'Fulfilled' : 'Active'}

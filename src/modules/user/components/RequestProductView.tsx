@@ -16,6 +16,7 @@ export interface RequestProductViewProps {
   onDrop: (files: File[]) => void
   onRemoveImage: (i: number) => void
   isPending: boolean
+  isUploading?: boolean
   onSubmit: () => void
 }
 
@@ -26,13 +27,14 @@ export default function RequestProductView({
   onDrop,
   onRemoveImage,
   isPending,
+  isUploading = false,
   onSubmit,
 }: RequestProductViewProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] },
     maxFiles: 5,
-    disabled: images.length >= 5,
+    disabled: images.length >= 5 || isUploading,
   })
 
   return (
@@ -114,8 +116,8 @@ export default function RequestProductView({
               </div>
             </div>
 
-            <button type="submit" disabled={isPending || images.length === 0} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 14, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: isPending || images.length === 0 ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {isPending ? <><Loader size={20} /> Posting…</> : 'Request Product'}
+            <button type="submit" disabled={isPending || isUploading || images.length === 0} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 14, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: isPending || isUploading || images.length === 0 ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              {isUploading ? <><Loader size={20} /> Uploading…</> : isPending ? <><Loader size={20} /> Posting…</> : 'Request Product'}
             </button>
 
           </form>
