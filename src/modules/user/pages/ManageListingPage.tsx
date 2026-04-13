@@ -18,6 +18,7 @@ export default function ManageListingPage() {
   const { mutate: remove, isPending: deleting } = useDeleteListedProduct()
 
   const [editing, setEditing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [form, setForm] = useState({
     productName: '', category: 'ELECTRONICS' as ListedProductCategory,
     price: '', description: '', condition: 'NEW' as ListedProductCondition,
@@ -73,7 +74,10 @@ export default function ManageListingPage() {
       onSave={handleSave}
       onCancelEdit={() => setEditing(false)}
       onToggleAvailable={handleToggleAvailable}
-      onDelete={handleDelete}
+      onDelete={() => setConfirmDelete(true)}
+      onConfirmDelete={handleDelete}
+      onCancelDelete={() => setConfirmDelete(false)}
+      confirmDelete={confirmDelete}
       updating={updating}
       deleting={deleting}
     />

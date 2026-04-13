@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingBag, Tag, MessageCircle, ChevronRight } from 'lucide-react'
-import { MarketplaceSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
+import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
 import styles from './landing.module.css'
 
@@ -39,11 +39,15 @@ export default function LandingMarketplace({
 
       {/* Listed */}
       {tab === 'listed' && (
-        listedLoading ? <MarketplaceSkeletonGrid count={8} /> : listed.length === 0 ? (
+        listedLoading ? (
+          <div className={styles.mpGrid3}>
+            {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
+          </div>
+        ) : listed.length === 0 ? (
           <p className={styles.emptyMsg}>No listed products yet.</p>
         ) : (
-          <div className="marketplace-grid">
-            {listed.map((item) => (
+          <div className={styles.mpGrid3}>
+            {listed.slice(0, 6).map((item) => (
               <Link href={`/marketplace/${item._id}`} key={item._id} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="mp-card">
                   <div className={`mp-card-img ${styles.mpCardImg}`} style={{ background: '#f0f4ff', position: 'relative' }}>
@@ -77,11 +81,15 @@ export default function LandingMarketplace({
 
       {/* Requested */}
       {tab === 'requested' && (
-        requestedLoading ? <MarketplaceSkeletonGrid count={8} /> : requested.length === 0 ? (
+        requestedLoading ? (
+          <div className={styles.mpGrid3}>
+            {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
+          </div>
+        ) : requested.length === 0 ? (
           <p className={styles.emptyMsg}>No requests yet.</p>
         ) : (
-          <div className="marketplace-grid">
-            {requested.map((item) => (
+          <div className={styles.mpGrid3}>
+            {requested.slice(0, 6).map((item) => (
               <div key={item._id} className="mp-card">
                 <div className={`mp-card-img ${styles.mpCardImg}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
                   {item.images[0]

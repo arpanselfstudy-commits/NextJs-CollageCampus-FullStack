@@ -4,8 +4,6 @@ import '@/styles/design.css'
 import Link from 'next/link'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Mail, Phone, User, Loader2 } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import Input from '@/components/common/Input/Input'
 import dynamic from 'next/dynamic'
 const ImageUploader = dynamic(() => import('@/components/common/ImageUploader/ImageUploader'), { ssr: false, loading: () => null })
@@ -35,10 +33,7 @@ export default function EditProfileView({
   const avatar = photoPreview || user?.photo || ''
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f8', fontFamily: "'Inter',sans-serif", display: 'flex', flexDirection: 'column' }}>
-      <AppHeader />
-
-      <div style={{ flex: 1, maxWidth: 680, margin: '0 auto', width: '100%', padding: '40px 24px' }}>
+    <div style={{ flex: 1, maxWidth: 680, margin: '0 auto', width: '100%', padding: '40px 24px' }}>
 
         {/* Back */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
@@ -122,8 +117,5 @@ export default function EditProfileView({
           </div>
         </div>
       </div>
-
-      <AppFooter />
-    </div>
   )
 }

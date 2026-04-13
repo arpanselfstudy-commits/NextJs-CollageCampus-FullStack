@@ -30,8 +30,10 @@ export default function EditProfilePage() {
   }, [])
 
   const handleSubmit = () => {
+    // If no new photo selected, keep the existing one
+    const photo = photoBase64 || user?.photo || ''
     update(
-      { name: form.name, email: form.email, phoneNumber: form.phoneNumber, photo: photoBase64 },
+      { name: form.name, email: form.email, phoneNumber: form.phoneNumber, photo },
       { onSuccess: () => router.push('/account/my-profile') }
     )
   }

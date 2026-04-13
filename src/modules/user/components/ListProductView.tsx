@@ -2,8 +2,6 @@
 
 import '@/styles/design.css'
 import { Lightbulb, ShieldCheck } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import Loader from '@/components/common/Loader/Loader'
 import Input from '@/components/common/Input/Input'
 import dynamic from 'next/dynamic'
@@ -38,9 +36,7 @@ export default function ListProductView({
 }: ListProductViewProps) {
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f8', fontFamily: "'Inter',sans-serif", display: 'flex', flexDirection: 'column' }}>
-      <AppHeader />
-      <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '40px 32px' }}>
+    <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '40px 32px' }}>
         <h1 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 36, fontWeight: 800, color: '#0b1c30', marginBottom: 6 }}>Market Your Craft</h1>
         <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 32 }}>Turn your essentials into value. List your product in the Campus Next marketplace.</p>
 
@@ -140,7 +136,5 @@ export default function ListProductView({
           </div>
         </div>
       </div>
-      <AppFooter />
-    </div>
   )
 }

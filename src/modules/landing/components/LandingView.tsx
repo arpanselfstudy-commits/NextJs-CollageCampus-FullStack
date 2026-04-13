@@ -1,8 +1,6 @@
 'use client'
 
 import '@/styles/design.css'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import LandingHero from './LandingHero'
 import LandingJobs from './LandingJobs'
 import LandingShops from './LandingShops'
@@ -33,7 +31,6 @@ export default function LandingView({
 }: LandingViewProps) {
   return (
     <div className="landing-page">
-      <AppHeader />
       <LandingHero />
       <LandingJobs jobs={jobs} isLoading={jobsLoading} />
       <LandingShops shops={shops} isLoading={shopsLoading} />
@@ -45,7 +42,6 @@ export default function LandingView({
         tab={mpTab}
         onTabChange={onMpTabChange}
       />
-      <AppFooter />
     </div>
   )
 }

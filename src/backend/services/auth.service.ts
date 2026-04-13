@@ -33,8 +33,7 @@ export async function registerUser(data: {
   })
   await user.save()
 
-  const userObj = user.toObject() as IUser & { password?: string }
-  delete userObj.password
+  const { password: _p1, ...userObj } = user.toObject() as IUser & { password?: string }
   return userObj as UserWithoutPassword
 }
 
@@ -66,9 +65,7 @@ export async function loginUser(
     deviceInfo,
   })
 
-  const userObj = user.toObject() as IUser & { password?: string }
-  delete userObj.password
-
+  const { password: _p2, ...userObj } = user.toObject() as IUser & { password?: string }
   return { accessToken, refreshToken, user: userObj as UserWithoutPassword }
 }
 
@@ -170,7 +167,6 @@ export async function updateProfile(
   Object.assign(user, data)
   await user.save()
 
-  const userObj = user.toObject() as IUser & { password?: string }
-  delete userObj.password
+  const { password: _p3, ...userObj } = user.toObject() as IUser & { password?: string }
   return userObj as UserWithoutPassword
 }

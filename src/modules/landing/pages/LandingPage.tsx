@@ -11,9 +11,9 @@ export default function LandingPage() {
   const [mpTab, setMpTab] = useState<'listed' | 'requested'>('listed')
 
   const { data: jobsData, isLoading: jobsLoading } = useJobs({ limit: 6 })
-  const { data: shopsData, isLoading: shopsLoading } = useShops({ limit: 4 })
-  const { data: listedData, isLoading: listedLoading } = useListedProducts({ limit: 8 })
-  const { data: requestedData, isLoading: requestedLoading } = useRequestedProducts({ limit: 8 })
+  const { data: shopsData, isLoading: shopsLoading } = useShops({ limit: 6 })
+  const { data: listedData, isLoading: listedLoading } = useListedProducts({ limit: 6 })
+  const { data: requestedData, isLoading: requestedLoading } = useRequestedProducts({ limit: 6 })
 
   return (
     <LandingView

@@ -4,8 +4,6 @@ import '@/styles/design.css'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingBag, MessageCircle, CheckCircle, FolderOpen, SlidersHorizontal, X, Tag } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { MarketplaceSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
 import Pagination from '@/components/common/Pagination/Pagination'
@@ -76,7 +74,6 @@ export default function MarketplaceView({
 
   return (
     <div className="marketplace-page">
-      <AppHeader />
       <div className="marketplace-hero">
         <h1 className="marketplace-hero-title">Marketplace</h1>
         <div className={styles.searchWrap}>
@@ -277,7 +274,6 @@ export default function MarketplaceView({
           )}
         </div>
       </div>
-      <AppFooter />
     </div>
   )
 }

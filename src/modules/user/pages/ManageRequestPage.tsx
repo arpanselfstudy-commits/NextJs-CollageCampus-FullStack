@@ -17,6 +17,7 @@ export default function ManageRequestPage() {
   const { mutate: remove, isPending: deleting } = useDeleteRequestedProduct()
 
   const [editing, setEditing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [form, setForm] = useState({
     name: '', category: '', priceFrom: 0, priceTo: 0,
     isNegotiable: false, isFulfilled: false, description: '', email: '', phoneNo: '',
@@ -69,7 +70,10 @@ export default function ManageRequestPage() {
       onSave={handleSave}
       onCancelEdit={() => setEditing(false)}
       onToggle={handleToggle}
-      onDelete={handleDelete}
+      onDelete={() => setConfirmDelete(true)}
+      onConfirmDelete={handleDelete}
+      onCancelDelete={() => setConfirmDelete(false)}
+      confirmDelete={confirmDelete}
       updating={updating}
       deleting={deleting}
     />

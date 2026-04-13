@@ -2,9 +2,7 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import { Briefcase, MapPin, Clock, FileText, X, SlidersHorizontal } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
+import { Briefcase, MapPin, Clock, X, SlidersHorizontal } from 'lucide-react'
 import { JobsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
 import Pagination from '@/components/common/Pagination/Pagination'
@@ -55,8 +53,6 @@ export default function JobsView({
 
   return (
     <div className="jobs-page">
-      <AppHeader />
-
       <div className="jobs-hero">
         <h1 className="jobs-hero-title">The Next Chapter Starts Here.</h1>
         <p className="jobs-hero-sub">Discover internships, research roles, and part-time opportunities curated specifically for the academic community.</p>
@@ -161,11 +157,6 @@ export default function JobsView({
             </div>
           </div>
 
-          <div className="cv-card">
-            <div className={`cv-card-title ${styles.cvCardTitle}`}><FileText size={15} color="#3730d4" /> Need a CV Review?</div>
-            <div className="cv-card-sub">Get expert feedback from the Career Center advisors.</div>
-            <a href="#" className="cv-card-link">Book Session</a>
-          </div>
         </aside>
 
         <div>
@@ -213,8 +204,6 @@ export default function JobsView({
           )}
         </div>
       </div>
-
-      <AppFooter />
     </div>
   )
 }

@@ -14,11 +14,9 @@ export function useUpdateProfile() {
     mutationFn: (payload: { name: string; email: string; phoneNumber: string; photo: string }) =>
       authApi.updateProfile(payload).then((r) => r.data.data),
     onSuccess: (updated) => {
-      // Sync updated user back into the store (tokens stay in cookies)
-      const { user: currentUser } = useAuthStore.getState()
-      if (currentUser) {
-        setAuth(updated, '', '')
-      }
+      // Sync updated user back into the store, preserving existing tokens
+      const { accessToken, refreshToken } = useAuthStore.getState()
+      setAuth(updated, accessToken ?? '', refreshToken ?? '')
       qc.invalidateQueries({ queryKey: queryKeys.auth.profile })
       toast.success('Profile updated!')
     },

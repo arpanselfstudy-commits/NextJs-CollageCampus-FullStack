@@ -8,19 +8,16 @@ export default function ShopsPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [openDay, setOpenDay] = useState('')
-  const [distance, setDistance] = useState('')
 
   const { data, isLoading } = useShops({
     page,
     limit: 9,
     search: search || undefined,
     openDay: openDay || undefined,
-    distance: distance || undefined,
   })
 
   const handleClearFilters = () => {
     setOpenDay('')
-    setDistance('')
     setPage(1)
   }
 
@@ -32,8 +29,6 @@ export default function ShopsPage() {
       onSearchChange={(v) => { setSearch(v); setPage(1) }}
       openDay={openDay}
       onOpenDayChange={(d) => { setOpenDay(d); setPage(1) }}
-      distance={distance}
-      onDistanceChange={(d) => { setDistance(d); setPage(1) }}
       onClearFilters={handleClearFilters}
       pagination={data?.pagination}
       page={page}

@@ -5,8 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Pencil, Trash2, ClipboardList, Loader2, Check, X } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
+import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import type { RequestedProduct } from '@/modules/marketplace/types'
 import styles from './account.module.css'
@@ -30,6 +29,9 @@ export interface ManageRequestViewProps {
   onCancelEdit: () => void
   onToggle: (key: 'isFulfilled' | 'isNegotiable', val: boolean) => void
   onDelete: () => void
+  onConfirmDelete: () => void
+  onCancelDelete: () => void
+  confirmDelete: boolean
   updating: boolean
   deleting: boolean
 }
@@ -37,11 +39,10 @@ export interface ManageRequestViewProps {
 const inp = { width: '100%', padding: '12px 14px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
-export default function ManageRequestView({ request, isLoading, editing, onToggleEditing, form, onFormChange, onSave, onCancelEdit, onToggle, onDelete, updating, deleting }: ManageRequestViewProps) {
-  if (isLoading) return <div className={styles.page}><AppHeader /><PageLoader /></div>
+export default function ManageRequestView({ request, isLoading, editing, onToggleEditing, form, onFormChange, onSave, onCancelEdit, onToggle, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageRequestViewProps) {
+  if (isLoading) return <div className={styles.page}><PageLoader /></div>
   if (!request) return (
     <div className={styles.page}>
-      <AppHeader />
       <div className={styles.emptyState} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <ClipboardList size={48} color="#9ca3af" strokeWidth={1} />
         <p>Request not found. <BackButton href="/account/my-profile" label="Back to profile" /></p>
@@ -51,7 +52,6 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
 
   return (
     <div className={styles.page}>
-      <AppHeader />
       <div className={styles.contentWide}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <BackButton href="/account/my-profile" label="Back to Profile" />
@@ -123,7 +123,7 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
             </div>
 
             <div className={styles.actionsRow}>
-              <button onClick={onToggleEditing} className={styles.editDetailsBtn}><Pencil size={15} /> Edit Request</button>
+              <button onClick={onToggleEditing} className={styles.editDetailsBtn}><Pencil size={15} /> Edit Details</button>
               <button onClick={onDelete} disabled={deleting} className={styles.dangerBtn}>
                 {deleting ? <Loader2 size={16} className={styles.spin} /> : <Trash2 size={16} />}
               </button>
@@ -137,7 +137,21 @@ export default function ManageRequestView({ request, isLoading, editing, onToggl
           </div>
         </div>
       </div>
-      <AppFooter />
+
+      {confirmDelete && (
+        <div className="overlay">
+          <ConfirmModal
+            variant="danger"
+            title="Delete request?"
+            description={`Are you sure you want to delete "${request?.name}"? This action cannot be undone.`}
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            loading={deleting}
+            onConfirm={onConfirmDelete}
+            onCancel={onCancelDelete}
+          />
+        </div>
+      )}
     </div>
   )
 }

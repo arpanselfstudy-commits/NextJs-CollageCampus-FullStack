@@ -1,12 +1,12 @@
 'use client'
 
 import '@/styles/design.css'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Pencil, Plus, ClipboardList, ShoppingBag, Trash2, MoreHorizontal } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
+import { Pencil, Plus, ClipboardList, ShoppingBag, Trash2, Settings2 } from 'lucide-react'
 import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
+import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import type { AuthUser } from '@/modules/auth/types'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
 import styles from './account.module.css'
@@ -24,10 +24,19 @@ export interface MyProfileViewProps {
 }
 
 export default function MyProfileView({ user, tab, onTabChange, listings, listedLoading, requests, requestedLoading, onDeleteListed, onDeleteRequested }: MyProfileViewProps) {
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; type: 'listing' | 'request'; name: string } | null>(null)
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return
+    if (pendingDelete.type === 'listing') onDeleteListed(pendingDelete.id)
+    else onDeleteRequested(pendingDelete.id)
+    setPendingDelete(null)
+  }
+
   return (
-    <div className={styles.page}>
-      <AppHeader />
-      <div className={styles.content}>
+    <>
+    <div className={styles.content}>
+
+        {/* Profile header */}
         <div className={styles.profileHeader}>
           <div className={styles.profileAvatar} style={{ position: 'relative' }}>
             {user?.photo ? <Image src={user.photo} alt={user.name} fill sizes="80px" /> : user?.name?.[0]?.toUpperCase() ?? '?'}
@@ -40,6 +49,7 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
           <Link href="/account/edit-profile" className={styles.editBtn}><Pencil size={14} /> Edit Profile</Link>
         </div>
 
+        {/* Tabs + actions */}
         <div className={styles.tabsRow}>
           <div className={styles.tabs}>
             {(['listings', 'requests'] as const).map((key) => (
@@ -54,11 +64,10 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
           </div>
         </div>
 
+        {/* Listings tab */}
         {tab === 'listings' && (
           listedLoading ? (
-            <div className={styles.grid3}>
-              {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
-            </div>
+            <div className={styles.grid3}>{Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}</div>
           ) : listings.length === 0 ? (
             <div className={styles.emptyState}>
               <ShoppingBag size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
@@ -69,8 +78,12 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
               {listings.map((item) => (
                 <div key={item._id} className={styles.productCard}>
                   <div className={styles.productCardImg} style={{ position: 'relative' }}>
-                    {item.images[0] ? <Image src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" /> : <ShoppingBag size={48} color="#3730d4" strokeWidth={1} />}
-                    <span className={styles.productCardBadge} style={{ background: item.isAvailable ? '#dcfce7' : '#fef9c3', color: item.isAvailable ? '#166534' : '#854d0e' }}>{item.isAvailable ? 'Available' : 'Unavailable'}</span>
+                    {item.images[0]
+                      ? <Image src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+                      : <ShoppingBag size={48} color="#3730d4" strokeWidth={1} />}
+                    <span className={styles.productCardBadge} style={{ background: item.isAvailable ? '#dcfce7' : '#fef9c3', color: item.isAvailable ? '#166534' : '#854d0e' }}>
+                      {item.isAvailable ? 'Available' : 'Unavailable'}
+                    </span>
                   </div>
                   <div className={styles.productCardBody}>
                     <div className={styles.productCardRow}>
@@ -79,8 +92,11 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
                     </div>
                     <p className={styles.productCardDesc}>{item.description}</p>
                     <div className={styles.productCardActions}>
-                      <Link href={`/account/manage-listing/${item._id}`} className={styles.manageBtn}><MoreHorizontal size={14} /> Manage</Link>
-                      <button onClick={() => item._id && onDeleteListed(item._id)} className={styles.deleteBtn}><Trash2 size={14} /></button>
+                      <Link href={`/account/manage-listing/${item._id}`} className={styles.manageBtn}><Settings2 size={14} /> Manage</Link>
+                      <button
+                        onClick={() => item._id && setPendingDelete({ id: item._id, type: 'listing', name: item.productName })}
+                        className={styles.deleteBtn}
+                      ><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -89,11 +105,10 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
           )
         )}
 
+        {/* Requests tab */}
         {tab === 'requests' && (
           requestedLoading ? (
-            <div className={styles.grid3}>
-              {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
-            </div>
+            <div className={styles.grid3}>{Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}</div>
           ) : requests.length === 0 ? (
             <div className={styles.emptyState}>
               <ClipboardList size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
@@ -104,8 +119,12 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
               {requests.map((item) => (
                 <div key={item._id} className={styles.productCard}>
                   <div className={`${styles.productCardImg} ${styles.productCardImgDim}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
-                    {item.images[0] ? <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" /> : <ClipboardList size={48} color="white" strokeWidth={1} />}
-                    <span className={styles.productCardBadge} style={{ background: item.isFulfilled ? '#dcfce7' : '#e0e7ff', color: item.isFulfilled ? '#166534' : '#3730a3' }}>{item.isFulfilled ? 'Fulfilled' : 'Active'}</span>
+                    {item.images[0]
+                      ? <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+                      : <ClipboardList size={48} color="white" strokeWidth={1} />}
+                    <span className={styles.productCardBadge} style={{ background: item.isFulfilled ? '#dcfce7' : '#e0e7ff', color: item.isFulfilled ? '#166534' : '#3730a3' }}>
+                      {item.isFulfilled ? 'Fulfilled' : 'Active'}
+                    </span>
                   </div>
                   <div className={styles.productCardBody}>
                     <div className={styles.productCardRow}>
@@ -114,8 +133,11 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
                     </div>
                     <p className={styles.productCardDesc}>{item.description}</p>
                     <div className={styles.productCardActions}>
-                      <Link href={`/account/manage-request/${item._id}`} className={styles.manageBtn}><MoreHorizontal size={14} /> Manage</Link>
-                      <button onClick={() => item._id && onDeleteRequested(item._id)} className={styles.deleteBtn}><Trash2 size={14} /></button>
+                      <Link href={`/account/manage-request/${item._id}`} className={styles.manageBtn}><Settings2 size={14} /> Manage</Link>
+                      <button
+                        onClick={() => item._id && setPendingDelete({ id: item._id, type: 'request', name: item.name })}
+                        className={styles.deleteBtn}
+                      ><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -124,7 +146,20 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
           )
         )}
       </div>
-      <AppFooter />
-    </div>
+
+      {pendingDelete && (
+        <div className="overlay">
+          <ConfirmModal
+            variant="danger"
+            title="Delete confirmation"
+            description={`Are you sure you want to delete "${pendingDelete.name}"? This action cannot be undone.`}
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setPendingDelete(null)}
+          />
+        </div>
+      )}
+    </>
   )
 }

@@ -5,8 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { MapPin, Phone, Mail, Clock, Store as StoreIcon, Tag } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import { DAYS_OF_WEEK } from '@/utils/globalStaticData'
 import type { Shop } from '@/modules/shops/types'
@@ -18,10 +16,9 @@ export interface ShopDetailViewProps {
 }
 
 export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps) {
-  if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><AppHeader /><PageLoader /></div>
+  if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><PageLoader /></div>
   if (!shop) return (
     <div className={styles.notFound}>
-      <AppHeader />
       <div className={styles.notFoundBody}>
         <StoreIcon size={48} color="#9ca3af" strokeWidth={1} />
         <p>Shop not found.</p>
@@ -35,12 +32,11 @@ export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps)
 
   return (
     <div className={styles.page}>
-      <AppHeader />
       <div className={styles.backWrap}>
         <BackButton href="/shops" label="Back to Shops" />
       </div>
       <div className={styles.heroBanner} style={{ position: 'relative' }}>
-        {shop.photo && <Image src={shop.photo} alt={shop.name} fill sizes="100vw" className={styles.heroBannerBg} priority />}
+        {(shop.photo || shop.photos?.[0]) && <Image src={shop.photo || shop.photos[0]} alt={shop.name} fill sizes="100vw" className={styles.heroBannerBg} priority />}
         <div className={styles.heroBannerOverlay} />
         <div className={styles.heroBannerContent}>
           <div className={styles.heroBadgeRow}>
@@ -101,19 +97,8 @@ export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps)
             <div className={styles.contactRow}><Phone size={15} color="#3730d4" />{shop.contactDetails.phoneNo}</div>
             <div className={styles.contactRow}><MapPin size={15} color="#3730d4" />{shop.location}</div>
           </div>
-          {shop.photos.length > 0 && (
-            <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Photos</h3>
-              <div className={styles.photosGrid}>
-                {shop.photos.slice(0, 4).map((p, i) => (
-                  <div key={i} className={styles.photoThumb} style={{ position: 'relative' }}><Image src={p} alt="" fill sizes="120px" /></div>
-                ))}
-              </div>
-            </div>
-          )}
         </aside>
       </div>
-      <AppFooter />
     </div>
   )
 }

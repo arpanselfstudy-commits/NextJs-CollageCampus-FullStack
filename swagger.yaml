@@ -94,13 +94,6 @@ components:
         password:
           type: string
 
-    RefreshToken:
-      type: object
-      required: [refreshToken]
-      properties:
-        refreshToken:
-          type: string
-
     ForgotPassword:
       type: object
       required: [email]
@@ -134,21 +127,10 @@ components:
 
     LoginResponseData:
       type: object
+      description: Tokens are set as httpOnly cookies. Only user data is returned in the body.
       properties:
-        accessToken:
-          type: string
-        refreshToken:
-          type: string
         user:
           $ref: '#/components/schemas/User'
-
-    RefreshResponseData:
-      type: object
-      properties:
-        accessToken:
-          type: string
-        refreshToken:
-          type: string
 
     ContactDetails:
       type: object
@@ -560,7 +542,7 @@ paths:
   /api/auth/login:
     post:
       tags: [Auth]
-      summary: Login and receive tokens
+      summary: Login — sets accessToken and refreshToken as httpOnly cookies
       requestBody:
         required: true
         content:
@@ -569,7 +551,12 @@ paths:
               $ref: '#/components/schemas/AuthLogin'
       responses:
         '200':
-          description: Login successful
+          description: Login successful. Tokens are set as httpOnly cookies (not in response body).
+          headers:
+            Set-Cookie:
+              description: Sets accessToken and refreshToken as httpOnly cookies
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -578,7 +565,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/LoginResponseData'
+                        $ref: '#/components/schemas/User'
         '400':
           description: Invalid credentials
           content:
@@ -589,25 +576,20 @@ paths:
   /api/auth/refresh:
     post:
       tags: [Auth]
-      summary: Refresh access token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RefreshToken'
+      summary: Refresh access token — reads refreshToken from httpOnly cookie
+      description: No request body needed. The refreshToken is read from the httpOnly cookie set at login.
       responses:
         '200':
-          description: Tokens refreshed
+          description: Tokens refreshed. New tokens set as httpOnly cookies.
+          headers:
+            Set-Cookie:
+              description: Sets new accessToken and refreshToken cookies
+              schema:
+                type: string
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-                    properties:
-                      data:
-                        $ref: '#/components/schemas/RefreshResponseData'
+                $ref: '#/components/schemas/ApiResponse'
         '401':
           description: Invalid or reused token
           content:
@@ -618,16 +600,11 @@ paths:
   /api/auth/logout:
     post:
       tags: [Auth]
-      summary: Logout and invalidate refresh token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RefreshToken'
+      summary: Logout — reads refreshToken from httpOnly cookie and clears cookies
+      description: No request body needed. The refreshToken is read from the httpOnly cookie and invalidated.
       responses:
         '200':
-          description: Logged out successfully
+          description: Logged out successfully. Auth cookies cleared.
           content:
             application/json:
               schema:
@@ -645,19 +622,11 @@ paths:
               $ref: '#/components/schemas/ForgotPassword'
       responses:
         '200':
-          description: Reset email sent
+          description: Reset email sent (token is emailed, not returned in response)
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          resetToken:
-                            type: string
+                $ref: '#/components/schemas/ApiResponse'
         '404':
           description: User not found
           content:
@@ -2176,6 +2145,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  # ─────────────────────────────────────────
+  # USERS
+  # ─────────────────────────────────────────
+  /api/users:
+    get:
+      tags: [Users]
+      summary: Get all users
+      security:
+        - accessToken: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Users]
+      summary: Create a user directly
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegister'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 tags:
   - name: Auth
     description: Authentication and user profile
@@ -2189,3 +2216,5 @@ tags:
     description: Product requests from users
   - name: CMS
     description: Content management pages
+  - name: Users
+    description: User management

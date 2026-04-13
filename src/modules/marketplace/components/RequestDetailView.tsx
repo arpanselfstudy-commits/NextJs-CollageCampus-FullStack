@@ -5,8 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { MessageCircle, CheckCircle, Tag } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import dynamic from 'next/dynamic'
 const ContactModal = dynamic(() => import('@/components/common/Modal/ContactModal'), { ssr: false, loading: () => null })
@@ -23,10 +21,9 @@ export interface RequestDetailViewProps {
 }
 
 export default function RequestDetailView({ request, isLoading, showContact, onShowContact, onCloseContact }: RequestDetailViewProps) {
-  if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><AppHeader /><PageLoader /></div>
+  if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><PageLoader /></div>
   if (!request) return (
     <div className={styles.notFound}>
-      <AppHeader />
       <div className={styles.notFoundBody}>
         <MessageCircle size={48} color="#9ca3af" strokeWidth={1} />
         <p>Request not found.</p>
@@ -36,7 +33,6 @@ export default function RequestDetailView({ request, isLoading, showContact, onS
   )
   return (
     <div className={styles.page}>
-      <AppHeader />
       <div className={styles.backWrap}>
         <BackButton href="/marketplace" label="Back to Marketplace" />
       </div>
@@ -71,7 +67,6 @@ export default function RequestDetailView({ request, isLoading, showContact, onS
           </div>
         </div>
       </div>
-      <AppFooter />
       {showContact && (
         <div className="overlay">
           <ContactModal name="Requester" role={CATEGORY_LABEL[request.category as ListedProductCategory] ?? request.category} email={request.contactDetails.email} phone={request.contactDetails.phoneNo} onMessage={onCloseContact} onClose={onCloseContact} />

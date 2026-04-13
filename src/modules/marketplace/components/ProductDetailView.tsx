@@ -5,8 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { ShoppingBag, MessageCircle, CheckCircle, Clock } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import dynamic from 'next/dynamic'
 const ContactModalWithPhoto = dynamic(() => import('@/components/common/Modal/ContactModalWithPhoto'), { ssr: false, loading: () => null })
@@ -25,10 +23,9 @@ export interface ProductDetailViewProps {
 }
 
 export default function ProductDetailView({ product, isLoading, activeImg, onImgChange, showContact, onShowContact, onCloseContact }: ProductDetailViewProps) {
-  if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><AppHeader /><PageLoader /></div>
+  if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><PageLoader /></div>
   if (!product) return (
     <div className={styles.notFound}>
-      <AppHeader />
       <div className={styles.notFoundBody}>
         <ShoppingBag size={48} color="#9ca3af" strokeWidth={1} />
         <p>Product not found.</p>
@@ -38,7 +35,6 @@ export default function ProductDetailView({ product, isLoading, activeImg, onImg
   )
   return (
     <div className="product-page">
-      <AppHeader />
       <div className="product-back">
         <BackButton href="/marketplace" label="Back to Marketplace" />
       </div>
@@ -87,7 +83,6 @@ export default function ProductDetailView({ product, isLoading, activeImg, onImg
           </div>
         </div>
       </div>
-      <AppFooter />
       {showContact && (
         <div className="overlay">
           <ContactModalWithPhoto name="Seller" role={CATEGORY_LABEL[product.category as ListedProductCategory] ?? product.category} email={product.contactDetails.email} phone={product.contactDetails.phoneNo} onMessage={onCloseContact} onClose={onCloseContact} />

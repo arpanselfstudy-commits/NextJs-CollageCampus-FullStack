@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import styles from './ImageUploader.module.css'
 
 export interface ImageUploaderProps {
@@ -28,6 +28,11 @@ export default function ImageUploader({
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Sync external previewUrl changes (e.g. when user.photo loads after mount)
+  useEffect(() => {
+    if (previewUrl !== undefined) setPreview(previewUrl ?? null)
+  }, [previewUrl])
 
   const handleFile = useCallback((file: File) => {
     setError(null)

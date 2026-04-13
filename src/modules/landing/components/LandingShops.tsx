@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronRight } from 'lucide-react'
-import { ShopsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import type { Shop } from '@/modules/shops/types'
 import styles from './landing.module.css'
 
@@ -18,14 +17,24 @@ export default function LandingShops({ shops, isLoading }: LandingShopsProps) {
         <Link href="/shops" className="view-all">View All <ChevronRight size={14} /></Link>
       </div>
 
-      {isLoading ? <ShopsSkeletonGrid count={4} /> : shops.length === 0 ? (
+      {isLoading ? (
+        <div className={styles.shopsGrid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.shopCard} style={{ background: '#e5e7eb' }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+            </div>
+          ))}
+        </div>
+      ) : shops.length === 0 ? (
         <p className={styles.emptyMsg}>No shops available right now.</p>
       ) : (
         <div className={styles.shopsGrid}>
-          {shops.slice(0, 4).map((shop, i) => (
+          {shops.slice(0, 6).map((shop, i) => {
+            const imgSrc = shop.photo || shop.photos?.[0]
+            return (
             <div key={shop.shopId ?? i} className={styles.shopCard} style={{ position: 'relative' }}>
-              {shop.photo && (
-                <Image src={shop.photo} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopCardBg} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+              {imgSrc && (
+                <Image src={imgSrc} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopCardBg} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
               )}
               <div className={styles.shopCardOverlay} />
               <div className={styles.shopCardContent}>
@@ -39,7 +48,8 @@ export default function LandingShops({ shops, isLoading }: LandingShopsProps) {
                 </Link>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </section>

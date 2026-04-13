@@ -3,8 +3,6 @@
 import '@/styles/design.css'
 import { useDropzone } from 'react-dropzone'
 import { UploadCloud, X } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
 import { LISTED_CATEGORIES, CATEGORY_LABEL, type ListedProductCategory } from '@/modules/marketplace/types'
 import Loader from '@/components/common/Loader/Loader'
 
@@ -38,9 +36,7 @@ export default function RequestProductView({
   })
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f8', fontFamily: "'Inter',sans-serif", display: 'flex', flexDirection: 'column' }}>
-      <AppHeader />
-      <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '48px 32px', display: 'flex', gap: 48, alignItems: 'start' }}>
+    <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '48px 32px', display: 'flex', gap: 48, alignItems: 'start' }}>
 
         {/* Left info panel */}
         <div style={{ width: 260, flexShrink: 0 }}>
@@ -125,7 +121,5 @@ export default function RequestProductView({
           </form>
         </div>
       </div>
-      <AppFooter />
-    </div>
   )
 }

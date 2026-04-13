@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { GraduationCap, Check, X } from 'lucide-react'
 import '@/styles/design.css'
 import { useRegister } from '../hooks/useRegister'
@@ -9,12 +10,15 @@ import AuthLogo from '../components/common/AuthLogo'
 import AuthFooter from '../components/common/AuthFooter'
 import FormError from '../components/common/FormError'
 
+const PolicyModal = dynamic(() => import('@/components/common/PolicyModal/PolicyModal'), { ssr: false })
+
 export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [agreed, setAgreed] = useState(false)
+  const [policy, setPolicy] = useState<'Privacy' | 'Terms' | null>(null)
   const { mutate: register, isPending, error } = useRegister()
 
   const passwordMismatch = confirm.length > 0 && password !== confirm
@@ -86,7 +90,10 @@ export default function RegisterPage() {
             <div className="form-check" style={{ marginBottom: 24 }}>
               <input type="checkbox" id="terms" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
               <label htmlFor="terms">
-                I agree to the <Link href="#">Terms of Service</Link> and <Link href="#">Privacy Policy</Link>.
+                I agree to the{' '}
+                <button type="button" className="auth-footer-link-btn" onClick={() => setPolicy('Terms')}>Terms of Service</button>
+                {' '}and{' '}
+                <button type="button" className="auth-footer-link-btn" onClick={() => setPolicy('Privacy')}>Privacy Policy</button>.
               </label>
             </div>
 
@@ -103,6 +110,7 @@ export default function RegisterPage() {
       </div>
 
       <AuthFooter transparent />
+      {policy && <PolicyModal type={policy} onClose={() => setPolicy(null)} />}
     </div>
   )
 }

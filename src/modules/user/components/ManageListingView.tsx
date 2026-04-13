@@ -5,8 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Pencil, Trash2, ShoppingBag, Loader2, Check, X, Package } from 'lucide-react'
-import AppHeader from '@/components/common/AppHeader/AppHeader'
-import AppFooter from '@/components/common/AppFooter/AppFooter'
+import ConfirmModal from '@/components/common/Modal/ConfirmModal'
 import { LISTED_CATEGORIES, LISTED_CONDITIONS, CATEGORY_LABEL, type ListedProductCategory, type ListedProductCondition } from '@/modules/marketplace/types'
 import { PageLoader } from '@/components/common/Loader/Loader'
 import type { ListedProduct } from '@/modules/marketplace/types'
@@ -31,6 +30,9 @@ export interface ManageListingViewProps {
   onCancelEdit: () => void
   onToggleAvailable: (val: boolean) => void
   onDelete: () => void
+  onConfirmDelete: () => void
+  onCancelDelete: () => void
+  confirmDelete: boolean
   updating: boolean
   deleting: boolean
 }
@@ -38,11 +40,10 @@ export interface ManageListingViewProps {
 const inp = { width: '100%', padding: '12px 14px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
-export default function ManageListingView({ product, isLoading, editing, onToggleEditing, form, onFormChange, onSave, onCancelEdit, onToggleAvailable, onDelete, updating, deleting }: ManageListingViewProps) {
-  if (isLoading) return <div className={styles.page}><AppHeader /><PageLoader /></div>
+export default function ManageListingView({ product, isLoading, editing, onToggleEditing, form, onFormChange, onSave, onCancelEdit, onToggleAvailable, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageListingViewProps) {
+  if (isLoading) return <div className={styles.page}><PageLoader /></div>
   if (!product) return (
     <div className={styles.page}>
-      <AppHeader />
       <div className={styles.emptyState} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <ShoppingBag size={48} color="#9ca3af" strokeWidth={1} />
         <p>Product not found. <BackButton href="/account/my-profile" label="Back to profile" /></p>
@@ -52,7 +53,6 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
 
   return (
     <div className={styles.page}>
-      <AppHeader />
       <div className={styles.contentWide}>
         <div className={styles.pageHeader} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <BackButton href="/account/my-profile" label="Back to Profile" />
@@ -154,7 +154,21 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
           </div>
         </div>
       </div>
-      <AppFooter />
+
+      {confirmDelete && (
+        <div className="overlay">
+          <ConfirmModal
+            variant="danger"
+            title="Delete listing?"
+            description={`Are you sure you want to delete "${product?.productName}"? This action cannot be undone.`}
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            loading={deleting}
+            onConfirm={onConfirmDelete}
+            onCancel={onCancelDelete}
+          />
+        </div>
+      )}
     </div>
   )
 }

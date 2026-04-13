@@ -23,16 +23,16 @@ export default async function Page() {
       queryFn: () => fetchJson('/api/jobs?limit=6'),
     }),
     qc.prefetchQuery({
-      queryKey: queryKeys.shops.all({ limit: 4 }),
-      queryFn: () => fetchJson('/api/shops?limit=4'),
+      queryKey: queryKeys.shops.all({ limit: 6 }),
+      queryFn: () => fetchJson('/api/shops?limit=6'),
     }),
     qc.prefetchQuery({
-      queryKey: queryKeys.listedProducts.all({ limit: 8 }),
-      queryFn: () => fetchJson('/api/listed-products?limit=8'),
+      queryKey: queryKeys.listedProducts.all({ limit: 6 }),
+      queryFn: () => fetchJson('/api/listed-products?limit=6'),
     }),
     qc.prefetchQuery({
-      queryKey: queryKeys.requestedProducts.all({ limit: 8 }),
-      queryFn: () => fetchJson('/api/requested-products?limit=8'),
+      queryKey: queryKeys.requestedProducts.all({ limit: 6 }),
+      queryFn: () => fetchJson('/api/requested-products?limit=6'),
     }),
   ])
 
