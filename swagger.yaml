@@ -1,0 +1,2191 @@
+openapi: 3.0.0
+info:
+  title: CollageCampus API
+  version: 1.0.0
+  description: CollageCampus backend REST API documentation
+
+servers:
+  - url: http://localhost:3000
+
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        errorCode:
+          type: string
+        data:
+          nullable: true
+          example: null
+        details:
+          nullable: true
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, USER]
+        phoneNumber:
+          type: string
+          nullable: true
+        photo:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AuthRegister:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 3
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
+    AuthLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    RefreshToken:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    ForgotPassword:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    ResetPassword:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+          minLength: 6
+
+    UpdateProfile:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+          minLength: 10
+        photo:
+          type: string
+
+    LoginResponseData:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    RefreshResponseData:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    ContactDetails:
+      type: object
+      required: [email, phoneNo]
+      properties:
+        email:
+          type: string
+          format: email
+        phoneNo:
+          type: string
+
+    DayTiming:
+      type: object
+      properties:
+        isOpen:
+          type: boolean
+        opensAt:
+          type: string
+          nullable: true
+        closesAt:
+          type: string
+          nullable: true
+
+    ShopTiming:
+      type: object
+      properties:
+        monday:
+          $ref: '#/components/schemas/DayTiming'
+        tuesday:
+          $ref: '#/components/schemas/DayTiming'
+        wednesday:
+          $ref: '#/components/schemas/DayTiming'
+        thursday:
+          $ref: '#/components/schemas/DayTiming'
+        friday:
+          $ref: '#/components/schemas/DayTiming'
+        saturday:
+          $ref: '#/components/schemas/DayTiming'
+        sunday:
+          $ref: '#/components/schemas/DayTiming'
+
+    Offer:
+      type: object
+      properties:
+        offerId:
+          type: string
+        shopId:
+          type: string
+        offerName:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+        photo:
+          type: string
+
+    Shop:
+      type: object
+      properties:
+        _id:
+          type: string
+        shopId:
+          type: string
+        name:
+          type: string
+        createdBy:
+          type: string
+        type:
+          type: string
+        location:
+          type: string
+        distance:
+          type: string
+          nullable: true
+        photo:
+          type: string
+          nullable: true
+        photos:
+          type: array
+          items:
+            type: string
+        poster:
+          type: string
+          nullable: true
+        topItems:
+          type: array
+          items:
+            type: string
+        allItems:
+          type: array
+          items:
+            type: string
+        contactDetails:
+          $ref: '#/components/schemas/ContactDetails'
+        shopTiming:
+          $ref: '#/components/schemas/ShopTiming'
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offer'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ShopsPaginationData:
+      type: object
+      properties:
+        shops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Shop'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    Salary:
+      type: object
+      properties:
+        from:
+          type: number
+          minimum: 0
+        to:
+          type: number
+          minimum: 0
+
+    Job:
+      type: object
+      properties:
+        _id:
+          type: string
+        jobId:
+          type: string
+        jobName:
+          type: string
+        createdBy:
+          type: string
+        jobProvider:
+          type: string
+        type:
+          type: string
+          enum: [part-time, full-time]
+        deadline:
+          type: string
+          format: date-time
+        location:
+          type: string
+        experience:
+          type: number
+          minimum: 0
+        salary:
+          $ref: '#/components/schemas/Salary'
+        jobDescription:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        contactDetails:
+          $ref: '#/components/schemas/ContactDetails'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    JobsPaginationData:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ProductContactDetails:
+      type: object
+      required: [phoneNo, email]
+      properties:
+        phoneNo:
+          type: string
+        email:
+          type: string
+          format: email
+
+    ListedProduct:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        productName:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum:
+            - ELECTRONICS
+            - CLOTHING_FASHION
+            - HOME_KITCHEN
+            - BEAUTY_PERSONAL_CARE
+            - SPORTS_FITNESS
+            - BOOKS_STATIONERY
+            - TOYS_GAMES
+            - AUTOMOTIVE
+            - GROCERIES_FOOD
+            - HEALTH_WELLNESS
+        condition:
+          type: string
+          enum: [NEW, USED, REFURBISHED]
+        price:
+          type: string
+        isNegotiable:
+          type: boolean
+        description:
+          type: string
+        yearUsed:
+          type: number
+          minimum: 0
+        contactDetails:
+          $ref: '#/components/schemas/ProductContactDetails'
+        isAvailable:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ListedProductsPaginationData:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListedProduct'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    PriceRange:
+      type: object
+      properties:
+        from:
+          type: number
+          minimum: 0
+        to:
+          type: number
+          minimum: 0
+
+    RequestedProduct:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        name:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+        category:
+          type: string
+          enum:
+            - ELECTRONICS
+            - CLOTHING_FASHION
+            - HOME_KITCHEN
+            - BEAUTY_PERSONAL_CARE
+            - SPORTS_FITNESS
+            - BOOKS_STATIONERY
+            - TOYS_GAMES
+            - AUTOMOTIVE
+            - GROCERIES_FOOD
+            - HEALTH_WELLNESS
+        price:
+          $ref: '#/components/schemas/PriceRange'
+        isNegotiable:
+          type: boolean
+        description:
+          type: string
+        contactDetails:
+          $ref: '#/components/schemas/ProductContactDetails'
+        isFulfilled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RequestedProductsPaginationData:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestedProduct'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    Cms:
+      type: object
+      properties:
+        _id:
+          type: string
+        cmsId:
+          type: string
+        type:
+          type: string
+          enum:
+            - TERMS_AND_CONDITIONS
+            - PRIVACY_POLICY
+            - ABOUT_US
+            - FAQ
+        title:
+          type: string
+        content:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateCms:
+      type: object
+      required: [type, title, content]
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        isActive:
+          type: boolean
+
+paths:
+  # ─────────────────────────────────────────
+  # AUTH
+  # ─────────────────────────────────────────
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegister'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and receive tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginResponseData'
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        '200':
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RefreshResponseData'
+        '401':
+          description: Invalid or reused token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout and invalidate refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPassword'
+      responses:
+        '200':
+          description: Reset email sent
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          resetToken:
+                            type: string
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/reset-password/{token}:
+    post:
+      tags: [Auth]
+      summary: Reset password using token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/profile:
+    patch:
+      tags: [Auth]
+      summary: Update authenticated user profile
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfile'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─────────────────────────────────────────
+  # SHOPS
+  # ─────────────────────────────────────────
+  /api/shops:
+    get:
+      tags: [Shops]
+      summary: Get all shops (paginated, filterable)
+      security:
+        - accessToken: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Regex search on name, topItems, allItems
+        - name: distance
+          in: query
+          schema:
+            type: string
+          description: Exact match on distance field
+        - name: openDay
+          in: query
+          schema:
+            type: string
+            enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+      responses:
+        '200':
+          description: List of shops
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ShopsPaginationData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Shops]
+      summary: Create a new shop (Admin only)
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type, location, contactDetails, shopTiming]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                type:
+                  type: string
+                  minLength: 1
+                location:
+                  type: string
+                  minLength: 1
+                distance:
+                  type: string
+                photo:
+                  type: string
+                photos:
+                  type: array
+                  items:
+                    type: string
+                poster:
+                  type: string
+                topItems:
+                  type: array
+                  items:
+                    type: string
+                allItems:
+                  type: array
+                  items:
+                    type: string
+                contactDetails:
+                  $ref: '#/components/schemas/ContactDetails'
+                shopTiming:
+                  $ref: '#/components/schemas/ShopTiming'
+                offers:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Offer'
+      responses:
+        '201':
+          description: Shop created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Shop'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Admin only
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/shops/{id}:
+    get:
+      tags: [Shops]
+      summary: Get shop by ID
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shop found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Shop'
+        '404':
+          description: Shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Shops]
+      summary: Update shop by ID (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                location:
+                  type: string
+                distance:
+                  type: string
+                photo:
+                  type: string
+                photos:
+                  type: array
+                  items:
+                    type: string
+                poster:
+                  type: string
+                topItems:
+                  type: array
+                  items:
+                    type: string
+                allItems:
+                  type: array
+                  items:
+                    type: string
+                contactDetails:
+                  $ref: '#/components/schemas/ContactDetails'
+                shopTiming:
+                  $ref: '#/components/schemas/ShopTiming'
+                offers:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Offer'
+      responses:
+        '200':
+          description: Shop updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Shop'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Shops]
+      summary: Delete shop by ID (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shop deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/shops/{id}/offers:
+    post:
+      tags: [Shops]
+      summary: Add an offer to a shop (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offerName, startDate, endDate, description, photo]
+              properties:
+                offerName:
+                  type: string
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+                description:
+                  type: string
+                photo:
+                  type: string
+      responses:
+        '201':
+          description: Offer added
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Shop'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/shops/{id}/offers/{offerId}:
+    put:
+      tags: [Shops]
+      summary: Update an offer on a shop (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offerName:
+                  type: string
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+                description:
+                  type: string
+                photo:
+                  type: string
+      responses:
+        '200':
+          description: Offer updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Shop'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Shop or offer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Shops]
+      summary: Delete an offer from a shop (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Offer deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Shop or offer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─────────────────────────────────────────
+  # JOBS
+  # ─────────────────────────────────────────
+  /api/jobs:
+    get:
+      tags: [Jobs]
+      summary: Get all jobs (paginated, filterable)
+      security:
+        - accessToken: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Regex search on jobName, jobProvider
+        - name: jobType
+          in: query
+          schema:
+            type: string
+            enum: [part-time, full-time]
+        - name: minExperience
+          in: query
+          schema:
+            type: number
+        - name: maxExperience
+          in: query
+          schema:
+            type: number
+        - name: minSalary
+          in: query
+          schema:
+            type: number
+        - name: maxSalary
+          in: query
+          schema:
+            type: number
+        - name: deadlineFrom
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: deadlineTo
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/JobsPaginationData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Jobs]
+      summary: Create a new job (Admin only)
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [jobName, jobProvider, type, deadline, location, experience, salary, jobDescription, responsibilities, contactDetails]
+              properties:
+                jobName:
+                  type: string
+                  minLength: 1
+                jobProvider:
+                  type: string
+                  minLength: 1
+                type:
+                  type: string
+                  enum: [part-time, full-time]
+                deadline:
+                  type: string
+                  format: date-time
+                location:
+                  type: string
+                  minLength: 1
+                experience:
+                  type: number
+                  minimum: 0
+                salary:
+                  $ref: '#/components/schemas/Salary'
+                jobDescription:
+                  type: string
+                  minLength: 1
+                responsibilities:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                contactDetails:
+                  $ref: '#/components/schemas/ContactDetails'
+      responses:
+        '201':
+          description: Job created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Job'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Admin only
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/jobs/{id}:
+    get:
+      tags: [Jobs]
+      summary: Get job by ID
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Job'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Jobs]
+      summary: Update job by ID (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jobName:
+                  type: string
+                jobProvider:
+                  type: string
+                type:
+                  type: string
+                  enum: [part-time, full-time]
+                deadline:
+                  type: string
+                  format: date-time
+                location:
+                  type: string
+                experience:
+                  type: number
+                  minimum: 0
+                salary:
+                  $ref: '#/components/schemas/Salary'
+                jobDescription:
+                  type: string
+                responsibilities:
+                  type: array
+                  items:
+                    type: string
+                contactDetails:
+                  $ref: '#/components/schemas/ContactDetails'
+      responses:
+        '200':
+          description: Job updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Job'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Jobs]
+      summary: Delete job by ID (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─────────────────────────────────────────
+  # LISTED PRODUCTS
+  # ─────────────────────────────────────────
+  /api/listed-products:
+    get:
+      tags: [Listed Products]
+      summary: Get all listed products (paginated, filterable)
+      security:
+        - accessToken: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Regex search on productName
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [ELECTRONICS, CLOTHING_FASHION, HOME_KITCHEN, BEAUTY_PERSONAL_CARE, SPORTS_FITNESS, BOOKS_STATIONERY, TOYS_GAMES, AUTOMOTIVE, GROCERIES_FOOD, HEALTH_WELLNESS]
+        - name: condition
+          in: query
+          schema:
+            type: string
+            enum: [NEW, USED, REFURBISHED]
+        - name: minPrice
+          in: query
+          schema:
+            type: string
+        - name: maxPrice
+          in: query
+          schema:
+            type: string
+        - name: minYearUsed
+          in: query
+          schema:
+            type: number
+        - name: maxYearUsed
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of listed products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ListedProductsPaginationData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Listed Products]
+      summary: Create a listed product (User only)
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productName, images, category, condition, price, isNegotiable, description, yearUsed, contactDetails]
+              properties:
+                productName:
+                  type: string
+                  minLength: 1
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                  minItems: 1
+                category:
+                  type: string
+                  enum: [ELECTRONICS, CLOTHING_FASHION, HOME_KITCHEN, BEAUTY_PERSONAL_CARE, SPORTS_FITNESS, BOOKS_STATIONERY, TOYS_GAMES, AUTOMOTIVE, GROCERIES_FOOD, HEALTH_WELLNESS]
+                condition:
+                  type: string
+                  enum: [NEW, USED, REFURBISHED]
+                price:
+                  type: string
+                  minLength: 1
+                isNegotiable:
+                  type: boolean
+                description:
+                  type: string
+                  minLength: 1
+                yearUsed:
+                  type: number
+                  minimum: 0
+                contactDetails:
+                  $ref: '#/components/schemas/ProductContactDetails'
+                isAvailable:
+                  type: boolean
+      responses:
+        '201':
+          description: Product listed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ListedProduct'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User only
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/listed-products/my-products:
+    get:
+      tags: [Listed Products]
+      summary: Get current user's listed products
+      security:
+        - accessToken: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: User's listed products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ListedProductsPaginationData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/listed-products/{id}:
+    get:
+      tags: [Listed Products]
+      summary: Get listed product by ID
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ListedProduct'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Listed Products]
+      summary: Update listed product (owner only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productName:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                category:
+                  type: string
+                  enum: [ELECTRONICS, CLOTHING_FASHION, HOME_KITCHEN, BEAUTY_PERSONAL_CARE, SPORTS_FITNESS, BOOKS_STATIONERY, TOYS_GAMES, AUTOMOTIVE, GROCERIES_FOOD, HEALTH_WELLNESS]
+                condition:
+                  type: string
+                  enum: [NEW, USED, REFURBISHED]
+                price:
+                  type: string
+                isNegotiable:
+                  type: boolean
+                description:
+                  type: string
+                yearUsed:
+                  type: number
+                  minimum: 0
+                contactDetails:
+                  $ref: '#/components/schemas/ProductContactDetails'
+                isAvailable:
+                  type: boolean
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ListedProduct'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Listed Products]
+      summary: Delete listed product (owner only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─────────────────────────────────────────
+  # REQUESTED PRODUCTS
+  # ─────────────────────────────────────────
+  /api/requested-products:
+    get:
+      tags: [Requested Products]
+      summary: Get all requested products (paginated, filterable)
+      security:
+        - accessToken: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Regex search on name, category
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [ELECTRONICS, CLOTHING_FASHION, HOME_KITCHEN, BEAUTY_PERSONAL_CARE, SPORTS_FITNESS, BOOKS_STATIONERY, TOYS_GAMES, AUTOMOTIVE, GROCERIES_FOOD, HEALTH_WELLNESS]
+        - name: isNegotiable
+          in: query
+          schema:
+            type: boolean
+        - name: isFulfilled
+          in: query
+          schema:
+            type: boolean
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of requested products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RequestedProductsPaginationData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Requested Products]
+      summary: Create a product request (User only)
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, category, price, isNegotiable, description, contactDetails]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                category:
+                  type: string
+                  enum: [ELECTRONICS, CLOTHING_FASHION, HOME_KITCHEN, BEAUTY_PERSONAL_CARE, SPORTS_FITNESS, BOOKS_STATIONERY, TOYS_GAMES, AUTOMOTIVE, GROCERIES_FOOD, HEALTH_WELLNESS]
+                price:
+                  $ref: '#/components/schemas/PriceRange'
+                isNegotiable:
+                  type: boolean
+                description:
+                  type: string
+                  minLength: 1
+                contactDetails:
+                  $ref: '#/components/schemas/ProductContactDetails'
+                isFulfilled:
+                  type: boolean
+      responses:
+        '201':
+          description: Product request created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RequestedProduct'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User only
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/requested-products/my-requests:
+    get:
+      tags: [Requested Products]
+      summary: Get current user's product requests
+      security:
+        - accessToken: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: User's product requests
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RequestedProductsPaginationData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/requested-products/{id}:
+    get:
+      tags: [Requested Products]
+      summary: Get requested product by ID
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requested product found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RequestedProduct'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Requested Products]
+      summary: Update product request (owner only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                category:
+                  type: string
+                  enum: [ELECTRONICS, CLOTHING_FASHION, HOME_KITCHEN, BEAUTY_PERSONAL_CARE, SPORTS_FITNESS, BOOKS_STATIONERY, TOYS_GAMES, AUTOMOTIVE, GROCERIES_FOOD, HEALTH_WELLNESS]
+                price:
+                  $ref: '#/components/schemas/PriceRange'
+                isNegotiable:
+                  type: boolean
+                description:
+                  type: string
+                contactDetails:
+                  $ref: '#/components/schemas/ProductContactDetails'
+                isFulfilled:
+                  type: boolean
+      responses:
+        '200':
+          description: Request updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RequestedProduct'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Requested Products]
+      summary: Delete product request (owner only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─────────────────────────────────────────
+  # CMS
+  # ─────────────────────────────────────────
+  /api/cms:
+    get:
+      tags: [CMS]
+      summary: Get all CMS pages (public)
+      responses:
+        '200':
+          description: All CMS pages
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Cms'
+
+    post:
+      tags: [CMS]
+      summary: Create a CMS page (Admin only)
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCms'
+      responses:
+        '201':
+          description: CMS page created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Cms'
+        '400':
+          description: Validation error or type already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Admin only
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cms/{type}:
+    get:
+      tags: [CMS]
+      summary: Get CMS page by type (public)
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+          description: e.g. TERMS_AND_CONDITIONS, PRIVACY_POLICY, ABOUT_US, FAQ
+      responses:
+        '200':
+          description: CMS page found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Cms'
+        '404':
+          description: CMS page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [CMS]
+      summary: Update CMS page by type (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: CMS page updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Cms'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: CMS page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [CMS]
+      summary: Delete CMS page by type (Admin only)
+      security:
+        - accessToken: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CMS page deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: CMS page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Auth
+    description: Authentication and user profile
+  - name: Shops
+    description: Shop management and offers
+  - name: Jobs
+    description: Job listings
+  - name: Listed Products
+    description: Marketplace product listings
+  - name: Requested Products
+    description: Product requests from users
+  - name: CMS
+    description: Content management pages
