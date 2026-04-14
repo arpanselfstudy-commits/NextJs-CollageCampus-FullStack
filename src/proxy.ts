@@ -15,7 +15,7 @@ function setCorsHeaders(res: NextResponse, origin: string) {
   res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   const origin = req.headers.get('origin') ?? ''
 
