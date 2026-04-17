@@ -89,15 +89,55 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: var(--color-error-bg);
-  color: var(--color-error);
-  border: none;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
+  color: var(--color-text-muted);
+  border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
   flex-shrink: 0;
 }
 
 .logoutBtn:hover {
-  opacity: 0.85;
+  background: linear-gradient(180deg, #fff4f2 0%, #ffe8e3 100%);
+  color: var(--color-error);
+  border-color: rgba(186, 26, 26, 0.18);
+  box-shadow: 0 10px 24px rgba(186, 26, 26, 0.14);
+  transform: translateY(-1px);
+}
+
+.logoutBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px var(--color-primary-ring),
+    0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+.logoutIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(42, 20, 180, 0.08);
+  transition: background var(--transition-fast);
+}
+
+.logoutBtn:hover .logoutIconWrap {
+  background: rgba(186, 26, 26, 0.1);
+}
+
+.logoutIcon {
+  transition: transform var(--transition-fast);
+}
+
+.logoutBtn:hover .logoutIcon {
+  transform: translateX(1px);
 }

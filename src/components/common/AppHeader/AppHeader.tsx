@@ -70,7 +70,9 @@ export default function AppHeader() {
             }
           </Link>
           <button className={styles.logoutBtn} onClick={() => setShowLogout(true)} title="Logout" aria-label="Logout">
-            <LogOut size={16} />
+            <span className={styles.logoutIconWrap}>
+              <LogOut size={16} strokeWidth={2.25} className={styles.logoutIcon} />
+            </span>
           </button>
         </div>
       </nav>
