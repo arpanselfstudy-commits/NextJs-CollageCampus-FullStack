@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import { ChevronRight } from 'lucide-react'
 import type { Shop } from '@/modules/shops/types'
 import styles from './landing.module.css'
@@ -34,7 +34,7 @@ export default function LandingShops({ shops, isLoading }: LandingShopsProps) {
             return (
             <div key={shop.shopId ?? i} className={styles.shopCard} style={{ position: 'relative' }}>
               {imgSrc && (
-                <Image src={imgSrc} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopCardBg} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+                <FallbackImage src={imgSrc} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopCardBg} />
               )}
               <div className={styles.shopCardOverlay} />
               <div className={styles.shopCardContent}>

@@ -3,7 +3,7 @@
 import '@/styles/design.css'
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import { Pencil, Plus, ClipboardList, ShoppingBag, Trash2, Settings2 } from 'lucide-react'
 import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
@@ -40,7 +40,7 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
         {/* Profile header */}
         <div className={styles.profileHeader}>
           <div className={styles.profileAvatar} style={{ position: 'relative' }}>
-            {user?.photo ? <Image src={user.photo} alt={user.name} fill sizes="80px" placeholder="blur" blurDataURL={BLUR_DATA_URL} /> : user?.name?.[0]?.toUpperCase() ?? '?'}
+            {user?.photo ? <FallbackImage src={user.photo} alt={user.name} fill sizes="80px" /> : user?.name?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div className={styles.profileInfo}>
             <div className={styles.profileName}>{user?.name ?? 'User'}</div>
@@ -80,7 +80,7 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
                 <div key={item._id} className={styles.productCard}>
                   <div className={styles.productCardImg} style={{ position: 'relative' }}>
                     {item.images[0]
-                      ? <Image src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+                      ? <FallbackImage src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" />
                       : <ShoppingBag size={48} color="#3730d4" strokeWidth={1} />}
                     <span className={styles.productCardBadge} style={{ background: item.isAvailable ? '#dcfce7' : '#fef9c3', color: item.isAvailable ? '#166534' : '#854d0e' }}>
                       {item.isAvailable ? 'Available' : 'Unavailable'}
@@ -121,7 +121,7 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
                 <div key={item._id} className={styles.productCard}>
                   <div className={`${styles.productCardImg} ${styles.productCardImgDim}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
                     {item.images[0]
-                      ? <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+                      ? <FallbackImage src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" />
                       : <ClipboardList size={48} color="white" strokeWidth={1} />}
                     <span className={styles.productCardBadge} style={{ background: item.isFulfilled ? '#dcfce7' : '#e0e7ff', color: item.isFulfilled ? '#166534' : '#3730a3' }}>
                       {item.isFulfilled ? 'Fulfilled' : 'Active'}

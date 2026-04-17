@@ -2,7 +2,7 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { MessageCircle, CheckCircle, Tag } from 'lucide-react'
 import { PageLoader } from '@/components/common/Loader/Loader'
@@ -39,7 +39,7 @@ export default function RequestDetailView({ request, isLoading, showContact, onS
       <div className={styles.body}>
         <div className={styles.left}>
           <div className={styles.imgWrap} style={{ position: 'relative' }}>
-            {request.images[0] ? <Image src={request.images[0]} alt={request.name} fill sizes="(max-width: 768px) 100vw, 500px" className={styles.imgCover} priority /> : <MessageCircle size={80} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
+            {request.images[0] ? <FallbackImage src={request.images[0]} alt={request.name} fill sizes="(max-width: 768px) 100vw, 500px" className={styles.imgCover} priority /> : <MessageCircle size={80} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
             <span className={styles.statusBadge} style={{ background: request.isFulfilled ? '#dcfce7' : '#2a14b4', color: request.isFulfilled ? '#166534' : 'white' }}>
               {request.isFulfilled ? 'Fulfilled' : 'Active Request'}
             </span>

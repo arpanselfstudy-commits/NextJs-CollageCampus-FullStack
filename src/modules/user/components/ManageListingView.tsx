@@ -1,7 +1,7 @@
 'use client'
 
 import '@/styles/design.css'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Pencil, Trash2, ShoppingBag, Loader2, Check, X, Package } from 'lucide-react'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
@@ -73,7 +73,7 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
         <div className={styles.manageGrid}>
           <div className={styles.manageLeft}>
             <div className={styles.manageImgWrap} style={{ background: 'linear-gradient(135deg,#0a0a1a,#1a1a3e)', position: 'relative' }}>
-              {product.images[0] && <Image src={product.images[0]} alt={product.productName} fill sizes="(max-width: 768px) 100vw, 500px" priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />}
+              {product.images[0] && <FallbackImage src={product.images[0]} alt={product.productName} fill sizes="(max-width: 768px) 100vw, 500px" priority />}
               {!product.images[0] && <ShoppingBag size={80} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
               <span className={styles.manageImgId}>{product._id?.slice(-8).toUpperCase()}</span>
             </div>

@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import styles from './Modal.module.css'
 
 interface ContactModalWithPhotoProps {
@@ -30,7 +30,7 @@ export default function ContactModalWithPhoto({
       <div className={styles.avatarWrap}>
         <div className={styles.avatar} style={{ position: 'relative' }}>
           {photoSrc
-            ? <Image src={photoSrc} alt={name} fill sizes="80px" />
+            ? <FallbackImage src={photoSrc} alt={name} fill sizes="80px" />
             : <span className={styles.avatarInitial}>{name.split(' ').map((n) => n[0]).join('')}</span>
           }
         </div>

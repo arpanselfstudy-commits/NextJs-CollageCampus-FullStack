@@ -5,6 +5,7 @@ import { Lightbulb, ShieldCheck } from 'lucide-react'
 import Loader from '@/components/common/Loader/Loader'
 import Input from '@/components/common/Input/Input'
 import { FormError } from '@/components/common'
+import BackButton from '@/components/common/BackButton/BackButton'
 import dynamic from 'next/dynamic'
 const ImageUploader = dynamic(() => import('@/components/common/ImageUploader/ImageUploader'), { ssr: false, loading: () => null })
 import {
@@ -47,6 +48,9 @@ export default function ListProductView({
 
   return (
     <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '40px 32px' }}>
+        <div style={{ marginBottom: 24 }}>
+          <BackButton href="/account/my-profile" label="Back to Profile" />
+        </div>
         <h1 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 36, fontWeight: 800, color: '#0b1c30', marginBottom: 6 }}>Market Your Craft</h1>
         <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 32 }}>Turn your essentials into value. List your product in the Campus Next marketplace.</p>
 

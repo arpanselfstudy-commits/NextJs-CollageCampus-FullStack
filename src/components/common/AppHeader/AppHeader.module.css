@@ -13,11 +13,18 @@
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brandText {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
   color: var(--color-primary);
-  text-decoration: none;
 }
 
 .navLinks {
@@ -79,17 +86,16 @@
 .logoutBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   background: var(--color-error-bg);
   color: var(--color-error);
   border: none;
   border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 700;
-  font-family: var(--font-heading);
   cursor: pointer;
   transition: opacity var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .logoutBtn:hover {

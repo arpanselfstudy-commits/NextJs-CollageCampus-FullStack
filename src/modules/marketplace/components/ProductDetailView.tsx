@@ -2,7 +2,7 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { ShoppingBag, MessageCircle, CheckCircle, Clock } from 'lucide-react'
 import { PageLoader } from '@/components/common/Loader/Loader'
@@ -41,14 +41,14 @@ export default function ProductDetailView({ product, isLoading, activeImg, onImg
       <div className="product-body">
         <div className="product-gallery">
           <div className={`product-main-img ${styles.galleryImgWrap}`} style={{ background: '#1a1a2e', position: 'relative' }}>
-            {product.images[activeImg] ? <Image src={product.images[activeImg]} alt={product.productName} fill sizes="(max-width: 768px) 100vw, 600px" className={styles.galleryImgCover} priority={activeImg === 0} /> : <ShoppingBag size={100} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
+            {product.images[activeImg] ? <FallbackImage src={product.images[activeImg]} alt={product.productName} fill sizes="(max-width: 768px) 100vw, 600px" className={styles.galleryImgCover} priority={activeImg === 0} /> : <ShoppingBag size={100} color="rgba(255,255,255,0.2)" strokeWidth={1} />}
             <span className="product-featured-badge">{product.condition}</span>
           </div>
           {product.images.length > 1 && (
             <div className="product-thumbs">
               {product.images.map((img, i) => (
                 <div key={i} onClick={() => onImgChange(i)} className={`product-thumb${i === activeImg ? ' product-thumb--active' : ''}`} style={{ overflow: 'hidden', cursor: 'pointer', position: 'relative' }}>
-                  <Image src={img} alt="" fill sizes="80px" className={styles.thumbImg} />
+                  <FallbackImage src={img} alt="" fill sizes="80px" className={styles.thumbImg} />
                 </div>
               ))}
             </div>

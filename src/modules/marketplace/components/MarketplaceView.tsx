@@ -2,7 +2,7 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import { ShoppingBag, MessageCircle, CheckCircle, FolderOpen, SlidersHorizontal, X, Tag } from 'lucide-react'
 import { MarketplaceSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
@@ -209,7 +209,7 @@ export default function MarketplaceView({
                     <Link href={`/marketplace/${item._id}`} key={item._id ?? i} style={{ textDecoration: 'none', color: 'inherit' }}>
                       <div className="mp-card">
                         <div className={`mp-card-img ${styles.mpCardImgWrap}`} style={{ background: CATEGORY_BG[item.category] ?? '#f0f4ff', position: 'relative' }}>
-                          {item.images[0] ? <Image src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCover} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" /> : <ShoppingBag size={56} color={CATEGORY_TEXT[item.category] ?? '#3730d4'} strokeWidth={1} />}
+                          <FallbackImage src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCover} />
                           <span className="mp-card-price">${item.price}</span>
                         </div>
                         <div className="mp-card-body">
@@ -244,7 +244,7 @@ export default function MarketplaceView({
                     <Link href={`/marketplace/request/${item._id}`} key={item._id ?? i} style={{ textDecoration: 'none', color: 'inherit' }}>
                       <div className="mp-card">
                         <div className={`mp-card-img ${styles.mpCardImgWrap}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
-                          {item.images[0] ? <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgDim} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" /> : <MessageCircle size={56} color="white" strokeWidth={1} />}
+                          <FallbackImage src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgDim} />
                           <span className="mp-card-price">${item.price.from}–${item.price.to}</span>
                         </div>
                         <div className="mp-card-body">

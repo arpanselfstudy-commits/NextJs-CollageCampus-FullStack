@@ -2,7 +2,7 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import { SlidersHorizontal, X, Calendar } from 'lucide-react'
 import { ShopsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
@@ -95,9 +95,8 @@ export default function ShopsView({
                   return (
                     <div className="shop-card" key={id ?? i}>
                       <div className="shop-card-img" style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
-                        {(shop.photo || shop.photos?.[0]) && <Image src={shop.photo || shop.photos[0]} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopImgBg} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />}
-                        <div className="shop-card-img-overlay" />
-                        {!shop.photo && !shop.photos?.[0] && <span className={styles.shopEmoji}>🏪</span>}<span style={{ position: 'absolute', top: 10, left: 10, background: isOpenToday ? '#dcfce7' : '#fef2f2', color: isOpenToday ? '#166534' : '#991b1b', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
+                        <FallbackImage src={shop.photo || shop.photos?.[0]} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopImgBg} />
+                        <div className="shop-card-img-overlay" /><span style={{ position: 'absolute', top: 10, left: 10, background: isOpenToday ? '#dcfce7' : '#fef2f2', color: isOpenToday ? '#166534' : '#991b1b', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
                           {isOpenToday ? '● Open' : '● Closed'}
                         </span>
                       </div>

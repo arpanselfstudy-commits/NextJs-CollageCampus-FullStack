@@ -2,7 +2,7 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { MapPin, Phone, Mail, Clock, Store as StoreIcon } from 'lucide-react'
 import { PageLoader } from '@/components/common/Loader/Loader'
@@ -36,7 +36,7 @@ export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps)
         <BackButton href="/shops" label="Back to Shops" />
       </div>
       <div className={styles.heroBanner} style={{ position: 'relative' }}>
-        {(shop.photo || shop.photos?.[0]) && <Image src={shop.photo || shop.photos[0]} alt={shop.name} fill sizes="100vw" className={styles.heroBannerBg} priority />}
+        <FallbackImage src={shop.photo || shop.photos?.[0]} alt={shop.name} fill sizes="100vw" className={styles.heroBannerBg} priority />
         <div className={styles.heroBannerOverlay} />
         <div className={styles.heroBannerContent}>
           <div className={styles.heroBadgeRow}>

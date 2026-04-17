@@ -6,6 +6,7 @@ import { UploadCloud, X } from 'lucide-react'
 import { LISTED_CATEGORIES, CATEGORY_LABEL, type ListedProductCategory } from '@/modules/marketplace/types'
 import Loader from '@/components/common/Loader/Loader'
 import { FormError } from '@/components/common'
+import BackButton from '@/components/common/BackButton/BackButton'
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import type { RequestProductForm } from '@/modules/user/types'
 
@@ -47,6 +48,9 @@ export default function RequestProductView({
 
         {/* Left info panel */}
         <div style={{ width: 260, flexShrink: 0 }}>
+          <div style={{ marginBottom: 20 }}>
+            <BackButton href="/account/my-profile" label="Back to Profile" />
+          </div>
           <span style={{ display: 'inline-block', background: '#dcfce7', color: '#006a61', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '5px 14px', borderRadius: 20, marginBottom: 20 }}>The Atelier Marketplace</span>
           <h1 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 34, fontWeight: 800, lineHeight: 1.05, color: '#0b1c30', marginBottom: 14 }}>Sourcing for<br /><em style={{ color: '#2a14b4' }}>Innovation.</em></h1>
           <p style={{ fontSize: 14, color: '#464554', lineHeight: 1.65, marginBottom: 24 }}>Can&apos;t find what you need? Post a request and let the right product find you.</p>

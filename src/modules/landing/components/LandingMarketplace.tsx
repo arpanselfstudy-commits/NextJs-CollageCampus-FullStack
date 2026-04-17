@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import { ShoppingBag, Tag, MessageCircle, ChevronRight } from 'lucide-react'
 import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
@@ -52,7 +52,7 @@ export default function LandingMarketplace({
                 <div className="mp-card">
                   <div className={`mp-card-img ${styles.mpCardImg}`} style={{ background: '#f0f4ff', position: 'relative' }}>
                     {item.images[0]
-                      ? <Image src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCover} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+                      ? <FallbackImage src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCover} />
                       : <ShoppingBag size={56} color="#3730d4" strokeWidth={1} />
                     }
                     <span className="mp-card-price">${item.price}</span>
@@ -93,7 +93,7 @@ export default function LandingMarketplace({
               <div key={item._id} className="mp-card">
                 <div className={`mp-card-img ${styles.mpCardImg}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
                   {item.images[0]
-                    ? <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCoverDim} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+                    ? <FallbackImage src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCoverDim} />
                     : <MessageCircle size={56} color="white" strokeWidth={1} />
                   }
                   <span className="mp-card-price">${item.price.from}–${item.price.to}</span>
