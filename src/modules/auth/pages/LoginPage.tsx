@@ -6,7 +6,6 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import '@/styles/design.css'
 import { useLoginForm } from '../hooks/useLoginForm'
 import AuthLogo from '../components/common/AuthLogo'
-import AuthFooter from '../components/common/AuthFooter'
 import { FormError } from '@/components/common'
 
 export default function LoginPage() {
@@ -76,8 +75,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-
-      <AuthFooter />
     </div>
   )
 }

@@ -7,7 +7,6 @@ import { GraduationCap, Check, X } from 'lucide-react'
 import '@/styles/design.css'
 import { useRegisterForm } from '../hooks/useRegisterForm'
 import AuthLogo from '../components/common/AuthLogo'
-import AuthFooter from '../components/common/AuthFooter'
 import { FormError } from '@/components/common'
 
 const PolicyModal = dynamic(() => import('@/components/common/PolicyModal/PolicyModal'), { ssr: false })
@@ -100,7 +99,6 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <AuthFooter transparent />
       {policy && <PolicyModal type={policy} onClose={() => setPolicy(null)} />}
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import Image, { type ImageProps } from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const FALLBACK_SRC = '/image-fallback.svg'
 
@@ -12,6 +12,10 @@ type FallbackImageProps = Omit<ImageProps, 'src'> & {
 
 export default function FallbackImage({ src, fallbackSrc = FALLBACK_SRC, alt, ...props }: FallbackImageProps) {
   const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc)
+
+  useEffect(() => {
+    setImgSrc(src || fallbackSrc)
+  }, [src, fallbackSrc])
 
   return (
     <Image

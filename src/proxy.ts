@@ -17,19 +17,20 @@ function setCorsHeaders(res: NextResponse, origin: string) {
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const origin = req.headers.get('origin') ?? ''
+  const origin = req.headers.get('origin') ?? '' 
 
   // Handle CORS for /api/* routes
   if (pathname.startsWith('/api/')) {
     const isAllowed = ALLOWED_ORIGINS.includes(origin)
 
-    // Preflight
+    // Preflight - not an api call its a call by brouser to check what all headers and methods are allowed
     if (req.method === 'OPTIONS') {
       const res = new NextResponse(null, { status: 204 })
       if (isAllowed) setCorsHeaders(res, origin)
       return res
     }
 
+    // actual api call  
     const res = NextResponse.next()
     if (isAllowed) setCorsHeaders(res, origin)
     return res
