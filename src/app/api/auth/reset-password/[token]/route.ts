@@ -6,8 +6,8 @@ import { resetPasswordSchema } from '../../../../../backend/validators/auth.vali
 import { resetPassword } from '../../../../../backend/services/auth.service'
 
 export const POST = withErrorHandler(
-  async (req: NextRequest, { params }: { params: Promise<{ token: string }> }) => {
-    const { token } = await params
+  async (req: NextRequest, ctx?: { params: Promise<Record<string, string>> }) => {
+    const { token } = await ctx!.params
     const body = await req.json()
     const data = validate(resetPasswordSchema, body)
     await resetPassword(token, data.password)

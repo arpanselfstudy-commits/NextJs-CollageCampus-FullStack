@@ -9,28 +9,28 @@ import { getShopById, updateShop, deleteShop } from '../../../../backend/service
 import { updateShopSchema } from '../../../../backend/validators/shop.validator'
 import { UserRole } from '../../../../backend/types/backend.types'
 
-export const GET = withErrorHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+export const GET = withErrorHandler(async (req: NextRequest, ctx?: { params: Promise<Record<string, string>> }) => {
   const user = await getAuthUser()
   if (!user) throw new AppError('Unauthorized', 401, 'UNAUTHORIZED')
-  const { id } = await params
+  const { id } = await ctx!.params
   const shop = await getShopById(id)
   return sendSuccess(shop)
 })
 
-export const PUT = withErrorHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+export const PUT = withErrorHandler(async (req: NextRequest, ctx?: { params: Promise<Record<string, string>> }) => {
   const user = await getAuthUser()
   authorize(user, UserRole.ADMIN)
-  const { id } = await params
+  const { id } = await ctx!.params
   const body = await req.json()
   const data = validate(updateShopSchema, body)
   const shop = await updateShop(id, data)
   return sendSuccess(shop)
 })
 
-export const DELETE = withErrorHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+export const DELETE = withErrorHandler(async (req: NextRequest, ctx?: { params: Promise<Record<string, string>> }) => {
   const user = await getAuthUser()
   authorize(user, UserRole.ADMIN)
-  const { id } = await params
+  const { id } = await ctx!.params
   await deleteShop(id)
   return sendSuccess(null, 'Shop deleted')
 })
