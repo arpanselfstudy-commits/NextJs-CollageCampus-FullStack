@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { Briefcase, Store as StoreIcon, ShoppingBag, LogOut, UserCircle } from 'lucide-react'
+import { Briefcase, Store as StoreIcon, ShoppingBag, LogOut, UserCircle, User, PlusSquare, ClipboardList, Pencil } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useLogout } from '@/modules/auth/hooks/useLogout'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
@@ -28,8 +28,17 @@ function BrandLogo() {
   )
 }
 
+const MENU_ITEMS = [
+  { href: '/account/my-profile',     label: 'My Account',          Icon: User          },
+  { href: '/account/list-product',   label: 'List a Product',       Icon: PlusSquare    },
+  { href: '/account/request-product',label: 'Request a Product',    Icon: ClipboardList },
+  { href: '/account/edit-profile',   label: 'Edit Profile',         Icon: Pencil        },
+] as const
+
 export default function AppHeader() {
   const [showLogout, setShowLogout] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const logout = useLogout()
   const user = useAuthStore((s) => s.user)
@@ -40,6 +49,17 @@ export default function AppHeader() {
     setShowLogout(false)
     await logout()
   }
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    if (dropdownOpen) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [dropdownOpen])
 
   return (
     <>
@@ -63,17 +83,61 @@ export default function AppHeader() {
         </div>
 
         <div className={styles.navRight}>
-          <Link href="/account/my-profile" className={styles.avatar} style={{ position: 'relative' }}>
-            {user?.photo
-              ? <FallbackImage src={user.photo} alt={user.name} fill sizes="36px" />
-              : user?.name?.[0]?.toUpperCase() ?? <UserCircle size={18} />
-            }
-          </Link>
-          <button className={styles.logoutBtn} onClick={() => setShowLogout(true)} title="Logout" aria-label="Logout">
-            <span className={styles.logoutIconWrap}>
-              <LogOut size={16} strokeWidth={2.25} className={styles.logoutIcon} />
-            </span>
-          </button>
+          <div ref={dropdownRef} className={styles.avatarWrap}>
+            <button
+              className={styles.avatar}
+              onClick={() => setDropdownOpen((o) => !o)}
+              aria-label="Account menu"
+              aria-expanded={dropdownOpen}
+            >
+              {user?.photo
+                ? <FallbackImage src={user.photo} alt={user.name} fill sizes="36px" />
+                : user?.name?.[0]?.toUpperCase() ?? <UserCircle size={18} />
+              }
+            </button>
+
+            {dropdownOpen && (
+              <div className={styles.dropdown}>
+                {/* User info header */}
+                <div className={styles.dropdownHeader}>
+                  <div className={styles.dropdownAvatar}>
+                    {user?.photo
+                      ? <FallbackImage src={user.photo} alt={user.name} fill sizes="40px" />
+                      : user?.name?.[0]?.toUpperCase() ?? <UserCircle size={18} />
+                    }
+                  </div>
+                  <div>
+                    <div className={styles.dropdownName}>{user?.name ?? 'Account'}</div>
+                    <div className={styles.dropdownEmail}>{user?.email ?? ''}</div>
+                  </div>
+                </div>
+
+                <div className={styles.dropdownDivider} />
+
+                {MENU_ITEMS.map(({ href, label, Icon }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={styles.dropdownItem}
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <Icon size={15} />
+                    {label}
+                  </Link>
+                ))}
+
+                <div className={styles.dropdownDivider} />
+
+                <button
+                  className={`${styles.dropdownItem} ${styles['dropdownItem--danger']}`}
+                  onClick={() => { setDropdownOpen(false); setShowLogout(true) }}
+                >
+                  <LogOut size={15} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
