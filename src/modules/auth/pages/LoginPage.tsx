@@ -1,16 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, useActionState } from 'react'
 import Link from 'next/link'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import '@/styles/design.css'
-import { useLoginForm } from '../hooks/useLoginForm'
+import { loginAction } from '../actions/auth.actions'
+import { useAuthStore } from '../store/auth.store'
 import AuthLogo from '../components/common/AuthLogo'
 import { FormError } from '@/components/common'
 
+const initialState = { success: false, message: '' }
+
 export default function LoginPage() {
   const [showPw, setShowPw] = useState(false)
-  const { register, onSubmit, formState: { errors, isSubmitting } } = useLoginForm()
+  const [state, formAction, isPending] = useActionState(loginAction, initialState)
+  const setAuth = useAuthStore((s) => s.setAuth)
+
+  // hydrate auth store from the short-lived cookie the server action sets
+  useEffect(() => {
+    if (state.success) {
+      const match = document.cookie.match(/(?:^|;\s*)auth-user=([^;]*)/)
+      if (match) {
+        try {
+          const user = JSON.parse(decodeURIComponent(match[1]))
+          setAuth(user, '', '')
+        } catch { /* ignore */ }
+      }
+    }
+  }, [state.success, setAuth])
 
   return (
     <div className="auth-page">
@@ -39,14 +56,13 @@ export default function LoginPage() {
           <h2 className="auth-form-title">Welcome Back</h2>
           <p className="auth-form-subtitle">Please enter your credentials to access the atelier.</p>
 
-          <form onSubmit={onSubmit}>
+          <form action={formAction}>
             <div className="form-group">
               <label className="form-label">Institutional Email</label>
               <div className="input-wrapper">
                 <span className="input-icon"><Mail size={16} /></span>
-                <input type="email" placeholder="name@university.edu" {...register('email')} />
+                <input name="email" type="email" placeholder="name@university.edu" />
               </div>
-              <FormError message={errors.email?.message} />
             </div>
 
             <div className="form-group">
@@ -56,16 +72,19 @@ export default function LoginPage() {
               </div>
               <div className="input-wrapper">
                 <span className="input-icon"><Lock size={16} /></span>
-                <input type={showPw ? 'text' : 'password'} placeholder="••••••••" {...register('password')} />
+                <input name="password" type={showPw ? 'text' : 'password'} placeholder="••••••••" />
                 <button type="button" className="input-action" onClick={() => setShowPw(!showPw)}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <FormError message={errors.password?.message} />
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in…' : <><span>Sign In to Dashboard</span><ArrowRight size={16} /></>}
+            {state.message && !state.success && (
+              <FormError message={state.message} />
+            )}
+
+            <button className="btn btn-primary" type="submit" disabled={isPending}>
+              {isPending ? 'Signing in…' : <><span>Sign In to Dashboard</span><ArrowRight size={16} /></>}
             </button>
           </form>
 

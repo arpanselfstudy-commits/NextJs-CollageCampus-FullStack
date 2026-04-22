@@ -1,18 +1,28 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState, useActionState } from 'react'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { GraduationCap, Eye, EyeOff, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react'
 import '@/styles/design.css'
-import { useResetPasswordForm } from '../hooks/useResetPasswordForm'
+import { resetPasswordAction } from '../actions/auth.actions'
 import { FormError } from '@/components/common'
 
 interface Props { token: string }
 
+const initialState = { success: false, message: '' }
+
 export default function ResetPasswordPage({ token }: Props) {
   const [showPw, setShowPw] = useState(false)
-  const { register, onSubmit, formState: { errors, isSubmitting }, watch } = useResetPasswordForm(token)
+  const [passwordValue, setPasswordValue] = useState('')
+  const [confirmValue, setConfirmValue] = useState('')
+
+  const [state, formAction, isPending] = useActionState(
+    async (_prev: typeof initialState, formData: FormData) => {
+      formData.set('token', token)
+      return resetPasswordAction(_prev, formData)
+    },
+    initialState
+  )
 
   if (!token) {
     return (
@@ -25,9 +35,7 @@ export default function ResetPasswordPage({ token }: Props) {
     )
   }
 
-  const passwordValue = watch('password') ?? ''
-  const confirmValue = watch('confirmPassword') ?? ''
-  const passwordMismatch = !!errors.confirmPassword
+  const passwordMismatch = confirmValue.length > 0 && confirmValue !== passwordValue
   const strength = passwordValue.length === 0 ? 0 : passwordValue.length < 6 ? 1 : passwordValue.length < 10 ? 2 : /[^a-zA-Z0-9]/.test(passwordValue) ? 4 : 3
   const strengthLabel = ['', 'Weak', 'Fair', 'Strong', 'Very Strong'][strength]
 
@@ -61,16 +69,21 @@ export default function ResetPasswordPage({ token }: Props) {
           <h2 className="auth-form-title">Reset Password</h2>
           <p className="auth-form-subtitle">Please enter and confirm your new credentials below.</p>
 
-          <form onSubmit={onSubmit}>
+          <form action={formAction}>
             <div className="form-group">
               <label className="form-label">New Password</label>
               <div className="input-wrapper">
-                <input type={showPw ? 'text' : 'password'} placeholder="••••••••" {...register('password')} />
+                <input
+                  name="password"
+                  type={showPw ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={passwordValue}
+                  onChange={(e) => setPasswordValue(e.target.value)}
+                />
                 <button type="button" className="input-action" onClick={() => setShowPw(!showPw)}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <FormError message={errors.password?.message} />
               {passwordValue.length > 0 && (
                 <>
                   <div className="strength-bar">
@@ -86,10 +99,16 @@ export default function ResetPasswordPage({ token }: Props) {
             <div className="form-group">
               <label className={`form-label${passwordMismatch ? ' form-label--error' : ''}`}>Confirm Password</label>
               <div className={`input-wrapper${passwordMismatch ? ' input-wrapper--error' : ''}`}>
-                <input type="password" placeholder="••••••••" {...register('confirmPassword')} />
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmValue}
+                  onChange={(e) => setConfirmValue(e.target.value)}
+                />
                 {passwordMismatch && <X size={16} color="#e53e3e" />}
               </div>
-              <FormError message={errors.confirmPassword?.message} />
+              {passwordMismatch && <FormError message="Passwords do not match." />}
             </div>
 
             <div className="password-rules">
@@ -103,8 +122,16 @@ export default function ResetPasswordPage({ token }: Props) {
               </div>
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={isSubmitting || passwordMismatch || !passwordValue}>
-              {isSubmitting ? 'Resetting…' : <><ShieldCheck size={16} /><span>Reset Password</span></>}
+            {state.message && !state.success && (
+              <FormError message={state.message} />
+            )}
+
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={isPending || passwordMismatch || !passwordValue}
+            >
+              {isPending ? 'Resetting…' : <><ShieldCheck size={16} /><span>Reset Password</span></>}
             </button>
           </form>
 

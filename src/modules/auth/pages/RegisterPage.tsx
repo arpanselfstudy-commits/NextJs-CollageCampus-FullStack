@@ -1,23 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useActionState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { GraduationCap, Check, X } from 'lucide-react'
 import '@/styles/design.css'
-import { useRegisterForm } from '../hooks/useRegisterForm'
+import { registerAction } from '../actions/auth.actions'
 import AuthLogo from '../components/common/AuthLogo'
 import { FormError } from '@/components/common'
 
 const PolicyModal = dynamic(() => import('@/components/common/PolicyModal/PolicyModal'), { ssr: false })
 
+const initialState = { success: false, message: '' }
+
 export default function RegisterPage() {
   const [agreed, setAgreed] = useState(false)
   const [policy, setPolicy] = useState<'Privacy' | 'Terms' | null>(null)
-  const { register, onSubmit, formState: { errors, isSubmitting }, watch } = useRegisterForm()
+  const [confirmValue, setConfirmValue] = useState('')
+  const [passwordValue, setPasswordValue] = useState('')
+  const [state, formAction, isPending] = useActionState(registerAction, initialState)
 
-  const confirmValue = watch('confirmPassword') ?? ''
-  const passwordMismatch = !!errors.confirmPassword
+  const passwordMismatch = confirmValue.length > 0 && confirmValue !== passwordValue
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f0f4ff' }}>
@@ -41,39 +44,48 @@ export default function RegisterPage() {
           <h2 className="auth-form-title">Create your account</h2>
           <p className="auth-form-subtitle">Join a community of thousands of students and shops.</p>
 
-          <form onSubmit={onSubmit}>
+          <form action={formAction}>
             <div className="form-group">
               <label className="form-label">Full Name</label>
               <div className="input-wrapper">
-                <input type="text" placeholder="Alex Rivera" {...register('name')} />
+                <input name="name" type="text" placeholder="Alex Rivera" />
               </div>
-              <FormError message={errors.name?.message} />
             </div>
 
             <div className="form-group">
               <label className="form-label">Email Address</label>
               <div className="input-wrapper">
-                <input type="email" placeholder="alex@campus.edu" {...register('email')} />
+                <input name="email" type="email" placeholder="alex@campus.edu" />
               </div>
-              <FormError message={errors.email?.message} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
                 <label className="form-label">Password</label>
                 <div className="input-wrapper">
-                  <input type="password" placeholder="••••••••" {...register('password')} />
+                  <input
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={passwordValue}
+                    onChange={(e) => setPasswordValue(e.target.value)}
+                  />
                 </div>
-                <FormError message={errors.password?.message} />
               </div>
               <div className="form-group">
                 <label className={`form-label${passwordMismatch ? ' form-label--error' : ''}`}>Confirm Password</label>
                 <div className={`input-wrapper${passwordMismatch ? ' input-wrapper--error' : ''}`}>
-                  <input type="password" placeholder="••••••••" {...register('confirmPassword')} />
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmValue}
+                    onChange={(e) => setConfirmValue(e.target.value)}
+                  />
                   {!passwordMismatch && confirmValue.length > 0 && <Check size={16} color="#38a169" />}
                   {passwordMismatch && <X size={16} color="#e53e3e" />}
                 </div>
-                <FormError message={errors.confirmPassword?.message} />
+                {passwordMismatch && <FormError message="Passwords do not match." />}
               </div>
             </div>
 
@@ -87,9 +99,18 @@ export default function RegisterPage() {
               </label>
             </div>
 
+            {state.message && !state.success && (
+              <FormError message={state.message} />
+            )}
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <button className="btn btn-primary" type="submit" style={{ width: 'auto', padding: '13px 28px' }} disabled={isSubmitting || !!errors.confirmPassword || !agreed}>
-                {isSubmitting ? 'Creating…' : 'Create Account'}
+              <button
+                className="btn btn-primary"
+                type="submit"
+                style={{ width: 'auto', padding: '13px 28px' }}
+                disabled={isPending || passwordMismatch || !agreed}
+              >
+                {isPending ? 'Creating…' : 'Create Account'}
               </button>
               <span style={{ fontSize: 14, color: '#6b7280' }}>
                 Already have an account? <Link href="/login" style={{ color: '#3730d4', fontWeight: 600 }}>Sign in</Link>
