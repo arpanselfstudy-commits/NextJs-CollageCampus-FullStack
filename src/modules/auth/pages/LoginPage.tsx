@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useActionState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import '@/styles/design.css'
 import { loginAction } from '../actions/auth.actions'
@@ -15,8 +16,9 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false)
   const [state, formAction, isPending] = useActionState(loginAction, initialState)
   const setAuth = useAuthStore((s) => s.setAuth)
+  const router = useRouter()
 
-  // hydrate auth store from the short-lived cookie the server action sets
+  // hydrate auth store from the short-lived cookie the server action sets, then navigate
   useEffect(() => {
     if (state.success) {
       const match = document.cookie.match(/(?:^|;\s*)auth-user=([^;]*)/)
@@ -26,8 +28,9 @@ export default function LoginPage() {
           setAuth(user, '', '')
         } catch { /* ignore */ }
       }
+      router.replace('/landing')
     }
-  }, [state.success, setAuth])
+  }, [state.success, setAuth, router])
 
   return (
     <div className="auth-page">
@@ -90,7 +93,7 @@ export default function LoginPage() {
 
           <p className="auth-alt-link">
             New to the campus ecosystem?{' '}
-            <Link href="/register">Request an invite</Link>
+            <Link href="/register">Create an account.</Link>
           </p>
         </div>
       </div>

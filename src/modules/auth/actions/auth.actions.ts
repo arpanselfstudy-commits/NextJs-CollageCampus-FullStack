@@ -48,7 +48,8 @@ export async function loginAction(
     return { success: false, message: msg }
   }
 
-  redirect('/landing')
+  // Return success so the client can hydrate the store first, then navigate
+  return { success: true, message: '' }
 }
 
 // ─── Register ─────────────────────────────────────────────────────────────────
