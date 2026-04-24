@@ -5,11 +5,11 @@ import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Pencil, Trash2, ShoppingBag, Loader2, Check, X, Package } from 'lucide-react'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
-import { LISTED_CATEGORIES, LISTED_CONDITIONS, CATEGORY_LABEL, type ListedProductCategory, type ListedProductCondition } from '@/modules/marketplace/types'
+import { LISTED_CATEGORIES, LISTED_CONDITIONS, CATEGORY_LABEL, type ListedProductCondition } from '@/modules/marketplace/types'
 import { PageLoader } from '@/components/common/Loader/Loader'
+import Input from '@/components/common/Input/Input'
 import { FormError } from '@/components/common'
 import type { ListedProduct } from '@/modules/marketplace/types'
-import { BLUR_DATA_URL } from '@/lib/upload/constants'
 import styles from './account.module.css'
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import type { ManageListingForm } from '@/modules/user/types'
@@ -42,7 +42,7 @@ export interface ManageListingViewProps {
   deleting: boolean
 }
 
-const inp = { width: '100%', padding: '12px 14px', background: '#f3f5fb', border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
+const selectStyle = { width: '100%', padding: '12px 14px', background: 'var(--color-surface-low)', border: '1.5px solid var(--color-border)', borderRadius: 10, fontSize: 14, color: 'var(--color-text)', fontFamily: "'Inter',sans-serif", outline: 'none', appearance: 'none' as const, boxSizing: 'border-box' as const }
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
 export default function ManageListingView({ product, isLoading, editing, onToggleEditing, register, errors, watch, setValue, onSave, onCancelEdit, onToggleAvailable, onDelete, onConfirmDelete, onCancelDelete, confirmDelete, updating, deleting }: ManageListingViewProps) {
@@ -82,30 +82,35 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
               <div className={styles.editForm}>
                 <h3 className={styles.editFormTitle}>Edit Details</h3>
                 <div className={styles.editFormFields}>
-                  <div>
-                    <label style={lbl}>Product Name</label>
-                    <input style={inp} {...register('productName')} />
-                    <FormError message={errors.productName?.message} />
-                  </div>
+
+                  <Input
+                    label="Product Name"
+                    error={errors.productName?.message}
+                    {...register('productName')}
+                  />
+
                   <div className={styles.editFormGrid2}>
                     <div>
                       <label style={lbl}>Category</label>
-                      <select style={{ ...inp, appearance: 'none' as const }} {...register('category')}>
+                      <select style={selectStyle} {...register('category')}>
                         {LISTED_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
                       </select>
                       <FormError message={errors.category?.message} />
                     </div>
-                    <div>
-                      <label style={lbl}>Price ($)</label>
-                      <input style={inp} type="number" {...register('price')} />
-                      <FormError message={errors.price?.message} />
-                    </div>
+                    <Input
+                      label="Price ($)"
+                      type="number"
+                      error={errors.price?.message}
+                      {...register('price')}
+                    />
                   </div>
-                  <div>
-                    <label style={lbl}>Description</label>
-                    <textarea style={{ ...inp, resize: 'none', height: 80 } as React.CSSProperties} {...register('description')} />
-                    <FormError message={errors.description?.message} />
-                  </div>
+
+                  <Input
+                    label="Description"
+                    error={errors.description?.message}
+                    {...register('description')}
+                  />
+
                   <div className={styles.editFormGrid2}>
                     <div>
                       <label style={lbl}>Condition</label>
@@ -118,27 +123,34 @@ export default function ManageListingView({ product, isLoading, editing, onToggl
                       </div>
                       <FormError message={errors.condition?.message} />
                     </div>
-                    <div>
-                      <label style={lbl}>Years Used</label>
-                      <input style={inp} type="number" min={0} {...register('yearUsed', { valueAsNumber: true })} />
-                    </div>
+                    <Input
+                      label="Years Used"
+                      type="number"
+                      min={0}
+                      {...register('yearUsed', { valueAsNumber: true })}
+                    />
                   </div>
+
                   <div className={styles.editFormGrid2}>
-                    <div>
-                      <label style={lbl}>Email</label>
-                      <input style={inp} type="email" {...register('email')} />
-                      <FormError message={errors.email?.message} />
-                    </div>
-                    <div>
-                      <label style={lbl}>Phone</label>
-                      <input style={inp} type="tel" {...register('phoneNo')} />
-                      <FormError message={errors.phoneNo?.message} />
-                    </div>
+                    <Input
+                      label="Email"
+                      type="email"
+                      error={errors.email?.message}
+                      {...register('email')}
+                    />
+                    <Input
+                      label="Phone"
+                      type="tel"
+                      error={errors.phoneNo?.message}
+                      {...register('phoneNo')}
+                    />
                   </div>
+
                   <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
                     <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#2a14b4' }} {...register('isNegotiable')} />
                     Open to Negotiation
                   </label>
+
                   <div className={styles.editFormActions}>
                     <button onClick={onSave} disabled={updating} className={styles.saveBtn}>
                       {updating ? <Loader2 size={16} className={styles.spin} /> : <Check size={16} />} Save Changes

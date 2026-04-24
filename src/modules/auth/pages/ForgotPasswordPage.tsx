@@ -6,6 +6,7 @@ import { Mail, Lock, ArrowRight, Inbox } from 'lucide-react'
 import '@/styles/design.css'
 import { forgotPasswordAction } from '../actions/auth.actions'
 import { FormError } from '@/components/common'
+import Input from '@/components/common/Input/Input'
 
 const initialState = { success: false, message: '' }
 
@@ -33,11 +34,13 @@ export default function ForgotPasswordPage() {
         ) : (
           <form action={formAction}>
             <div className="form-group">
-              <label className="form-label">University Email</label>
-              <div className="input-wrapper">
-                <span className="input-icon"><Mail size={16} /></span>
-                <input name="email" type="email" placeholder="name@campus.edu" />
-              </div>
+              <Input
+                label="University Email"
+                name="email"
+                type="email"
+                placeholder="name@campus.edu"
+                leftIcon={<Mail size={16} />}
+              />
             </div>
 
             {state.message && <FormError message={state.message} />}

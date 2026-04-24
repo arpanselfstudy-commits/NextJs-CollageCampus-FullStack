@@ -4,12 +4,13 @@ import '@/styles/design.css'
 import { useState } from 'react'
 import Link from 'next/link'
 import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
-import { Pencil, Plus, ClipboardList, ShoppingBag, Trash2, Settings2 } from 'lucide-react'
+import { Plus, ClipboardList, ShoppingBag } from 'lucide-react'
 import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
 import ConfirmModal from '@/components/common/Modal/ConfirmModal'
+import ProfileProductCard from './ProfileProductCard'
+import ProfileHeader from './ProfileHeader'
 import type { AuthUser } from '@/modules/auth/types'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
-import { BLUR_DATA_URL } from '@/lib/upload/constants'
 import styles from './account.module.css'
 
 export interface MyProfileViewProps {
@@ -24,8 +25,23 @@ export interface MyProfileViewProps {
   onDeleteRequested: (id: string) => void
 }
 
-export default function MyProfileView({ user, tab, onTabChange, listings, listedLoading, requests, requestedLoading, onDeleteListed, onDeleteRequested }: MyProfileViewProps) {
-  const [pendingDelete, setPendingDelete] = useState<{ id: string; type: 'listing' | 'request'; name: string } | null>(null)
+export default function MyProfileView({
+  user,
+  tab,
+  onTabChange,
+  listings,
+  listedLoading,
+  requests,
+  requestedLoading,
+  onDeleteListed,
+  onDeleteRequested,
+}: MyProfileViewProps) {
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string
+    type: 'listing' | 'request'
+    name: string
+  } | null>(null)
+
   const handleConfirmDelete = () => {
     if (!pendingDelete) return
     if (pendingDelete.type === 'listing') onDeleteListed(pendingDelete.id)
@@ -35,72 +51,73 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
 
   return (
     <>
-    <div className={styles.content}>
+      <div className={styles.content}>
 
         {/* Profile header */}
-        <div className={styles.profileHeader}>
-          <div className={styles.profileAvatar} style={{ position: 'relative' }}>
-            {user?.photo ? <FallbackImage src={user.photo} alt={user.name} fill sizes="80px" /> : user?.name?.[0]?.toUpperCase() ?? '?'}
-          </div>
-          <div className={styles.profileInfo}>
-            <div className={styles.profileName}>{user?.name ?? 'User'}</div>
-            <div className={styles.profileEmail}>{user?.email}</div>
-            <div className={styles.profileBadges}><span className={styles.profileBadge}>{user?.role ?? 'USER'}</span></div>
-          </div>
-          <Link href="/account/edit-profile" className={styles.editBtn}><Pencil size={14} /> Edit Profile</Link>
-        </div>
+        <ProfileHeader user={user} />
 
         {/* Tabs + actions */}
         <div className={styles.tabsRow}>
           <div className={styles.tabs}>
             {(['listings', 'requests'] as const).map((key) => (
-              <button key={key} onClick={() => onTabChange(key)} className={`${styles.tab} ${tab === key ? styles['tab--active'] : ''}`}>
-                {key === 'listings' ? `My Listings (${listings.length})` : `My Requests (${requests.length})`}
+              <button
+                key={key}
+                onClick={() => onTabChange(key)}
+                className={`${styles.tab} ${tab === key ? styles['tab--active'] : ''}`}
+              >
+                {key === 'listings'
+                  ? `My Listings (${listings.length})`
+                  : `My Requests (${requests.length})`}
               </button>
             ))}
           </div>
           <div className={styles.tabActions}>
-            <Link href="/account/list-product" className={styles.tabActionPrimary}><Plus size={14} /> List Product</Link>
-            <Link href="/account/request-product" className={styles.tabActionSecondary}><ClipboardList size={14} /> Request Item</Link>
+            <Link href="/account/list-product" className={styles.tabActionPrimary}>
+              <Plus size={14} /> List Product
+            </Link>
+            <Link href="/account/request-product" className={styles.tabActionSecondary}>
+              <ClipboardList size={14} /> Request Item
+            </Link>
           </div>
         </div>
 
         {/* Listings tab */}
         {tab === 'listings' && (
           listedLoading ? (
-            <div className={styles.grid3}>{Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}</div>
+            <div className={styles.grid3}>
+              {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
+            </div>
           ) : listings.length === 0 ? (
             <div className={styles.emptyState}>
               <ShoppingBag size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-              <p>No listings yet. <Link href="/account/list-product" className={styles.emptyLink}>List your first product</Link></p>
+              <p>
+                No listings yet.{' '}
+                <Link href="/account/list-product" className={styles.emptyLink}>
+                  List your first product
+                </Link>
+              </p>
             </div>
           ) : (
             <div className={styles.grid3}>
               {listings.map((item) => (
-                <div key={item._id} className={styles.productCard}>
-                  <div className={styles.productCardImg} style={{ position: 'relative' }}>
-                    {item.images[0]
-                      ? <FallbackImage src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" />
-                      : <ShoppingBag size={48} color="#3730d4" strokeWidth={1} />}
-                    <span className={styles.productCardBadge} style={{ background: item.isAvailable ? '#dcfce7' : '#fef9c3', color: item.isAvailable ? '#166534' : '#854d0e' }}>
-                      {item.isAvailable ? 'Available' : 'Unavailable'}
-                    </span>
-                  </div>
-                  <div className={styles.productCardBody}>
-                    <div className={styles.productCardRow}>
-                      <span className={styles.productCardTitle}>{item.productName}</span>
-                      <span className={styles.productCardPrice}>${item.price}</span>
-                    </div>
-                    <p className={styles.productCardDesc}>{item.description}</p>
-                    <div className={styles.productCardActions}>
-                      <Link href={`/account/manage-listing/${item._id}`} className={styles.manageBtn}><Settings2 size={14} /> Manage</Link>
-                      <button
-                        onClick={() => item._id && setPendingDelete({ id: item._id, type: 'listing', name: item.productName })}
-                        className={styles.deleteBtn}
-                      ><Trash2 size={14} /></button>
-                    </div>
-                  </div>
-                </div>
+                <ProfileProductCard
+                  key={item._id}
+                  id={item._id ?? ''}
+                  imageSrc={item.images[0]}
+                  imageAlt={item.productName}
+                  imageFallback={<ShoppingBag size={48} color="#3730d4" strokeWidth={1} />}
+                  badgeLabel={item.isAvailable ? 'Available' : 'Unavailable'}
+                  badgeBg={item.isAvailable ? '#dcfce7' : '#fef9c3'}
+                  badgeColor={item.isAvailable ? '#166534' : '#854d0e'}
+                  title={item.productName}
+                  price={`$${item.price}`}
+                  description={item.description}
+                  manageHref={`/account/manage-listing/${item._id}`}
+                  onDelete={() =>
+                    item._id &&
+                    setPendingDelete({ id: item._id, type: 'listing', name: item.productName })
+                  }
+                />
               ))}
             </div>
           )
@@ -109,39 +126,41 @@ export default function MyProfileView({ user, tab, onTabChange, listings, listed
         {/* Requests tab */}
         {tab === 'requests' && (
           requestedLoading ? (
-            <div className={styles.grid3}>{Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}</div>
+            <div className={styles.grid3}>
+              {Array.from({ length: 6 }).map((_, i) => <MarketplaceCardSkeleton key={i} />)}
+            </div>
           ) : requests.length === 0 ? (
             <div className={styles.emptyState}>
               <ClipboardList size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-              <p>No requests yet. <Link href="/account/request-product" className={styles.emptyLink}>Post your first request</Link></p>
+              <p>
+                No requests yet.{' '}
+                <Link href="/account/request-product" className={styles.emptyLink}>
+                  Post your first request
+                </Link>
+              </p>
             </div>
           ) : (
             <div className={styles.grid3}>
               {requests.map((item) => (
-                <div key={item._id} className={styles.productCard}>
-                  <div className={`${styles.productCardImg} ${styles.productCardImgDim}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
-                    {item.images[0]
-                      ? <FallbackImage src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" />
-                      : <ClipboardList size={48} color="white" strokeWidth={1} />}
-                    <span className={styles.productCardBadge} style={{ background: item.isFulfilled ? '#dcfce7' : '#e0e7ff', color: item.isFulfilled ? '#166534' : '#3730a3' }}>
-                      {item.isFulfilled ? 'Fulfilled' : 'Active'}
-                    </span>
-                  </div>
-                  <div className={styles.productCardBody}>
-                    <div className={styles.productCardRow}>
-                      <span className={styles.productCardTitle}>{item.name}</span>
-                      <span className={styles.productCardPriceMuted}>${item.price.from}–${item.price.to}</span>
-                    </div>
-                    <p className={styles.productCardDesc}>{item.description}</p>
-                    <div className={styles.productCardActions}>
-                      <Link href={`/account/manage-request/${item._id}`} className={styles.manageBtn}><Settings2 size={14} /> Manage</Link>
-                      <button
-                        onClick={() => item._id && setPendingDelete({ id: item._id, type: 'request', name: item.name })}
-                        className={styles.deleteBtn}
-                      ><Trash2 size={14} /></button>
-                    </div>
-                  </div>
-                </div>
+                <ProfileProductCard
+                  key={item._id}
+                  id={item._id ?? ''}
+                  imageSrc={item.images[0]}
+                  imageAlt={item.name}
+                  imageFallback={<ClipboardList size={48} color="white" strokeWidth={1} />}
+                  badgeLabel={item.isFulfilled ? 'Fulfilled' : 'Active'}
+                  badgeBg={item.isFulfilled ? '#dcfce7' : '#e0e7ff'}
+                  badgeColor={item.isFulfilled ? '#166534' : '#3730a3'}
+                  dimImage
+                  title={item.name}
+                  price={`$${item.price.from}–$${item.price.to}`}
+                  description={item.description}
+                  manageHref={`/account/manage-request/${item._id}`}
+                  onDelete={() =>
+                    item._id &&
+                    setPendingDelete({ id: item._id, type: 'request', name: item.name })
+                  }
+                />
               ))}
             </div>
           )

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Mail, Phone, User, Loader2 } from 'lucide-react'
 import Input from '@/components/common/Input/Input'
-import { FormError } from '@/components/common'
 import dynamic from 'next/dynamic'
 const ImageUploader = dynamic(() => import('@/components/common/ImageUploader/ImageUploader'), { ssr: false, loading: () => null })
 import type { AuthUser } from '@/modules/auth/types'
@@ -64,40 +63,34 @@ export default function EditProfileView({
             />
 
             {/* Name */}
-            <div>
-              <Input
-                label="Full Name"
-                type="text"
-                placeholder="Your full name"
-                leftIcon={<User size={15} color="#9ca3af" />}
-                {...register('name')}
-              />
-              <FormError message={errors.name?.message} />
-            </div>
+            <Input
+              label="Full Name"
+              type="text"
+              placeholder="Your full name"
+              leftIcon={<User size={15} color="#9ca3af" />}
+              error={errors.name?.message}
+              {...register('name')}
+            />
 
             {/* Email */}
-            <div>
-              <Input
-                label="Email Address"
-                type="email"
-                placeholder="name@campus.edu"
-                leftIcon={<Mail size={15} color="#9ca3af" />}
-                {...register('email')}
-              />
-              <FormError message={errors.email?.message} />
-            </div>
+            <Input
+              label="Email Address"
+              type="email"
+              placeholder="name@campus.edu"
+              leftIcon={<Mail size={15} color="#9ca3af" />}
+              error={errors.email?.message}
+              {...register('email')}
+            />
 
             {/* Phone */}
-            <div>
-              <Input
-                label="Phone Number"
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-                leftIcon={<Phone size={15} color="#9ca3af" />}
-                {...register('phoneNumber')}
-              />
-              <FormError message={errors.phoneNumber?.message} />
-            </div>
+            <Input
+              label="Phone Number"
+              type="tel"
+              placeholder="+1 (555) 000-0000"
+              leftIcon={<Phone size={15} color="#9ca3af" />}
+              error={errors.phoneNumber?.message}
+              {...register('phoneNumber')}
+            />
 
             {/* Actions */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, paddingTop: 8, borderTop: '1px solid #f0f2f8' }}>

@@ -3,15 +3,15 @@
 import '@/styles/design.css'
 import { useDropzone } from 'react-dropzone'
 import { UploadCloud, X } from 'lucide-react'
-import { LISTED_CATEGORIES, CATEGORY_LABEL, type ListedProductCategory } from '@/modules/marketplace/types'
+import { LISTED_CATEGORIES, CATEGORY_LABEL } from '@/modules/marketplace/types'
 import Loader from '@/components/common/Loader/Loader'
-import { FormError } from '@/components/common'
+import Input from '@/components/common/Input/Input'
 import BackButton from '@/components/common/BackButton/BackButton'
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import type { RequestProductForm } from '@/modules/user/types'
 
-const inp = { width: '100%', padding: '13px 16px', background: '#eff4ff', border: 'none', borderRadius: 12, fontSize: 14, color: '#0b1c30', fontFamily: "'Inter',sans-serif", outline: 'none', boxSizing: 'border-box' as const }
-const lbl = { fontSize: 13, fontWeight: 600, color: '#0b1c30', marginBottom: 6, display: 'block' }
+const selectStyle = { width: '100%', padding: '13px 16px', background: 'var(--color-surface-low)', border: '1.5px solid var(--color-border)', borderRadius: 12, fontSize: 14, color: 'var(--color-text)', fontFamily: "'Inter',sans-serif", outline: 'none', appearance: 'none' as const, boxSizing: 'border-box' as const }
+const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#6b7280', marginBottom: 6, display: 'block' }
 
 export interface RequestProductViewProps {
   register: UseFormRegister<RequestProductForm>
@@ -46,116 +46,129 @@ export default function RequestProductView({
   return (
     <div style={{ flex: 1, maxWidth: 1000, margin: '0 auto', width: '100%', padding: '48px 32px', display: 'flex', gap: 48, alignItems: 'start' }}>
 
-        {/* Left info panel */}
-        <div style={{ width: 260, flexShrink: 0 }}>
-          <div style={{ marginBottom: 20 }}>
-            <BackButton href="/account/my-profile" label="Back to Profile" />
+      {/* Left info panel */}
+      <div style={{ width: 260, flexShrink: 0 }}>
+        <div style={{ marginBottom: 20 }}>
+          <BackButton href="/account/my-profile" label="Back to Profile" />
+        </div>
+        <span style={{ display: 'inline-block', background: '#dcfce7', color: '#006a61', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '5px 14px', borderRadius: 20, marginBottom: 20 }}>The Atelier Marketplace</span>
+        <h1 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 34, fontWeight: 800, lineHeight: 1.05, color: '#0b1c30', marginBottom: 14 }}>Sourcing for<br /><em style={{ color: '#2a14b4' }}>Innovation.</em></h1>
+        <p style={{ fontSize: 14, color: '#464554', lineHeight: 1.65, marginBottom: 24 }}>Can&apos;t find what you need? Post a request and let the right product find you.</p>
+        {[
+          { title: 'Network Reach', sub: 'Broadcasted to 5,000+ active campus members instantly.' },
+          { title: 'Secure Trading', sub: 'All responders are verified for safe transactions.' },
+        ].map((c) => (
+          <div key={c.title} style={{ background: '#eff4ff', borderRadius: 14, padding: 18, marginBottom: 12 }}>
+            <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{c.title}</div>
+            <div style={{ fontSize: 13, color: '#464554', lineHeight: 1.5 }}>{c.sub}</div>
           </div>
-          <span style={{ display: 'inline-block', background: '#dcfce7', color: '#006a61', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '5px 14px', borderRadius: 20, marginBottom: 20 }}>The Atelier Marketplace</span>
-          <h1 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 34, fontWeight: 800, lineHeight: 1.05, color: '#0b1c30', marginBottom: 14 }}>Sourcing for<br /><em style={{ color: '#2a14b4' }}>Innovation.</em></h1>
-          <p style={{ fontSize: 14, color: '#464554', lineHeight: 1.65, marginBottom: 24 }}>Can&apos;t find what you need? Post a request and let the right product find you.</p>
-          {[
-            { title: 'Network Reach', sub: 'Broadcasted to 5,000+ active campus members instantly.' },
-            { title: 'Secure Trading', sub: 'All responders are verified for safe transactions.' },
-          ].map((c) => (
-            <div key={c.title} style={{ background: '#eff4ff', borderRadius: 14, padding: 18, marginBottom: 12 }}>
-              <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{c.title}</div>
-              <div style={{ fontSize: 13, color: '#464554', lineHeight: 1.5 }}>{c.sub}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Form */}
-        <div style={{ flex: 1, background: 'white', borderRadius: 20, padding: 36, boxShadow: '0 4px 24px rgba(11,28,48,0.07)' }}>
-          <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-
-            <div>
-              <label style={lbl}>Product name</label>
-              <input style={inp} type="text" placeholder="What are you looking for?" {...register('name')} />
-              <FormError message={errors.name?.message} />
-            </div>
-
-            <div>
-              <label style={lbl}>Category</label>
-              <select style={{ ...inp, appearance: 'none' as const }} {...register('category')}>
-                {LISTED_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
-              </select>
-              <FormError message={errors.category?.message} />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <div>
-                <label style={lbl}>Min Price ($)</label>
-                <input style={inp} type="number" placeholder="0" min={0} {...register('priceFrom', { valueAsNumber: true })} />
-                <FormError message={errors.priceFrom?.message} />
-              </div>
-              <div>
-                <label style={lbl}>Max Price ($)</label>
-                <input style={inp} type="number" placeholder="1000" min={0} {...register('priceTo', { valueAsNumber: true })} />
-                <FormError message={errors.priceTo?.message} />
-              </div>
-            </div>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
-              <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#2a14b4' }} {...register('isNegotiable')} />
-              Open to Negotiation
-            </label>
-
-            <div>
-              <label style={lbl}>Description</label>
-              <textarea style={{ ...inp, resize: 'none', height: 100 } as React.CSSProperties} placeholder="Specific requirements, condition preferences, urgency..." {...register('description')} />
-              <FormError message={errors.description?.message} />
-            </div>
-
-            {/* Dropzone */}
-            <div>
-              <label style={lbl}>Images (min 1, max 5)</label>
-              <div
-                {...getRootProps()}
-                style={{ background: isDragActive ? '#e0e7ff' : '#f0f4ff', borderRadius: 12, border: `2px dashed ${isDragActive ? '#2a14b4' : '#c7c4d7'}`, padding: '20px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: images.length >= 5 ? 'not-allowed' : 'pointer', textAlign: 'center', transition: 'all 0.15s', opacity: images.length >= 5 ? 0.5 : 1 }}
-              >
-                <input {...getInputProps()} />
-                <UploadCloud size={28} color="#2a14b4" style={{ marginBottom: 8 }} />
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0b1c30', marginBottom: 2 }}>{isDragActive ? 'Drop here' : 'Drag & drop or click to browse'}</div>
-                <div style={{ fontSize: 11, color: '#9ca3af' }}>{images.length}/5 uploaded</div>
-              </div>
-              {images.length > 0 && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-                  {images.map((img, i) => (
-                    <div key={img.preview} style={{ position: 'relative', width: 64, height: 64, borderRadius: 8, overflow: 'hidden', background: '#e5e7eb' }}>
-                      <img src={img.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <button onClick={() => onRemoveImage(i)} type="button" style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                        <X size={10} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {images.length === 0 && <p style={{ fontSize: 12, color: '#e53e3e', fontWeight: 600, marginTop: 6 }}>⚠ At least 1 image is required.</p>}
-            </div>
-
-            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 18 }}>
-              <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, color: '#2a14b4', marginBottom: 14 }}>Contact Details</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div>
-                  <label style={lbl}>Phone number</label>
-                  <input style={inp} type="tel" placeholder="+1 (555) 000-0000" {...register('phoneNo')} />
-                  <FormError message={errors.phoneNo?.message} />
-                </div>
-                <div>
-                  <label style={lbl}>Email</label>
-                  <input style={inp} type="email" placeholder="name@campus.edu" {...register('email')} />
-                  <FormError message={errors.email?.message} />
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" disabled={isPending || isUploading || images.length === 0} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 14, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: isPending || isUploading || images.length === 0 ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {isUploading ? <><Loader size={20} /> Uploading…</> : isPending ? <><Loader size={20} /> Posting…</> : 'Request Product'}
-            </button>
-
-          </form>
-        </div>
+        ))}
       </div>
+
+      {/* Form */}
+      <div style={{ flex: 1, background: 'white', borderRadius: 20, padding: 36, boxShadow: '0 4px 24px rgba(11,28,48,0.07)' }}>
+        <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+          <Input
+            label="Product Name"
+            type="text"
+            placeholder="What are you looking for?"
+            error={errors.name?.message}
+            {...register('name')}
+          />
+
+          <div>
+            <label style={lbl}>Category</label>
+            <select style={selectStyle} {...register('category')}>
+              {LISTED_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
+            </select>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <Input
+              label="Min Price ($)"
+              type="number"
+              placeholder="0"
+              min={0}
+              error={errors.priceFrom?.message}
+              {...register('priceFrom', { valueAsNumber: true })}
+            />
+            <Input
+              label="Max Price ($)"
+              type="number"
+              placeholder="1000"
+              min={0}
+              error={errors.priceTo?.message}
+              {...register('priceTo', { valueAsNumber: true })}
+            />
+          </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
+            <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#2a14b4' }} {...register('isNegotiable')} />
+            Open to Negotiation
+          </label>
+
+          <Input
+            label="Description"
+            type="text"
+            placeholder="Specific requirements, condition preferences, urgency..."
+            error={errors.description?.message}
+            {...register('description')}
+          />
+
+          {/* Dropzone */}
+          <div>
+            <label style={lbl}>Images (min 1, max 5)</label>
+            <div
+              {...getRootProps()}
+              style={{ background: isDragActive ? '#e0e7ff' : '#f0f4ff', borderRadius: 12, border: `2px dashed ${isDragActive ? '#2a14b4' : '#c7c4d7'}`, padding: '20px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: images.length >= 5 ? 'not-allowed' : 'pointer', textAlign: 'center', transition: 'all 0.15s', opacity: images.length >= 5 ? 0.5 : 1 }}
+            >
+              <input {...getInputProps()} />
+              <UploadCloud size={28} color="#2a14b4" style={{ marginBottom: 8 }} />
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0b1c30', marginBottom: 2 }}>{isDragActive ? 'Drop here' : 'Drag & drop or click to browse'}</div>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>{images.length}/5 uploaded</div>
+            </div>
+            {images.length > 0 && (
+              <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                {images.map((img, i) => (
+                  <div key={img.preview} style={{ position: 'relative', width: 64, height: 64, borderRadius: 8, overflow: 'hidden', background: '#e5e7eb' }}>
+                    <img src={img.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button onClick={() => onRemoveImage(i)} type="button" style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                      <X size={10} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {images.length === 0 && <p style={{ fontSize: 12, color: '#e53e3e', fontWeight: 600, marginTop: 6 }}>⚠ At least 1 image is required.</p>}
+          </div>
+
+          <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 18 }}>
+            <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, color: '#2a14b4', marginBottom: 14 }}>Contact Details</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <Input
+                label="Phone Number"
+                type="tel"
+                placeholder="+1 (555) 000-0000"
+                error={errors.phoneNo?.message}
+                {...register('phoneNo')}
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="name@campus.edu"
+                error={errors.email?.message}
+                {...register('email')}
+              />
+            </div>
+          </div>
+
+          <button type="submit" disabled={isPending || isUploading || images.length === 0} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg,#2a14b4,#4338ca)', color: 'white', border: 'none', borderRadius: 14, fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: isPending || isUploading || images.length === 0 ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            {isUploading ? <><Loader size={20} /> Uploading…</> : isPending ? <><Loader size={20} /> Posting…</> : 'Request Product'}
+          </button>
+
+        </form>
+      </div>
+    </div>
   )
 }
