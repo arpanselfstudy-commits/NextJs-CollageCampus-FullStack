@@ -2,13 +2,15 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import BackButton from '@/components/common/BackButton/BackButton'
-import { MapPin, Phone, Mail, Clock, Store as StoreIcon } from 'lucide-react'
+import { Store as StoreIcon } from 'lucide-react'
 import { PageLoader } from '@/components/common/Loader/Loader'
-import { DAYS_OF_WEEK } from '@/utils/globalStaticData'
 import type { Shop } from '@/modules/shops/types'
 import styles from './ShopDetailView.module.css'
+import ShopHeroBanner from './ShopHeroBanner'
+import ShopTopItems from './ShopTopItems'
+import ShopOpeningHours from './ShopOpeningHours'
+import ShopContactCard from './ShopContactCard'
 
 export interface ShopDetailViewProps {
   shop?: Shop
@@ -17,72 +19,39 @@ export interface ShopDetailViewProps {
 
 export default function ShopDetailView({ shop, isLoading }: ShopDetailViewProps) {
   if (isLoading) return <div style={{ minHeight: '100vh', background: '#f8faff' }}><PageLoader /></div>
+
   if (!shop) return (
     <div className={styles.notFound}>
       <div className={styles.notFoundBody}>
         <StoreIcon size={48} color="#9ca3af" strokeWidth={1} />
         <p>Shop not found.</p>
-        <Link href="/shops" style={{ color: 'var(--color-primary)', fontWeight: 600 }}><BackButton href="/shops" label="Back to Shops" /></Link>
+        <Link href="/shops" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
+          <BackButton href="/shops" label="Back to Shops" />
+        </Link>
       </div>
     </div>
   )
-
-  const todayKey = DAYS_OF_WEEK[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]
-  const isOpenToday = shop.shopTiming?.[todayKey]?.isOpen
 
   return (
     <div className={styles.page}>
       <div className={styles.backWrap}>
         <BackButton href="/shops" label="Back to Shops" />
       </div>
-      <div className={styles.heroBanner} style={{ position: 'relative' }}>
-        <FallbackImage src={shop.photo || shop.photos?.[0]} alt={shop.name} fill sizes="100vw" className={styles.heroBannerBg} priority />
-        <div className={styles.heroBannerOverlay} />
-        <div className={styles.heroBannerContent}>
-          <div className={styles.heroBadgeRow}>
-            <span className={styles.heroBadge} style={{ background: isOpenToday ? '#dcfce7' : '#fef2f2', color: isOpenToday ? '#166534' : '#991b1b' }}>{isOpenToday ? '● Open Now' : '● Closed'}</span>
-            <span className={styles.heroBadge} style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>{shop.type}</span>
-          </div>
-          <h1 className={styles.heroTitle}>{shop.name}</h1>
-          <div className={styles.heroMeta}><MapPin size={13} />{shop.location} • {shop.distance}</div>
-        </div>
-      </div>
+
+      <ShopHeroBanner shop={shop} />
+
       <div className={styles.body}>
         <div className={styles.main}>
-          {shop.topItems.length > 0 && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}>Top Items</h2>
-              <div className={styles.topItems}>
-                {shop.topItems.map((item, i) => <span key={i} className={styles.topItem}>{item}</span>)}
-              </div>
-            </div>
-          )}
-          {shop.shopTiming && Object.keys(shop.shopTiming).length > 0 && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}><Clock size={16} color="#3730d4" /> Opening Hours</h2>
-              <div className={styles.hoursRow}>
-                {DAYS_OF_WEEK.map((day) => {
-                  const t = shop.shopTiming[day]
-                  if (!t) return null
-                  const isToday = day === todayKey
-                  return (
-                    <div key={day} className={`${styles.hourItem} ${isToday ? styles['hourItem--today'] : ''}`}>
-                      <span className={`${styles.hourDay} ${isToday ? styles['hourDay--today'] : ''}`}>{day}</span>
-                      <span className={`${styles.hourTime} ${!t.isOpen ? styles.hourClosed : ''}`}>{t.isOpen ? `${t.opensAt} – ${t.closesAt}` : 'Closed'}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+          <ShopTopItems items={shop.topItems} />
+          <ShopOpeningHours shopTiming={shop.shopTiming} />
         </div>
+
         <aside className={styles.sidebar}>
-          <div className={styles.card}>
-            <h3 className={styles.cardTitle}>Contact</h3>
-            <div className={styles.contactRow}><Mail size={15} color="#3730d4" />{shop.contactDetails.email}</div>
-            <div className={styles.contactRow}><Phone size={15} color="#3730d4" />{shop.contactDetails.phoneNo}</div>
-            <div className={styles.contactRow}><MapPin size={15} color="#3730d4" />{shop.location}</div>
-          </div>
+          <ShopContactCard
+            email={shop.contactDetails.email}
+            phoneNo={shop.contactDetails.phoneNo}
+            location={shop.location}
+          />
         </aside>
       </div>
     </div>
