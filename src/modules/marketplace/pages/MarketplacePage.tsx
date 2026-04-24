@@ -1,30 +1,24 @@
 'use client'
 
-import { useState } from 'react'
 import { useListedProducts } from '../hooks/useListedProducts'
 import { useRequestedProducts } from '../hooks/useRequestedProducts'
+import { useMarketplaceFilters } from '../hooks/useMarketplaceFilters'
 import MarketplaceView from '@/modules/marketplace/components/MarketplaceView'
-import type { ListedProductCategory, ListedProductCondition } from '../types'
 
 export default function MarketplacePage() {
-  const [tab, setTab] = useState<'listed' | 'requested'>('listed')
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-
-  // Listed filters
-  const [selectedCat, setSelectedCat] = useState<ListedProductCategory | ''>('')
-  const [selectedCondition, setSelectedCondition] = useState<ListedProductCondition | ''>('')
-  const [minPrice, setMinPrice] = useState<string>('')
-  const [maxPrice, setMaxPrice] = useState<string>('')
-  const [minYearUsed, setMinYearUsed] = useState<number | ''>('')
-  const [maxYearUsed, setMaxYearUsed] = useState<number | ''>('')
-
-  // Requested filters
-  const [reqCat, setReqCat] = useState<ListedProductCategory | ''>('')
-  const [isNegotiable, setIsNegotiable] = useState<string>('')
-  const [isFulfilled, setIsFulfilled] = useState<string>('')
-  const [reqMinPrice, setReqMinPrice] = useState<number | ''>('')
-  const [reqMaxPrice, setReqMaxPrice] = useState<number | ''>('')
+  const {
+    tab, page, search,
+    selectedCat, selectedCondition, minPrice, maxPrice, minYearUsed, maxYearUsed,
+    reqCat, isNegotiable, isFulfilled, reqMinPrice, reqMaxPrice,
+    handleTabChange, handleSearchChange,
+    setSelectedCat, setSelectedCondition,
+    setMinPrice, setMaxPrice,
+    setMinYearUsed, setMaxYearUsed,
+    setReqCat, setIsNegotiable, setIsFulfilled,
+    setReqMinPrice, setReqMaxPrice,
+    clearListedFilters, clearRequestedFilters,
+    setPage,
+  } = useMarketplaceFilters()
 
   const { data: listedData, isLoading: listedLoading } = useListedProducts({
     page, limit: 9,
@@ -47,23 +41,6 @@ export default function MarketplacePage() {
     maxPrice: reqMaxPrice !== '' ? reqMaxPrice : undefined,
   })
 
-  const handleTabChange = (t: 'listed' | 'requested') => {
-    setTab(t); setPage(1); setSearch('')
-  }
-
-  const handleClearListedFilters = () => {
-    setSelectedCat(''); setSelectedCondition('')
-    setMinPrice(''); setMaxPrice('')
-    setMinYearUsed(''); setMaxYearUsed('')
-    setPage(1)
-  }
-
-  const handleClearRequestedFilters = () => {
-    setReqCat(''); setIsNegotiable(''); setIsFulfilled('')
-    setReqMinPrice(''); setReqMaxPrice('')
-    setPage(1)
-  }
-
   return (
     <MarketplaceView
       tab={tab}
@@ -73,7 +50,7 @@ export default function MarketplacePage() {
       requested={requestedData?.products ?? []}
       requestedLoading={requestedLoading}
       search={search}
-      onSearchChange={(v) => { setSearch(v); setPage(1) }}
+      onSearchChange={handleSearchChange}
       // Listed filters
       selectedCat={selectedCat}
       onCatChange={(c) => { setSelectedCat(c); setPage(1) }}
@@ -88,7 +65,7 @@ export default function MarketplacePage() {
       onMinYearUsedChange={(v) => { setMinYearUsed(v); setPage(1) }}
       maxYearUsed={maxYearUsed}
       onMaxYearUsedChange={(v) => { setMaxYearUsed(v); setPage(1) }}
-      onClearListedFilters={handleClearListedFilters}
+      onClearListedFilters={clearListedFilters}
       // Requested filters
       reqCat={reqCat}
       onReqCatChange={(c) => { setReqCat(c); setPage(1) }}
@@ -100,7 +77,7 @@ export default function MarketplacePage() {
       onReqMinPriceChange={(v) => { setReqMinPrice(v); setPage(1) }}
       reqMaxPrice={reqMaxPrice}
       onReqMaxPriceChange={(v) => { setReqMaxPrice(v); setPage(1) }}
-      onClearRequestedFilters={handleClearRequestedFilters}
+      onClearRequestedFilters={clearRequestedFilters}
       // Pagination
       page={page}
       pagination={tab === 'listed' ? listedData?.pagination : requestedData?.pagination}

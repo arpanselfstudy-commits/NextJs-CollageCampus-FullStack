@@ -3,11 +3,12 @@
 import { useState, useActionState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { GraduationCap, Check, X } from 'lucide-react'
+import { GraduationCap, Check } from 'lucide-react'
 import '@/styles/design.css'
 import { registerAction } from '../actions/auth.actions'
 import AuthLogo from '../components/common/AuthLogo'
 import { FormError } from '@/components/common'
+import Input from '@/components/common/Input/Input'
 
 const PolicyModal = dynamic(() => import('@/components/common/PolicyModal/PolicyModal'), { ssr: false })
 
@@ -46,46 +47,39 @@ export default function RegisterPage() {
 
           <form action={formAction}>
             <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <div className="input-wrapper">
-                <input name="name" type="text" placeholder="Alex Rivera" />
-              </div>
+              <Input label="Full Name" name="name" type="text" placeholder="Alex Rivera" />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <div className="input-wrapper">
-                <input name="email" type="email" placeholder="alex@campus.edu" />
-              </div>
+              <Input label="Email Address" name="email" type="email" placeholder="alex@campus.edu" />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label">Password</label>
-                <div className="input-wrapper">
-                  <input
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={passwordValue}
-                    onChange={(e) => setPasswordValue(e.target.value)}
-                  />
-                </div>
+                <Input
+                  label="Password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={passwordValue}
+                  onChange={(e) => setPasswordValue(e.target.value)}
+                />
               </div>
               <div className="form-group">
-                <label className={`form-label${passwordMismatch ? ' form-label--error' : ''}`}>Confirm Password</label>
-                <div className={`input-wrapper${passwordMismatch ? ' input-wrapper--error' : ''}`}>
-                  <input
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmValue}
-                    onChange={(e) => setConfirmValue(e.target.value)}
-                  />
-                  {!passwordMismatch && confirmValue.length > 0 && <Check size={16} color="#38a169" />}
-                  {passwordMismatch && <X size={16} color="#e53e3e" />}
-                </div>
-                {passwordMismatch && <FormError message="Passwords do not match." />}
+                <Input
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmValue}
+                  onChange={(e) => setConfirmValue(e.target.value)}
+                  error={passwordMismatch ? 'Passwords do not match.' : undefined}
+                  rightIcon={
+                    !passwordMismatch && confirmValue.length > 0
+                      ? <Check size={16} color="#38a169" />
+                      : undefined
+                  }
+                />
               </div>
             </div>
 

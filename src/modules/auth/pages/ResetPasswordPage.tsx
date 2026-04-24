@@ -2,17 +2,18 @@
 
 import { useState, useActionState } from 'react'
 import BackButton from '@/components/common/BackButton/BackButton'
-import { GraduationCap, Eye, EyeOff, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react'
+import { GraduationCap, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react'
 import '@/styles/design.css'
 import { resetPasswordAction } from '../actions/auth.actions'
 import { FormError } from '@/components/common'
+import Input from '@/components/common/Input/Input'
+import { usePasswordStrength } from '../hooks/usePasswordStrength'
 
 interface Props { token: string }
 
 const initialState = { success: false, message: '' }
 
 export default function ResetPasswordPage({ token }: Props) {
-  const [showPw, setShowPw] = useState(false)
   const [passwordValue, setPasswordValue] = useState('')
   const [confirmValue, setConfirmValue] = useState('')
 
@@ -24,6 +25,9 @@ export default function ResetPasswordPage({ token }: Props) {
     initialState
   )
 
+  const { strength, strengthLabel } = usePasswordStrength(passwordValue)
+  const passwordMismatch = confirmValue.length > 0 && confirmValue !== passwordValue
+
   if (!token) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4ff' }}>
@@ -34,10 +38,6 @@ export default function ResetPasswordPage({ token }: Props) {
       </div>
     )
   }
-
-  const passwordMismatch = confirmValue.length > 0 && confirmValue !== passwordValue
-  const strength = passwordValue.length === 0 ? 0 : passwordValue.length < 6 ? 1 : passwordValue.length < 10 ? 2 : /[^a-zA-Z0-9]/.test(passwordValue) ? 4 : 3
-  const strengthLabel = ['', 'Weak', 'Fair', 'Strong', 'Very Strong'][strength]
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f0f4ff', padding: 24, alignItems: 'center', justifyContent: 'center' }}>
@@ -71,19 +71,14 @@ export default function ResetPasswordPage({ token }: Props) {
 
           <form action={formAction}>
             <div className="form-group">
-              <label className="form-label">New Password</label>
-              <div className="input-wrapper">
-                <input
-                  name="password"
-                  type={showPw ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={passwordValue}
-                  onChange={(e) => setPasswordValue(e.target.value)}
-                />
-                <button type="button" className="input-action" onClick={() => setShowPw(!showPw)}>
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <Input
+                label="New Password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={passwordValue}
+                onChange={(e) => setPasswordValue(e.target.value)}
+              />
               {passwordValue.length > 0 && (
                 <>
                   <div className="strength-bar">
@@ -97,18 +92,20 @@ export default function ResetPasswordPage({ token }: Props) {
             </div>
 
             <div className="form-group">
-              <label className={`form-label${passwordMismatch ? ' form-label--error' : ''}`}>Confirm Password</label>
-              <div className={`input-wrapper${passwordMismatch ? ' input-wrapper--error' : ''}`}>
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmValue}
-                  onChange={(e) => setConfirmValue(e.target.value)}
-                />
-                {passwordMismatch && <X size={16} color="#e53e3e" />}
-              </div>
-              {passwordMismatch && <FormError message="Passwords do not match." />}
+              <Input
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmValue}
+                onChange={(e) => setConfirmValue(e.target.value)}
+                error={passwordMismatch ? 'Passwords do not match.' : undefined}
+                rightIcon={
+                  !passwordMismatch && confirmValue.length > 0
+                    ? <Check size={16} color="#38a169" />
+                    : undefined
+                }
+              />
             </div>
 
             <div className="password-rules">

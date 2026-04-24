@@ -1,19 +1,19 @@
 'use client'
 
-import { useEffect, useState, useActionState } from 'react'
+import { useEffect, useActionState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Mail, Lock, ArrowRight } from 'lucide-react'
 import '@/styles/design.css'
 import { loginAction } from '../actions/auth.actions'
 import { useAuthStore } from '../store/auth.store'
 import AuthLogo from '../components/common/AuthLogo'
 import { FormError } from '@/components/common'
+import Input from '@/components/common/Input/Input'
 
 const initialState = { success: false, message: '' }
 
 export default function LoginPage() {
-  const [showPw, setShowPw] = useState(false)
   const [state, formAction, isPending] = useActionState(loginAction, initialState)
   const setAuth = useAuthStore((s) => s.setAuth)
   const router = useRouter()
@@ -61,25 +61,26 @@ export default function LoginPage() {
 
           <form action={formAction}>
             <div className="form-group">
-              <label className="form-label">Institutional Email</label>
-              <div className="input-wrapper">
-                <span className="input-icon"><Mail size={16} /></span>
-                <input name="email" type="email" placeholder="name@university.edu" />
-              </div>
+              <Input
+                label="Institutional Email"
+                name="email"
+                type="email"
+                placeholder="name@university.edu"
+                leftIcon={<Mail size={16} />}
+              />
             </div>
 
             <div className="form-group">
               <div className="form-label-row">
-                <label className="form-label">Security Password</label>
+                <span className="form-label">Security Password</span>
                 <Link href="/forgot-password" className="forgot-link">Forgot?</Link>
               </div>
-              <div className="input-wrapper">
-                <span className="input-icon"><Lock size={16} /></span>
-                <input name="password" type={showPw ? 'text' : 'password'} placeholder="••••••••" />
-                <button type="button" className="input-action" onClick={() => setShowPw(!showPw)}>
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <Input
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                leftIcon={<Lock size={16} />}
+              />
             </div>
 
             {state.message && !state.success && (

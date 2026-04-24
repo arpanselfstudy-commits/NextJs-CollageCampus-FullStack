@@ -8,11 +8,18 @@ This guide is written for junior React developers who are new to Next.js. If you
 2. [Phase 2: Next.js Core Concepts Used](#phase-2-nextjs-core-concepts-used)
 3. [Phase 3: Next.js Optimizations Implemented](#phase-3-nextjs-optimizations-implemented)
 4. [Phase 4: Backend Architecture (BFF Pattern)](#phase-4-backend-architecture-bff-pattern)
+   - [4.10 Server Actions](#410-server-actions--srcbackendactions)
+   - [4.11 Query Layer](#411-query-layer--srcbackendqueries)
+   - [4.12 Repository Pattern](#412-repository-pattern--srcbackendrepositories)
+   - [4.13 API Documentation — Swagger UI](#413-api-documentation--swagger-ui-and-api-docs)
 5. [Phase 5: Forms and Data Flow](#phase-5-forms-and-data-flow)
+   - [5.8 Image Upload Pipeline](#58-image-upload-pipeline--srclibupload)
 6. [Phase 6: Reusable Architecture Patterns](#phase-6-reusable-architecture-patterns)
 7. [Phase 7: Admin Panel (Separate React App)](#phase-7-admin-panel-separate-react-app)
 8. [Phase 8: Security Design](#phase-8-security-design)
 9. [Phase 9: Real Feature Walkthroughs](#phase-9-real-feature-walkthroughs)
+   - [9.6 Walkthrough 6 — User Account Module](#96-walkthrough-6--user-account-module)
+   - [9.7 Walkthrough 7 — Landing Page Module](#97-walkthrough-7--landing-page-module)
 10. [Phase 10: React Developer → Next.js Transition Guide](#phase-10-react-developer--nextjs-transition-guide)
 11. [Phase 11: Learning Roadmap](#phase-11-learning-roadmap)
 
@@ -2075,6 +2082,270 @@ Endpoints marked `[ADMIN only]` or `[USER only]` call `getAuthUser()` and check 
 
 ---
 
+### 4.10 Server Actions — `src/backend/actions/`
+
+**What** are Server Actions?
+
+Server Actions are functions marked with the `'use server'` directive that run exclusively on the server but can be called directly from React components — without going through a Route Handler or an Axios call. They are defined in `src/backend/actions/` and cover auth, listed products, and requested products.
+
+**Why** do Server Actions exist alongside Route Handlers?
+
+Route Handlers are the primary API layer for browser-initiated requests (Axios calls from React Query hooks). Server Actions are an alternative path for form submissions that don't need the full React Query mutation pipeline — for example, a `<form action={loginAction}>` that submits without JavaScript, or a Server Component that needs to trigger a mutation directly.
+
+The two approaches coexist in this project:
+
+| Approach | When to use |
+|---|---|
+| Route Handler + React Query mutation | Interactive forms with loading states, optimistic updates, and cache invalidation |
+| Server Action | Progressive-enhancement forms, Server Component mutations, or simple one-shot operations |
+
+**How** are they implemented?
+
+Here is the auth Server Action file:
+
+```typescript
+// src/backend/actions/auth.actions.ts
+'use server'
+
+import { cookies } from 'next/headers'
+import { validate } from '../lib/validate'
+import { setAuthCookies, clearAuthCookies } from '../lib/cookies'
+import { loginUser, registerUser, logoutUser, updateProfile } from '../services/auth.service'
+import { loginSchema, registerSchema, updateProfileSchema } from '../validators/auth.validator'
+
+export async function loginAction(
+  formData: FormData
+): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
+  try {
+    const data = validate(loginSchema, {
+      email: formData.get('email'),
+      password: formData.get('password'),
+    })
+    const { accessToken, refreshToken, user } = await loginUser(data.email, data.password, { name: 'server-action' })
+    await setAuthCookies(accessToken, refreshToken)
+    return { success: true, user }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Login failed' }
+  }
+}
+
+export async function logoutAction(): Promise<void> {
+  try {
+    const cookieStore = await cookies()
+    const refreshToken = cookieStore.get('refreshToken')?.value
+    if (refreshToken) await logoutUser(refreshToken)
+  } catch {
+    // ignore errors during logout
+  } finally {
+    await clearAuthCookies()
+  }
+}
+```
+
+Notice that Server Actions:
+- Use `'use server'` at the top of the file (marks every export as a Server Action)
+- Accept `FormData` (the native browser form submission format)
+- Return plain objects (not `NextResponse`) — the caller handles the result
+- Can read and set cookies directly via `next/headers`
+- Call the same service functions as Route Handlers — no logic is duplicated
+
+```
+Server Action call flow:
+
+React component calls loginAction(formData)
+          │
+          ▼
+Next.js serialises the call and sends it to the server
+          │
+          ▼
+loginAction runs on the server:
+  validate(loginSchema, formData)
+  loginUser(email, password)
+  setAuthCookies(accessToken, refreshToken)
+          │
+          ▼
+Returns { success: true, user } to the component
+          │
+          ▼
+Component updates UI based on the result
+```
+
+**What** Server Actions exist in this project?
+
+| File | Actions |
+|---|---|
+| `src/backend/actions/auth.actions.ts` | `loginAction`, `registerAction`, `logoutAction`, `updateProfileAction` |
+| `src/backend/actions/listedProduct.actions.ts` | `createListedProductAction` |
+| `src/backend/actions/requestedProduct.actions.ts` | `createRequestedProductAction` |
+
+**When** do you use a Server Action vs a Route Handler?
+
+- You need React Query caching, loading states, or cache invalidation → use a Route Handler + `useMutation`
+- You want a form that works without JavaScript (progressive enhancement) → use a Server Action with `<form action={...}>`
+- You are in a Server Component and need to trigger a mutation → use a Server Action
+- You need fine-grained error handling with toast notifications → use a Route Handler + `useMutation` (the `onError` callback is easier to work with)
+
+---
+
+### 4.11 Query Layer — `src/backend/queries/`
+
+**What** is the query layer?
+
+The query layer in `src/backend/queries/` provides React `cache()`-wrapped versions of service read functions. These are used by Server Components and dynamic route pages to fetch data server-side with automatic per-request deduplication.
+
+**Why** does this layer exist separately from services?
+
+Services (`src/backend/services/`) contain business logic and are called by both Route Handlers and Server Actions. The query layer wraps service read functions with React `cache()` so that multiple Server Components on the same page can call the same query without triggering multiple database round-trips.
+
+```typescript
+// src/backend/queries/job.queries.ts
+import { cache } from 'react'
+import { connectDB } from '../lib/db'
+import { getJobs as getJobsService, getJobById as getJobByIdService } from '../services/job.service'
+
+export const getJobs = cache(async (filters: Parameters<typeof getJobsService>[0] = {}) => {
+  await connectDB()
+  return getJobsService(filters)
+})
+
+export const getJobById = cache(async (id: string) => {
+  await connectDB()
+  return getJobByIdService(id)
+})
+```
+
+**How** does the deduplication work?
+
+React `cache()` memoises the function per server request. If `getJobById('abc')` is called three times during the same request (e.g., by a page component, a layout, and a metadata function), only one database query runs. The result is shared.
+
+```
+Single server request — three callers of getJobById('abc'):
+
+  Page component:      getJobById('abc')  ──► DB query runs  ──► returns job
+  generateMetadata:    getJobById('abc')  ──► cache hit       ──► returns same job
+  HydrationBoundary:   getJobById('abc')  ──► cache hit       ──► returns same job
+
+  Total DB queries: 1
+```
+
+**How** are query functions used in page files?
+
+```typescript
+// src/app/(protected)/jobs/[id]/page.tsx
+import { getJobById } from '@/backend/queries/job.queries'
+import { makeServerQueryClient } from '@/lib/react-query/serverQueryClient'
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
+
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const qc = makeServerQueryClient()
+  const job = await getJobById(id)          // ← query layer call
+  qc.setQueryData(queryKeys.jobs.byId(id), JSON.parse(JSON.stringify(job)))
+  return (
+    <HydrationBoundary state={dehydrate(qc)}>
+      <JobDetailPage />
+    </HydrationBoundary>
+  )
+}
+```
+
+**What** query files exist?
+
+| File | Exported functions |
+|---|---|
+| `src/backend/queries/job.queries.ts` | `getJobs`, `getJobById` |
+| `src/backend/queries/shop.queries.ts` | `getShops`, `getShopById` |
+| `src/backend/queries/listedProduct.queries.ts` | `getListedProducts`, `getListedProductById` |
+| `src/backend/queries/requestedProduct.queries.ts` | `getRequestedProducts`, `getRequestedProductById` |
+| `src/backend/queries/cms.queries.ts` | `getCmsPages`, `getCmsPageByType` |
+
+**When** do you use the query layer vs calling a service directly?
+
+- Server Component or page file that needs data for SSR → use the query layer (gets `cache()` deduplication)
+- Route Handler that needs data → call the service directly (Route Handlers have their own request scope; `cache()` doesn't help here)
+- Server Action that needs data → call the service directly
+
+---
+
+### 4.12 Repository Pattern — `src/backend/repositories/`
+
+**What** is the repository pattern?
+
+The repository pattern abstracts data access behind an interface. Instead of calling Mongoose models directly in service functions, a service calls a repository method. The repository owns the database query; the service owns the business logic.
+
+**Why** does this project have a repository stub?
+
+`src/backend/repositories/user.repository.ts` is a stub — a placeholder that documents the intended pattern without a full implementation. The current codebase calls Mongoose models directly in service functions (which is fine for a project of this size). The repository file signals the intended direction if the project grows and needs to swap the data layer (e.g., replace MongoDB with PostgreSQL).
+
+```typescript
+// src/backend/repositories/user.repository.ts
+export const UserRepository = {
+  async findAll() {
+    return [] // TODO: replace with actual Mongoose query
+  },
+  async findById(id: string) {
+    return null // TODO: UserModel.findById(id).lean()
+  },
+  async create(data: { email: string; name: string }) {
+    return { id: crypto.randomUUID(), ...data }
+  },
+}
+```
+
+**When** would you implement the repository fully?
+
+If you need to:
+- Swap MongoDB for a different database without changing service logic
+- Add a caching layer between the service and the database
+- Write unit tests for services without a real database (mock the repository instead of mocking Mongoose)
+
+For now, treat `user.repository.ts` as documentation of intent. New features should follow the existing pattern of calling Mongoose models directly in services.
+
+---
+
+### 4.13 API Documentation — Swagger UI and `/api-docs`
+
+**What** is the API documentation setup?
+
+The project serves interactive API documentation via two routes:
+
+| Route | What it does |
+|---|---|
+| `GET /api/swagger` | Returns the raw OpenAPI spec from `swagger.yaml` |
+| `GET /api/swagger?ui=1` | Returns a full Swagger UI HTML page |
+| `GET /api-docs` | Redirects to `/api/swagger?ui=1` (convenience alias) |
+
+**Why** is it built this way?
+
+The Swagger UI is served directly from a Route Handler — no separate documentation server needed. The raw YAML spec is read from `swagger.yaml` at the project root using `fs.readFileSync`. The `?ui=1` query parameter switches the same endpoint between returning YAML (for programmatic use) and returning HTML (for browser use).
+
+**How** does it work?
+
+```typescript
+// src/app/api/swagger/route.ts
+export async function GET(req: NextRequest) {
+  if (req.nextUrl.searchParams.get('ui') === '1') {
+    // Return Swagger UI HTML (loads swagger-ui-dist from CDN)
+    return new Response(swaggerUiHtml, { headers: { 'Content-Type': 'text/html' } })
+  }
+  // Return raw YAML spec
+  const yaml = readFileSync(join(process.cwd(), 'swagger.yaml'), 'utf-8')
+  return new Response(yaml, { headers: { 'Content-Type': 'application/yaml' } })
+}
+
+// src/app/api-docs/route.ts
+export async function GET(req: NextRequest) {
+  return Response.redirect(`${req.nextUrl.origin}/api/swagger?ui=1`, 302)
+}
+```
+
+**When** do you update the API docs?
+
+Any time you add, change, or remove a Route Handler endpoint, update `swagger.yaml` at the project root to reflect the change. The Swagger UI reads the YAML file at request time — no rebuild needed.
+
+
+---
+
 ## Phase 5: Forms and Data Flow
 
 Forms are where the frontend and backend meet. This phase traces the complete path from a user typing in a field to a server response updating the UI — using the login form as the primary example throughout.
@@ -2678,6 +2949,152 @@ useMutation.onError fires
 
 
 
+
+---
+
+### 5.8 Image Upload Pipeline — `src/lib/upload/`
+
+**What** is the image upload pipeline?
+
+The project supports two image upload strategies plus a client-side compression utility. All upload code lives in `src/lib/upload/`:
+
+| File | Purpose |
+|---|---|
+| `cloudinary.ts` | Upload a `File` to Cloudinary using an unsigned upload preset |
+| `imgbb.ts` | Upload a `File` to ImgBB using an API key |
+| `compress.ts` | Compress and resize a `File` to a base64 JPEG string (browser-only) |
+| `constants.ts` | Exports `BLUR_DATA_URL` — a tiny base64 JPEG used as a placeholder blur |
+
+**Why** two upload providers?
+
+Cloudinary is the primary provider for production use — it supports transformations, CDN delivery, and WebP/AVIF conversion. ImgBB is a simpler fallback that requires only an API key and no account setup. The project uses whichever provider is configured via environment variables.
+
+**How** does each upload function work?
+
+**Cloudinary upload** (unsigned preset — no server-side signing needed):
+
+```typescript
+// src/lib/upload/cloudinary.ts
+export async function uploadToCloudinary(file: File): Promise<string> {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', uploadPreset)
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    { method: 'POST', body: formData }
+  )
+  const data = await response.json()
+  return data.secure_url  // e.g. "https://res.cloudinary.com/..."
+}
+```
+
+**ImgBB upload**:
+
+```typescript
+// src/lib/upload/imgbb.ts
+export async function uploadToImgBB(file: File): Promise<string> {
+  const formData = new FormData()
+  formData.append('image', file)
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+    method: 'POST', body: formData,
+  })
+  const json = await res.json()
+  return json.data.url  // e.g. "https://i.ibb.co/..."
+}
+```
+
+**Client-side compression** (browser-only — uses Canvas API):
+
+```typescript
+// src/lib/upload/compress.ts
+export function compressImage(file: File, maxWidth = 800, quality = 0.7): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width)
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL('image/jpeg', quality))  // returns base64 string
+    }
+    img.src = URL.createObjectURL(file)
+  })
+}
+```
+
+`compressImage` is used when the image needs to be sent as a base64 string in a JSON payload (e.g., profile photo stored directly in MongoDB). It resizes the image to a maximum width of 800px and compresses it to 70% JPEG quality before encoding.
+
+**`BLUR_DATA_URL`** is a 1×1 pixel base64 JPEG used as the `placeholder="blur"` value for `next/image` components. It shows a blurred placeholder while the real image loads, preventing layout shift.
+
+```typescript
+// src/lib/upload/constants.ts
+export const BLUR_DATA_URL = "data:image/jpeg;base64,/9j/4AAQ..."
+
+// Usage in a component:
+<Image
+  src={product.image}
+  placeholder="blur"
+  blurDataURL={BLUR_DATA_URL}
+  alt={product.name}
+/>
+```
+
+**How** does the `ImageUploader` component use this pipeline?
+
+`src/components/common/ImageUploader/ImageUploader.tsx` is a drag-and-drop file picker that:
+1. Accepts a `File` via drag-and-drop or click-to-browse (powered by the browser's native file input, not `react-dropzone`)
+2. Validates file size against `maxSizeMb` (default 10 MB)
+3. Shows a local preview using `URL.createObjectURL(file)`
+4. Calls `onFileSelect(file)` — the parent component decides whether to call `uploadToCloudinary`, `uploadToImgBB`, or `compressImage`
+
+Three visual variants are supported:
+
+| Variant | Use case |
+|---|---|
+| `square` (default) | Product images, general uploads |
+| `avatar` | Profile photo with circular preview and "Upload New / Remove" buttons |
+| `banner` | Wide banner images |
+
+```
+User drops a file onto ImageUploader
+          │
+          ▼
+handleFile(file) — validates size
+          │
+          ├── size > maxSizeMb? → setError('File must be under Xmb')
+          │
+          └── valid → setPreview(URL.createObjectURL(file))
+                      onFileSelect(file)  ← parent receives the File
+                            │
+                            ▼
+                      parent calls uploadToCloudinary(file)
+                            │
+                            ▼
+                      receives secure_url
+                            │
+                            ▼
+                      stores URL in form state
+```
+
+**When** do you use `compressImage` vs `uploadToCloudinary`?
+
+- Image stored as base64 in MongoDB (e.g., profile photo) → `compressImage` (keeps the image small enough for a JSON field)
+- Image stored as a CDN URL (e.g., product listing photos) → `uploadToCloudinary` or `uploadToImgBB` (returns a URL, not base64)
+
+**Environment variables required:**
+
+| Variable | Provider | Required |
+|---|---|---|
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary | Yes (if using Cloudinary) |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Cloudinary | Yes (if using Cloudinary) |
+| `NEXT_PUBLIC_IMGBB_API_KEY` | ImgBB | Yes (if using ImgBB) |
+
+
 ---
 
 ## Phase 6: Reusable Architecture Patterns
@@ -3143,6 +3560,55 @@ Page structure with layouts:
 | `src/modules/{feature}/components/` | The component is specific to one feature and won't be reused elsewhere (e.g., `JobCard`, `ShopHours`, `ProductBadge`) |
 
 The rule of thumb: start in the module. If you find yourself copying the component to a second module, move it to `common/`.
+
+**Notable `common/` components and their roles:**
+
+| Component | File | What it does |
+|---|---|---|
+| `Input` | `Input/Input.tsx` | Styled text input with label and error state |
+| `FormError` | `FormError/FormError.tsx` | Renders a field-level validation error message |
+| `Loader` | `Loader/Loader.tsx` | Full-page or inline spinner |
+| `SkeletonCard` | `Loader/SkeletonCard.tsx` | Animated placeholder card shown while list data loads |
+| `Pagination` | `Pagination/Pagination.tsx` | Page number controls with ellipsis for large page counts |
+| `Search` | `Search/Search.tsx` | Debounced search input used by Jobs, Shops, and Marketplace |
+| `ImageUploader` | `ImageUploader/ImageUploader.tsx` | Drag-and-drop file picker with `square`, `avatar`, and `banner` variants |
+| `FallbackImage` | `FallbackImage/FallbackImage.tsx` | `next/image` wrapper that falls back to `/image-fallback.svg` on load error |
+| `BackButton` | `BackButton/BackButton.tsx` | Browser-history back navigation button |
+| `ConfirmModal` | `Modal/ConfirmModal.tsx` | Confirmation dialog with `default` and `danger` variants |
+| `ContactModal` | `Modal/ContactModal.tsx` | Seller contact details popup (email, phone, verified badge) |
+| `ContactModalWithPhoto` | `Modal/ContactModalWithPhoto.tsx` | Contact modal variant that includes the seller's profile photo |
+| `PolicyModal` | `PolicyModal/PolicyModal.tsx` | Terms of service / privacy policy overlay |
+| `AppHeader` | `AppHeader/AppHeader.tsx` | Top navigation bar used inside protected pages |
+| `AppFooter` | `AppFooter/AppFooter.tsx` | Footer used inside protected pages |
+
+**`FallbackImage`** wraps `next/image` with silent error recovery:
+
+```typescript
+// src/components/common/FallbackImage/FallbackImage.tsx
+'use client'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
+
+export default function FallbackImage({ src, fallbackSrc = '/image-fallback.svg', alt, ...props }) {
+  const [imgSrc, setImgSrc] = useState(src || fallbackSrc)
+  useEffect(() => { setImgSrc(src || fallbackSrc) }, [src, fallbackSrc])
+  return <Image {...props} src={imgSrc} alt={alt} onError={() => setImgSrc(fallbackSrc)} />
+}
+```
+
+Use `FallbackImage` anywhere you display user-uploaded images (product photos, profile pictures, shop logos). These URLs can go stale or return 404. `FallbackImage` silently swaps to the SVG placeholder instead of showing a broken image icon.
+
+**`SkeletonCard`** is the loading placeholder for list views. While React Query is fetching, render a grid of `SkeletonCard` components that match the dimensions of real content cards — this prevents layout shift when data arrives:
+
+```typescript
+if (isLoading) {
+  return (
+    <div className={styles.grid}>
+      {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+    </div>
+  )
+}
+```
 
 ---
 
@@ -4936,6 +5402,180 @@ Does path match matcher?
 - Changing the root redirect destination → update the `NextResponse.redirect` call
 - Adding global request headers or auth checks that apply to all routes → add logic before the `return NextResponse.next()` calls
 - Debugging CORS errors from the Admin Panel → check that the origin is in `ALLOWED_ORIGINS` and that `withCredentials: true` is set on the Admin Panel's requests
+
+
+
+---
+
+### 9.6 Walkthrough 6 — User Account Module
+
+**What** is the user account module?
+
+`src/modules/user/` is the feature module for all account management pages. It covers six distinct sub-features, each with its own page, view component, and form hook:
+
+| Route | Page | What it does |
+|---|---|---|
+| `/account/my-profile` | `MyProfilePage` | Displays the user's profile info and their listings/requests tabs |
+| `/account/edit-profile` | `EditProfilePage` | Form to update name, email, phone number, and profile photo |
+| `/account/list-product` | `ListProductPage` | Form to create a new marketplace listing |
+| `/account/request-product` | `RequestProductPage` | Form to post a product request (buyer looking for something) |
+| `/account/manage-listing` | `ManageListingPage` | List of the user's own listings with edit/delete actions |
+| `/account/manage-listing/[id]` | `ManageListingPage` (detail) | Edit or delete a specific listing |
+| `/account/manage-request` | `ManageRequestPage` | List of the user's own requests with edit/delete actions |
+| `/account/manage-request/[id]` | `ManageRequestPage` (detail) | Edit or delete a specific request |
+
+All account pages are wrapped in `UserLayout`, which adds the sidebar navigation. The sidebar links are defined in `SIDEBAR_LINKS` from `src/utils/globalStaticData.ts`.
+
+**How** is the module structured?
+
+```
+src/modules/user/
+├── api/
+│   └── user.api.ts          ← Axios calls: getProfile, updateProfile, getUsers
+├── components/
+│   ├── MyProfileView.tsx     ← Profile display with listings/requests tabs
+│   ├── EditProfileView.tsx   ← Edit profile form with avatar uploader
+│   ├── ListProductView.tsx   ← Create listing form
+│   ├── RequestProductView.tsx ← Create request form
+│   ├── ManageListingView.tsx ← Manage listings list + edit/delete
+│   ├── ManageRequestView.tsx ← Manage requests list + edit/delete
+│   └── account.module.css   ← Shared styles for all account views
+├── hooks/
+│   ├── useEditProfileForm.ts    ← react-hook-form + Yup for edit profile
+│   ├── useListProductForm.ts    ← react-hook-form + Yup for list product
+│   ├── useRequestProductForm.ts ← react-hook-form + Yup for request product
+│   ├── useManageListingForm.ts  ← react-hook-form + Yup for manage listing
+│   ├── useManageRequestForm.ts  ← react-hook-form + Yup for manage request
+│   └── useUsers.ts              ← React Query hook for admin user list
+├── pages/
+│   ├── MyProfilePage.tsx
+│   ├── EditProfilePage.tsx
+│   ├── ListProductPage.tsx
+│   ├── RequestProductPage.tsx
+│   ├── ManageListingPage.tsx
+│   └── ManageRequestPage.tsx
+├── types.ts        ← User, UpdateProfilePayload, form state interfaces
+└── validation.ts   ← Yup schemas for all account forms
+```
+
+**How** does the "List Product" flow work end-to-end?
+
+```
+User fills the list-product form
+          │
+          ▼
+useListProductForm (react-hook-form + Yup)
+  validates: productName, category, price, description,
+             condition, yearUsed, isNegotiable, email, phoneNo
+          │
+          ▼
+ImageUploader — user selects a product photo
+  onFileSelect(file) → parent calls uploadToCloudinary(file)
+  receives secure_url → stored in form state
+          │
+          ▼
+Form submits → useMutation calls POST /api/listed-products
+  body: { productName, images: [url], category, price, ... }
+          │
+          ▼
+Route Handler: src/app/api/listed-products/route.ts
+  getAuthUser() → authorize(user, UserRole.USER)
+  validate(createListedProductSchema, body)
+  createListedProduct(data, user._id)
+          │
+          ▼
+MongoDB: ListedProduct collection — new document created
+          │
+          ▼
+onSuccess:
+  toast.success('Product listed!')
+  invalidate(queryKeys.listedProducts.all())
+  router.push('/account/manage-listing')
+```
+
+**How** does the Yup validation split work for user forms?
+
+All Yup schemas for the user module live in `src/modules/user/validation.ts`. Each schema is typed against its corresponding form interface from `types.ts`. This keeps validation co-located with the feature and separate from the server-side Zod schemas in `src/backend/validators/`.
+
+```
+Client-side (Yup — src/modules/user/validation.ts):
+  editProfileSchema    → EditProfileForm
+  listProductSchema    → ListProductForm
+  requestProductSchema → RequestProductForm
+  manageListingSchema  → ManageListingForm
+  manageRequestSchema  → ManageRequestForm
+
+Server-side (Zod — src/backend/validators/):
+  createListedProductSchema  → validates POST /api/listed-products body
+  updateListedProductSchema  → validates PUT /api/listed-products/[id] body
+  createRequestedProductSchema → validates POST /api/requested-products body
+  updateProfileSchema        → validates PATCH /api/auth/profile body
+```
+
+**When** do you add a new account page?
+
+1. Add the route: `src/app/(protected)/account/{feature}/page.tsx`
+2. Wrap it in `UserLayout` and render the page component
+3. Add the page component: `src/modules/user/pages/{Feature}Page.tsx`
+4. Add the view component: `src/modules/user/components/{Feature}View.tsx`
+5. Add the form hook: `src/modules/user/hooks/use{Feature}Form.ts`
+6. Add the Yup schema: `src/modules/user/validation.ts`
+7. Add the API call: `src/modules/user/api/user.api.ts`
+8. Add the sidebar link: `src/utils/globalStaticData.ts` → `SIDEBAR_LINKS`
+
+---
+
+### 9.7 Walkthrough 7 — Landing Page Module
+
+**What** is the landing page module?
+
+`src/modules/landing/` is the feature module for the `/landing` page — the first page a user sees after logging in. It is a dashboard-style overview that shows recent jobs, shops, and marketplace listings pulled from the same API endpoints as the full feature pages.
+
+**How** is the module structured?
+
+```
+src/modules/landing/
+├── components/
+│   ├── LandingView.tsx        ← Root component — composes all sections
+│   ├── LandingHero.tsx        ← Hero banner with welcome message and CTA buttons
+│   ├── LandingJobs.tsx        ← Preview of recent job listings
+│   ├── LandingShops.tsx       ← Preview of recent shops
+│   ├── LandingMarketplace.tsx ← Preview of recent marketplace listings
+│   └── landing.module.css     ← Styles for all landing components
+├── pages/
+│   └── LandingPage.tsx        ← Page wrapper rendered by /landing/page.tsx
+└── type.ts                    ← Types for landing page data shapes
+```
+
+**How** does the landing page fetch data?
+
+The landing page uses the same React Query hooks as the full feature pages — `useJobs`, `useShops`, and `useListedProducts` — but passes a `limit` parameter to fetch only a small preview set (e.g., 4 items per section). This means the landing page benefits from the same cache as the full pages: if the user has already visited `/jobs`, the landing page's job preview renders instantly from cache.
+
+```
+User navigates to /landing
+          │
+          ▼
+LandingPage renders LandingView
+          │
+          ├── LandingJobs:        useJobs({ limit: 4 })
+          ├── LandingShops:       useShops({ limit: 4 })
+          └── LandingMarketplace: useListedProducts({ limit: 4 })
+                    │
+                    ▼
+          React Query checks cache:
+            ├── cache hit (user visited /jobs) → renders instantly
+            └── cache miss → fetches from /api/jobs?limit=4
+```
+
+**What** does `HERO_IMAGES` from `globalStaticData.ts` do?
+
+`HERO_IMAGES` is an array of decorative background image URLs used by `LandingHero.tsx` to display a rotating or static hero banner. It is defined in `globalStaticData.ts` so the URLs are centralised and tree-shaken into the landing page chunk only.
+
+**When** do you modify the landing page?
+
+- Adding a new feature section (e.g., a "Recent Events" preview) → add a new `Landing{Feature}.tsx` component and import it in `LandingView.tsx`
+- Changing the hero content → edit `LandingHero.tsx` and update `HERO_IMAGES` in `globalStaticData.ts`
+- Changing the number of preview items → update the `limit` parameter passed to the query hooks
 
 
 ---

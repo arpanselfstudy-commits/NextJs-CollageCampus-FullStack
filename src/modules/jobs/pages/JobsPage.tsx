@@ -1,19 +1,19 @@
 'use client'
 
-import { useState } from 'react'
 import { useJobs } from '../hooks/useJobs'
+import { useJobsFilters } from '../hooks/useJobsFilters'
 import JobsView from '@/modules/jobs/components/JobsView'
 
 export default function JobsPage() {
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [jobType, setJobType] = useState('')
-  const [minExperience, setMinExperience] = useState<number | ''>('')
-  const [maxExperience, setMaxExperience] = useState<number | ''>('')
-  const [minSalary, setMinSalary] = useState<number | ''>('')
-  const [maxSalary, setMaxSalary] = useState<number | ''>('')
-  const [deadlineFrom, setDeadlineFrom] = useState('')
-  const [deadlineTo, setDeadlineTo] = useState('')
+  const {
+    search, page, jobType, minExperience, maxExperience,
+    minSalary, maxSalary, deadlineFrom, deadlineTo,
+    handleSearchChange, handleJobTypeChange,
+    handleMinExperienceChange, handleMaxExperienceChange,
+    handleMinSalaryChange, handleMaxSalaryChange,
+    handleDeadlineFromChange, handleDeadlineToChange,
+    clearFilters, setPage,
+  } = useJobsFilters()
 
   const { data, isLoading } = useJobs({
     page,
@@ -28,38 +28,27 @@ export default function JobsPage() {
     deadlineTo: deadlineTo || undefined,
   })
 
-  const handleClearFilters = () => {
-    setJobType('')
-    setMinExperience('')
-    setMaxExperience('')
-    setMinSalary('')
-    setMaxSalary('')
-    setDeadlineFrom('')
-    setDeadlineTo('')
-    setPage(1)
-  }
-
   return (
     <JobsView
       jobs={data?.jobs ?? []}
       isLoading={isLoading}
       search={search}
-      onSearchChange={(v) => { setSearch(v); setPage(1) }}
+      onSearchChange={handleSearchChange}
       jobType={jobType}
-      onJobTypeChange={(t) => { setJobType(t); setPage(1) }}
+      onJobTypeChange={handleJobTypeChange}
       minExperience={minExperience}
-      onMinExperienceChange={(v) => { setMinExperience(v); setPage(1) }}
+      onMinExperienceChange={handleMinExperienceChange}
       maxExperience={maxExperience}
-      onMaxExperienceChange={(v) => { setMaxExperience(v); setPage(1) }}
+      onMaxExperienceChange={handleMaxExperienceChange}
       minSalary={minSalary}
-      onMinSalaryChange={(v) => { setMinSalary(v); setPage(1) }}
+      onMinSalaryChange={handleMinSalaryChange}
       maxSalary={maxSalary}
-      onMaxSalaryChange={(v) => { setMaxSalary(v); setPage(1) }}
+      onMaxSalaryChange={handleMaxSalaryChange}
       deadlineFrom={deadlineFrom}
-      onDeadlineFromChange={(v) => { setDeadlineFrom(v); setPage(1) }}
+      onDeadlineFromChange={handleDeadlineFromChange}
       deadlineTo={deadlineTo}
-      onDeadlineToChange={(v) => { setDeadlineTo(v); setPage(1) }}
-      onClearFilters={handleClearFilters}
+      onDeadlineToChange={handleDeadlineToChange}
+      onClearFilters={clearFilters}
       page={page}
       pagination={data?.pagination}
       onPageChange={setPage}

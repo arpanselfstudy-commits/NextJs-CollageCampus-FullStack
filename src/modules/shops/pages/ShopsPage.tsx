@@ -1,13 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { useShops } from '../hooks/useShops'
+import { useShopsFilters } from '../hooks/useShopsFilters'
 import ShopsView from '@/modules/shops/components/ShopsView'
 
 export default function ShopsPage() {
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [openDay, setOpenDay] = useState('')
+  const { search, page, openDay, handleSearchChange, handleOpenDayChange, clearFilters, setPage } = useShopsFilters()
 
   const { data, isLoading } = useShops({
     page,
@@ -16,20 +14,15 @@ export default function ShopsPage() {
     openDay: openDay || undefined,
   })
 
-  const handleClearFilters = () => {
-    setOpenDay('')
-    setPage(1)
-  }
-
   return (
     <ShopsView
       shops={data?.shops ?? []}
       isLoading={isLoading}
       search={search}
-      onSearchChange={(v) => { setSearch(v); setPage(1) }}
+      onSearchChange={handleSearchChange}
       openDay={openDay}
-      onOpenDayChange={(d) => { setOpenDay(d); setPage(1) }}
-      onClearFilters={handleClearFilters}
+      onOpenDayChange={handleOpenDayChange}
+      onClearFilters={clearFilters}
       pagination={data?.pagination}
       page={page}
       onPageChange={setPage}

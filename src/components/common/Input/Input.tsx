@@ -41,6 +41,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
         <input ref={ref} id={id} type={resolvedType} className={inputClass} {...props} />
 
+        {rightIcon && (
+          <span className={styles.iconRight}>{rightIcon}</span>
+        )}
+
         {isPassword && (
           <button
             type="button"
@@ -50,10 +54,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           >
             {showPassword ? '🙈' : '👁'}
           </button>
-        )}
-
-        {!isPassword && rightIcon && (
-          <span className={styles.iconRight}>{rightIcon}</span>
         )}
       </div>
 
