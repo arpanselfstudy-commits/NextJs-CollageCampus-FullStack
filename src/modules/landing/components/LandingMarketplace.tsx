@@ -1,8 +1,11 @@
+'use client'
+
 import Link from 'next/link'
-import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
-import { ShoppingBag, Tag, MessageCircle, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { MarketplaceCardSkeleton } from '@/components/common/Loader/SkeletonCard'
 import type { ListedProduct, RequestedProduct } from '@/modules/marketplace/types'
+import ListedProductCard from '@/modules/marketplace/components/ListedProductCard'
+import RequestedProductCard from '@/modules/marketplace/components/RequestedProductCard'
 import styles from './landing.module.css'
 
 interface LandingMarketplaceProps {
@@ -48,32 +51,7 @@ export default function LandingMarketplace({
         ) : (
           <div className={styles.mpGrid3}>
             {listed.slice(0, 6).map((item) => (
-              <Link href={`/marketplace/${item._id}`} key={item._id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="mp-card">
-                  <div className={`mp-card-img ${styles.mpCardImg}`} style={{ background: '#f0f4ff', position: 'relative' }}>
-                    {item.images[0]
-                      ? <FallbackImage src={item.images[0]} alt={item.productName} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCover} />
-                      : <ShoppingBag size={56} color="#3730d4" strokeWidth={1} />
-                    }
-                    <span className="mp-card-price">${item.price}</span>
-                  </div>
-                  <div className="mp-card-body">
-                    <div className="mp-card-category">
-                      <span className={styles.catBadge} style={{ background: '#e0e7ff', color: '#3730a3' }}>
-                        {item.category.toUpperCase()}
-                      </span>
-                      <span style={{ color: '#9ca3af', fontSize: 11 }}>{item.condition}</span>
-                    </div>
-                    <div className="mp-card-title">{item.productName}</div>
-                    <div className="mp-card-seller">
-                      <div className={styles.mpNegotiable}>
-                        <Tag size={12} />{item.isNegotiable ? 'Negotiable' : 'Fixed price'}
-                      </div>
-                      <button className="mp-msg-btn"><MessageCircle size={14} /></button>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <ListedProductCard key={item._id} item={item} variant="compact" />
             ))}
           </div>
         )
@@ -90,30 +68,7 @@ export default function LandingMarketplace({
         ) : (
           <div className={styles.mpGrid3}>
             {requested.slice(0, 6).map((item) => (
-              <div key={item._id} className="mp-card">
-                <div className={`mp-card-img ${styles.mpCardImg}`} style={{ background: 'linear-gradient(135deg,#1a1a2e,#2d2db0)', position: 'relative' }}>
-                  {item.images[0]
-                    ? <FallbackImage src={item.images[0]} alt={item.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.mpCardImgCoverDim} />
-                    : <MessageCircle size={56} color="white" strokeWidth={1} />
-                  }
-                  <span className="mp-card-price">${item.price.from}–${item.price.to}</span>
-                </div>
-                <div className="mp-card-body">
-                  <div className="mp-card-category">
-                    <span className={styles.catBadge} style={{ background: '#fce7f3', color: '#9d174d' }}>
-                      {(item.category || 'REQUEST').toUpperCase()}
-                    </span>
-                    {item.isFulfilled && <span className={styles.catBadgeFulfilled}>Fulfilled</span>}
-                  </div>
-                  <div className="mp-card-title">{item.name}</div>
-                  <div className="mp-card-seller">
-                    <div className={styles.mpNegotiable}>
-                      <Tag size={12} />{item.isNegotiable ? 'Negotiable' : 'Fixed'}
-                    </div>
-                    <button className="mp-msg-btn"><MessageCircle size={14} /></button>
-                  </div>
-                </div>
-              </div>
+              <RequestedProductCard key={item._id} item={item} variant="compact" />
             ))}
           </div>
         )

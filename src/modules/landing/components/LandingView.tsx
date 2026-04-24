@@ -1,5 +1,3 @@
-'use client'
-
 import '@/styles/design.css'
 import LandingHero from './LandingHero'
 import LandingJobs from './LandingJobs'

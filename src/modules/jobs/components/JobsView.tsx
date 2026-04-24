@@ -2,15 +2,14 @@
 
 import '@/styles/design.css'
 import Link from 'next/link'
-import { Briefcase, MapPin, Clock, X, SlidersHorizontal } from 'lucide-react'
+import { Briefcase } from 'lucide-react'
 import { JobsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
 import SearchInput from '@/components/common/Search/Search'
 import Pagination from '@/components/common/Pagination/Pagination'
-import { JOB_TYPE_LABEL } from '@/utils/globalStaticData'
 import type { Job } from '@/modules/jobs/types'
+import JobsFilter from './JobsFilter'
+import JobCard from './JobCard'
 import styles from './JobsView.module.css'
-
-const JOB_TYPES = ['full-time', 'part-time'] as const
 
 export interface JobsViewProps {
   jobs: Job[]
@@ -63,100 +62,23 @@ export default function JobsView({
 
       <div className="jobs-layout">
         <aside className="jobs-sidebar">
-          <div className={styles.sidebarHeader}>
-            <span className={styles.sidebarTitle}><SlidersHorizontal size={15} /> Filters</span>
-            {hasFilters && (
-              <button className={styles.clearAll} onClick={onClearFilters}>
-                <X size={12} /> Clear all
-              </button>
-            )}
-          </div>
-
-          {/* Job Type */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Job Type</div>
-            {JOB_TYPES.map((t) => (
-              <label className="sidebar-check" key={t}>
-                <input
-                  type="radio"
-                  name="jobType"
-                  checked={jobType === t}
-                  onChange={() => onJobTypeChange(jobType === t ? '' : t)}
-                />
-                {t === 'full-time' ? 'Full-Time' : 'Part-Time'}
-              </label>
-            ))}
-          </div>
-
-          {/* Experience */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Experience (years)</div>
-            <div className={styles.rangeRow}>
-              <input
-                type="number"
-                min={0}
-                placeholder="Min"
-                value={minExperience}
-                onChange={(e) => onMinExperienceChange(e.target.value === '' ? '' : Number(e.target.value))}
-                className={styles.rangeInput}
-              />
-              <span className={styles.rangeSep}>–</span>
-              <input
-                type="number"
-                min={0}
-                placeholder="Max"
-                value={maxExperience}
-                onChange={(e) => onMaxExperienceChange(e.target.value === '' ? '' : Number(e.target.value))}
-                className={styles.rangeInput}
-              />
-            </div>
-          </div>
-
-          {/* Salary */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Salary Range</div>
-            <div className={styles.rangeRow}>
-              <input
-                type="number"
-                min={0}
-                placeholder="Min"
-                value={minSalary}
-                onChange={(e) => onMinSalaryChange(e.target.value === '' ? '' : Number(e.target.value))}
-                className={styles.rangeInput}
-              />
-              <span className={styles.rangeSep}>–</span>
-              <input
-                type="number"
-                min={0}
-                placeholder="Max"
-                value={maxSalary}
-                onChange={(e) => onMaxSalaryChange(e.target.value === '' ? '' : Number(e.target.value))}
-                className={styles.rangeInput}
-              />
-            </div>
-          </div>
-
-          {/* Deadline */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Deadline Range</div>
-            <div className={styles.dateCol}>
-              <label className={styles.dateLabel}>From</label>
-              <input
-                type="date"
-                value={deadlineFrom}
-                onChange={(e) => onDeadlineFromChange(e.target.value)}
-                className={styles.dateInput}
-              />
-              <label className={styles.dateLabel}>To</label>
-              <input
-                type="date"
-                value={deadlineTo}
-                onChange={(e) => onDeadlineToChange(e.target.value)}
-                className={styles.dateInput}
-              />
-            </div>
-          </div>
-
+          <JobsFilter
+            jobType={jobType}
+            onJobTypeChange={onJobTypeChange}
+            minExperience={minExperience}
+            onMinExperienceChange={onMinExperienceChange}
+            maxExperience={maxExperience}
+            onMaxExperienceChange={onMaxExperienceChange}
+            minSalary={minSalary}
+            onMinSalaryChange={onMinSalaryChange}
+            maxSalary={maxSalary}
+            onMaxSalaryChange={onMaxSalaryChange}
+            deadlineFrom={deadlineFrom}
+            onDeadlineFromChange={onDeadlineFromChange}
+            deadlineTo={deadlineTo}
+            onDeadlineToChange={onDeadlineToChange}
+            onClearFilters={onClearFilters}
+          />
         </aside>
 
         <div>
@@ -177,25 +99,9 @@ export default function JobsView({
           ) : (
             <>
               <div className="jobs-grid-main">
-                {jobs.map((job, i) => {
-                  const id = job._id ?? job.jobId
-                  return (
-                    <div className="job-card-main" key={id ?? i}>
-                      <div className="job-card-main-header">
-                        <div className="job-company-logo"><Briefcase size={22} color="#3730d4" /></div>
-                        <span className="job-new-badge">{JOB_TYPE_LABEL[job.type] ?? job.type}</span>
-                      </div>
-                      <div className="job-card-main-title">{job.jobName}</div>
-                      <div className="job-card-main-meta">
-                        {job.jobProvider}
-                        <span className={styles.metaRow}><MapPin size={11} />{job.location}</span>
-                        <span className={styles.metaRow}><Clock size={11} />Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
-                        <span className={styles.salary}>${job.salary.from.toLocaleString()} – ${job.salary.to.toLocaleString()}</span>
-                      </div>
-                      <Link href={`/jobs/${id}`} className="btn btn-outline">Details</Link>
-                    </div>
-                  )
-                })}
+                {jobs.map((job, i) => (
+                  <JobCard key={job._id ?? job.jobId ?? i} job={job} variant="main" />
+                ))}
               </div>
               {pagination && (
                 <Pagination page={page} pages={pagination.pages} onPageChange={onPageChange} />

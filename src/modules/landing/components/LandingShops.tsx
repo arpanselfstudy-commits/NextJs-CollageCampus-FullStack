@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import FallbackImage from '@/components/common/FallbackImage/FallbackImage'
 import { ChevronRight } from 'lucide-react'
 import type { Shop } from '@/modules/shops/types'
+import ShopCard from '@/modules/shops/components/ShopCard'
 import styles from './landing.module.css'
 
 interface LandingShopsProps {
@@ -29,24 +29,9 @@ export default function LandingShops({ shops, isLoading }: LandingShopsProps) {
         <p className={styles.emptyMsg}>No shops available right now.</p>
       ) : (
         <div className={styles.shopsGrid}>
-          {shops.slice(0, 6).map((shop, i) => {
-            const imgSrc = shop.photo || shop.photos?.[0]
-            return (
-            <div key={shop.shopId ?? i} className={styles.shopCard} style={{ position: 'relative' }}>
-              {imgSrc && (
-                <FallbackImage src={imgSrc} alt={shop.name} fill sizes="(max-width: 768px) 100vw, 300px" className={styles.shopCardBg} />
-              )}
-              <div className={styles.shopCardOverlay} />
-              <div className={styles.shopCardContent}>
-                <div className={styles.shopName}>{shop.name}</div>
-                <div className={styles.shopMeta}>{shop.type} • {shop.distance}</div>
-                <Link href={`/shops/${shop._id ?? shop.shopId}`} className={styles.shopViewBtn}>
-                  View Shop
-                </Link>
-              </div>
-            </div>
-            )
-          })}
+          {shops.slice(0, 6).map((shop, i) => (
+            <ShopCard key={shop.shopId ?? shop._id ?? i} shop={shop} variant="compact" />
+          ))}
         </div>
       )}
     </section>

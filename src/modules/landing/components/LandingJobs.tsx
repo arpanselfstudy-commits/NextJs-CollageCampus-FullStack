@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { Briefcase, MapPin, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { JobsSkeletonGrid } from '@/components/common/Loader/SkeletonCard'
-import { JOB_TYPE_LABEL } from '@/utils/globalStaticData'
 import type { Job } from '@/modules/jobs/types'
+import JobCard from '@/modules/jobs/components/JobCard'
 import styles from './landing.module.css'
 
 interface LandingJobsProps {
@@ -26,21 +26,7 @@ export default function LandingJobs({ jobs, isLoading }: LandingJobsProps) {
       ) : (
         <div className={styles.jobsGrid}>
           {jobs.slice(0, 6).map((job, i) => (
-            <div className="job-card" key={job._id ?? job.jobId ?? i}>
-              <div className="job-card-header">
-                <div className="job-icon"><Briefcase size={20} color="#3730d4" /></div>
-                <span className="job-badge">{JOB_TYPE_LABEL[job.type] ?? job.type}</span>
-              </div>
-              <div className="job-title">{job.jobName}</div>
-              <div className={`job-meta ${styles.jobMeta}`}>
-                <span>{job.jobProvider}</span>
-                <span className={styles.jobMetaRow}><MapPin size={11} />{job.location}</span>
-                <span className={styles.jobSalary}>
-                  ${job.salary.from.toLocaleString()} – ${job.salary.to.toLocaleString()}
-                </span>
-              </div>
-              <Link href={`/jobs/${job._id ?? job.jobId}`} className="btn btn-outline">Details</Link>
-            </div>
+            <JobCard key={job._id ?? job.jobId ?? i} job={job} variant="compact" />
           ))}
         </div>
       )}
