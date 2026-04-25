@@ -73,7 +73,7 @@ export interface ManageListingForm {
 // ── Manage request form state ────────────────────────────
 export interface ManageRequestForm {
   name: string
-  category: string
+  category: ListedProductCategory
   priceFrom: number
   priceTo: number
   isNegotiable: boolean

@@ -38,7 +38,7 @@ export default function Search({
       <span className={styles.icon} style={{ fontSize: iconSize }}>🔍</span>
 
       <input
-        type="search"
+        type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}

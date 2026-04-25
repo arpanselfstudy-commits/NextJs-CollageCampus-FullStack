@@ -1,8 +1,9 @@
+import React from 'react'
 import styles from './SkeletonCard.module.css'
 
 // Base shimmer block
-function Shimmer({ className }: { className?: string }) {
-  return <div className={`${styles.shimmer} ${className ?? ''}`} />
+function Shimmer({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return <div className={`${styles.shimmer} ${className ?? ''}`} style={style} />
 }
 
 // Job card skeleton — matches .job-card-main layout

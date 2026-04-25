@@ -4,11 +4,11 @@ import { useActionState } from 'react'
 import BackButton from '@/components/common/BackButton/BackButton'
 import { Mail, Lock, ArrowRight, Inbox } from 'lucide-react'
 import '@/styles/design.css'
-import { forgotPasswordAction } from '../actions/auth.actions'
+import { forgotPasswordAction, type ActionState } from '../actions/auth.actions'
 import { FormError } from '@/components/common'
 import Input from '@/components/common/Input/Input'
 
-const initialState = { success: false, message: '' }
+const initialState: ActionState = { success: false, message: '' }
 
 export default function ForgotPasswordPage() {
   const [state, formAction, isPending] = useActionState(forgotPasswordAction, initialState)

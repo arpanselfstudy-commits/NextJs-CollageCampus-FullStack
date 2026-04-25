@@ -120,7 +120,7 @@ export const manageRequestSchema: yup.ObjectSchema<ManageRequestForm> = yup.obje
     .string()
     .min(3, 'Name must be at least 3 characters')
     .required('Name is required'),
-  category: yup.string().required('Category is required'),
+  category: yup.string().oneOf(LISTED_CATEGORIES, 'Invalid category').required('Category is required') as yup.StringSchema<import('@/modules/marketplace/types').ListedProductCategory>,
   priceFrom: yup.number().min(0, 'Min price cannot be negative').required('Min price is required'),
   priceTo: yup
     .number()
